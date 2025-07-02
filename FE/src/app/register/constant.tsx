@@ -1,0 +1,17 @@
+export const FORM_LABELS = {
+  TITLE: 'Đăng ký tài khoản',
+  EMAIL: 'email',
+  USERNAME: 'Tên đăng nhập',
+  PASSWORD: 'Mật khẩu',
+  CONFIRM_PASSWORD: 'Xác nhận mật khẩu',
+  FULLNAME: 'Họ và tên',
+  PHONE: 'Số điện thoại',
+  ADDRESS: 'Địa chỉ',
+  SUBMIT_BUTTON: 'Đăng ký',
+  ERROR_MESSAGE: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
+  PASSWORD_MISMATCH: 'Mật khẩu không khớp!',
+  REQUIRED_FIELD: 'Trường này là bắt buộc',
+  HAVE_ACCOUNT: 'Đã có tài khoản?',
+  LOGIN_LINK: 'Đăng nhập ngay',
+  OR_DIVIDER: 'HOẶC',
+}

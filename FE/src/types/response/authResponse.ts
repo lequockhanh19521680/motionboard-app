@@ -1,6 +1,6 @@
-import { User } from "./userResponse";
+import { User } from './userResponse'
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  user: User
+  token: string
 }

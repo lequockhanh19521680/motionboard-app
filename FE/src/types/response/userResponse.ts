@@ -1,10 +1,10 @@
 export interface User {
-  user_id: number;
-  username: string;
-  email: string;
+  user_id: number
+  username: string
+  email: string
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  user: User
+  token: string
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 const HomeLayout: React.FC = () => {
   return (
@@ -8,7 +8,7 @@ const HomeLayout: React.FC = () => {
         <p className="text-gray-600">This is your dashboard. You have successfully logged in.</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomeLayout;
+export default HomeLayout
