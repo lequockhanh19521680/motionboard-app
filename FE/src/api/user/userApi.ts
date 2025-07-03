@@ -1,5 +1,5 @@
 import { RegisterFormData } from '../../types/request/registerRequest'
-import { AuthResponse } from '../../types/response/authResponse'
+import { AuthResponse } from '../../types/response/AuthResponse'
 import apiClient from '../apiClient'
 
 export function loginApi(username: string, password: string) {

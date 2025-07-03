@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import userRoutes from './routes/user.route';
+import routes from './routes';
 import { sqlLogger } from './middleware/sqlLogger';
 import pool from './config/db';
 
@@ -21,8 +21,9 @@ app.use(cors({
 app.use(express.json());
 app.use(sqlLogger);
 
-app.use('/api/users', userRoutes);
-
+routes.forEach(({ path, router }) => {
+  app.use(path, router);
+});
 app.use(sqlLogger)
 
 

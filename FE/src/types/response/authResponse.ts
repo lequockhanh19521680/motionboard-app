@@ -1,4 +1,4 @@
-import { User } from './userResponse'
+import { User } from './UserResponse'
 
 export interface AuthResponse {
   user: User

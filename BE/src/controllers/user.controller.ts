@@ -12,7 +12,6 @@ const generateToken = (userId: number, email: string): string => {
   return jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '1h' });
 };
 
-// Get all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const result = await pool.query('SELECT * FROM users');
