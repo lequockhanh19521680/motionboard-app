@@ -37,7 +37,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
@@ -69,18 +69,18 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const createDate = new Date();
-    const createUser = username;
 
     const result = await pool.query(
       `
-        INSERT INTO users
-          (username, email,full_name, password_hash, deleteflg, create_user, create_date)
-        VALUES
-          ($1, $2, $3,$4, 0, $5, $6)
-        RETURNING user_id, username, email
-      `,
-      [username, email, full_name, hashedPassword, createUser, createDate]
+    INSERT INTO users
+      (username, email, full_name, password, is_deleted, created_at)
+    VALUES
+      ($1, $2, $3, $4, false, $5)
+    RETURNING user_id, username, email
+  `,
+      [username, email, full_name, hashedPassword, createDate]
     );
+
 
     const newUser = result.rows[0];
 

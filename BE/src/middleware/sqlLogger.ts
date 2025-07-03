@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { Pool, QueryConfig, QueryResult, QueryResultRow } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 function getCallerFunctionName(): string {
     const stack = new Error().stack;
     if (stack) {
         const lines = stack.split('\\n').map(l => l.trim());
-        // Usually, lines[0] = "Error", lines[1] = this function, lines[2] = caller function
-        // You may need to adjust the index depending on your stack format
         for (let i = 2; i < lines.length; i++) {
-            // Skip internal or anonymous
-            if (!lines[i].includes('at pool.query') && !lines[i].includes('at Object.query') && !lines[i].includes('<anonymous>')) {
-                // Format: at FunctionName (...), so extract FunctionName
+            if (
+                !lines[i].includes('at pool.query') &&
+                !lines[i].includes('at Object.query') &&
+                !lines[i].includes('<anonymous>')
+            ) {
                 const match = lines[i].match(/^at ([\\w$.<>]+) /);
                 if (match) return match[1];
             }
@@ -19,10 +19,25 @@ function getCallerFunctionName(): string {
     return '<anonymous>';
 }
 
+function formatQueryWithParams(query: string, params: any[]): string {
+    return query.replace(/\\$(\\d+)/g, (match, index) => {
+        const i = Number(index) - 1;
+        if (i < 0 || i >= params.length) return match;
+        const val = params[i];
+        if (val === null || val === undefined) return 'NULL';
+        if (typeof val === 'number' || typeof val === 'boolean') return val.toString();
+        if (val instanceof Date) return `'${val.toISOString()}'`;
+        if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
+        // For objects or arrays, JSON stringify and escape
+        return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+    });
+}
+
 export const sqlLogger = (req: Request, res: Response, next: NextFunction) => {
     const pool = req.app.locals.pool as Pool;
     const originalQuery = pool.query;
 
+    // Prevent patching multiple times
     if ((pool as any)._isSqlLoggerPatched) return next();
     (pool as any)._isSqlLoggerPatched = true;
 
@@ -42,10 +57,15 @@ export const sqlLogger = (req: Request, res: Response, next: NextFunction) => {
             queryText = args[0].text;
             queryParams = args[0].values ?? [];
         }
+
         console.log('\\n--- SQL Query ---');
-        console.log('Function:', funcName); // <-- In ra tên function gọi query
+        console.log('Function:', funcName);
         console.log('Query:', queryText);
         console.log('Parameters:', queryParams);
+        if (Array.isArray(queryParams) && queryParams.length > 0) {
+            const parsedQuery = formatQueryWithParams(queryText, queryParams);
+            console.log('Parsed SQL:', parsedQuery);
+        }
 
         const logEnd = (duration: number) => {
             console.log(`Execution time: ${duration}ms`);

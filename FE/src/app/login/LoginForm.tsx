@@ -18,7 +18,8 @@ import {
 import { styled } from '@mui/material/styles'
 import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/icons-material'
 import { FORM_LABELS } from './constant'
-import { ROUTES, STORAGE_KEYS } from '../../utils/constant'
+import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
+import NotificationDialog from '../../components/notification/NotificationDialog'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -72,6 +73,13 @@ export default function LoginForm() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const [notification, setNotification] = useState({
+    open: false,
+    type: 'success',
+    title: '',
+    message: '',
+  })
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -101,10 +109,19 @@ export default function LoginForm() {
 
       dispatch(loginSuccess(response.token))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
-      navigate(ROUTES.HOME)
+      setNotification({
+        open: true,
+        type: 'success',
+        title: 'Thành công',
+        message: 'Đăng nhập tài khoản thành công! Bạn sẽ được chuyển đến trang chủ.',
+      })
     } catch (error) {
-      setError(FORM_LABELS.ERROR_MESSAGE)
-      console.error('Login failed:', error)
+      setNotification({
+        open: true,
+        type: 'error',
+        title: 'Lỗi',
+        message: 'Đăng ký thất bại. Vui lòng thử lại sau.',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -223,6 +240,25 @@ export default function LoginForm() {
           </RegisterButton>
         </Box>
       </form>
+      <NotificationDialog
+        open={notification.open}
+        type={notification.type as NotificationType}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => {
+          setNotification((prev) => ({ ...prev, open: false }))
+          if (notification.type === 'success') {
+            navigate(ROUTES.HOME)
+          }
+        }}
+        autoClose={notification.type === 'success'}
+        autoCloseDuration={2000}
+        onAutoClose={() => {
+          if (notification.type === 'success') {
+            navigate(ROUTES.HOME)
+          }
+        }}
+      />
     </FormContainer>
   )
 }

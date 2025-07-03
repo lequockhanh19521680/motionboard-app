@@ -27,9 +27,10 @@ import {
 import { RegisterFormData } from '../../types/request/registerRequest'
 import { useDispatch } from 'react-redux'
 import { registerApi } from '../../api/user/userApi'
-import { ROUTES, STORAGE_KEYS } from '../../utils/constant'
+import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import { registerSuccess } from '../../redux/authSlice'
 import { FORM_LABELS } from './constant'
+import NotificationDialog from '../../components/notification/NotificationDialog'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -91,6 +92,13 @@ export default function RegisterForm() {
     showConfirmPassword: false,
   })
 
+  const [notification, setNotification] = useState({
+    open: false,
+    type: 'success',
+    title: '',
+    message: '',
+  })
+
   const [errors, setErrors] = useState({
     passwordMismatch: false,
     missingRequired: false,
@@ -105,7 +113,6 @@ export default function RegisterForm() {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
 
-    // Reset errors when user types
     if (name === 'password' || name === 'confirmPassword') {
       setErrors((prev) => ({
         ...prev,
@@ -115,7 +122,6 @@ export default function RegisterForm() {
     }
   }
 
-  // Sửa lỗi TypeScript bằng cách dùng switch case
   const togglePasswordVisibility = (field: 'password' | 'confirmPassword') => {
     if (field === 'password') {
       setFormData((prev) => ({
@@ -158,13 +164,20 @@ export default function RegisterForm() {
       const response = await registerApi(formData)
       dispatch(registerSuccess(response.token))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
-      navigate(ROUTES.HOME)
 
-      setTimeout(() => {
-        navigate(ROUTES.LOGIN)
-      }, 1500)
+      setNotification({
+        open: true,
+        type: 'success',
+        title: 'Thành công',
+        message: 'Đăng ký tài khoản thành công! Bạn sẽ được chuyển đến trang chủ.',
+      })
     } catch (error) {
-      setApiError(FORM_LABELS.ERROR_MESSAGE)
+      setNotification({
+        open: true,
+        type: 'error',
+        title: 'Lỗi',
+        message: 'Đăng ký thất bại. Vui lòng thử lại sau.',
+      })
       console.error('Registration failed:', error)
     } finally {
       setIsLoading(false)
@@ -173,7 +186,7 @@ export default function RegisterForm() {
 
   return (
     <FormContainer elevation={0}>
-      <BackButton onClick={() => navigate(-1)}>
+      <BackButton onClick={() => navigate(ROUTES.LOGIN)}>
         <ArrowBack />
       </BackButton>
 
@@ -398,6 +411,25 @@ export default function RegisterForm() {
           </LoginLink>
         </Box>
       </form>
+      <NotificationDialog
+        open={notification.open}
+        type={notification.type as NotificationType}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => {
+          setNotification((prev) => ({ ...prev, open: false }))
+          if (notification.type === 'success') {
+            navigate(ROUTES.HOME)
+          }
+        }}
+        autoClose={notification.type === 'success'}
+        autoCloseDuration={2000}
+        onAutoClose={() => {
+          if (notification.type === 'success') {
+            navigate(ROUTES.HOME)
+          }
+        }}
+      />
     </FormContainer>
   )
 }
