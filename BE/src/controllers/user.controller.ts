@@ -76,7 +76,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         INSERT INTO users
           (username, email,full_name, password_hash, deleteflg, create_user, create_date)
         VALUES
-          ($1, $2, $3,$4 0, $5, $6)
+          ($1, $2, $3,$4, 0, $5, $6)
         RETURNING user_id, username, email
       `,
       [username, email, full_name, hashedPassword, createUser, createDate]
