@@ -59,3 +59,9 @@ typings/
 
 # next.js build output
 .next
+
+# Ignore SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
