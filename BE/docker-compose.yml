@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  motionboard:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./privatekey.pem:/app/privatekey.pem
+      - ./certificate.pem:/app/certificate.pem
+    container_name: motionboard
