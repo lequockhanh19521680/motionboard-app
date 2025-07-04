@@ -1,10 +1,11 @@
-// import { Router } from "express";
-// import * as orderController from "../controllers/order.controller";
+import { Router } from "express";
+import * as orderController from "../controllers/order.controller";
+import { authenticateToken } from "../middleware/auth.middleware";
 
-// const router = Router();
+const router = Router();
 
-// router.post("/", orderController.createOrderFromCart);
-// router.get("/", orderController.getOrders);
-// router.get("/:order_id", orderController.getOrderDetail);
+router.post("/", authenticateToken, orderController.createOrderFromCart);
+router.get("/", authenticateToken, orderController.getOrders);
+router.get("/:order_id", authenticateToken, orderController.getOrderDetail);
 
-// export default router;
+export default router;

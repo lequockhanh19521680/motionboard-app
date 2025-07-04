@@ -1,11 +1,12 @@
-// import { Router } from "express";
-// import * as cartController from "../controllers/cart.controller";
+import { Router } from "express";
+import * as cartController from "../controllers/cart.controller";
+import { authenticateToken } from "../middleware/auth.middleware";
 
-// const router = Router();
+const router = Router();
 
-// router.get("/", cartController.getCart);
-// router.post("/", cartController.addToCart);
-// router.patch("/", cartController.updateCartItem);
-// router.delete("/:product_id", cartController.removeFromCart);
+router.get("/", authenticateToken, cartController.getCart);
+router.post("/", authenticateToken, cartController.addToCart);
+router.patch("/", authenticateToken, cartController.updateCartItem);
+router.delete("/:product_id", authenticateToken, cartController.removeFromCart);
 
-// export default router;
+export default router;
