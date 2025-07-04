@@ -18,9 +18,6 @@ COPY --from=builder /app/dist ./dist
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# nếu cần dotenv
-COPY .env .env
-
 EXPOSE 8000
 
 CMD ["node", "dist/app.js"]
