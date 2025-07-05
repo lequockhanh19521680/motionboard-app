@@ -6,15 +6,13 @@ import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Badge from '@mui/material/Badge'
 import MenuItem from '@mui/material/MenuItem'
-import Menu from '@mui/material/Menu'
 import Box from '@mui/material/Box'
 import { styled, alpha } from '@mui/material/styles'
-import MenuIcon from '@mui/icons-material/Menu'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '../utils/constant'
 
-// Search bar styling
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -22,12 +20,9 @@ const Search = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.primary.light, 0.25),
   },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('md')]: {
-    marginLeft: theme.spacing(3),
-    width: '400px',
-  },
+  marginLeft: theme.spacing(3),
+  flexGrow: 1,
+  maxWidth: 420,
 }))
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -52,74 +47,38 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }))
 
 export default function Header() {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-
-  const handleMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
   return (
     <AppBar position="static" color="primary" elevation={1}>
       <Toolbar>
-        {/* Hamburger menu for mobile */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 2 }}>
-          <IconButton size="large" edge="start" color="inherit" onClick={handleMenu}>
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-          >
-            <MenuItem component={Link} to="/cart" onClick={handleClose}>
-              Giỏ hàng
-            </MenuItem>
-            <MenuItem component={Link} to="/login" onClick={handleClose}>
-              Đăng nhập
-            </MenuItem>
-            <MenuItem component={Link} to="/register" onClick={handleClose}>
-              Đăng ký
-            </MenuItem>
-          </Menu>
-        </Box>
-
-        {/* Logo & Brand */}
         <Typography
           variant="h6"
           component={Link}
-          to="/"
+          to={ROUTES.HOME}
           sx={{
             color: 'inherit',
             textDecoration: 'none',
             fontWeight: 'bold',
             textTransform: 'uppercase',
             letterSpacing: 2,
-            flexGrow: { xs: 1, md: 0 },
             mr: 2,
           }}
         >
           SellBuy
         </Typography>
 
-        {/* Search bar */}
-        <Box sx={{ flexGrow: 1, maxWidth: 420, display: { xs: 'none', md: 'flex' } }}>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Tìm kiếm sản phẩm…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
-        </Box>
+        {/* SEARCH BAR */}
+        <Search sx={{ display: { xs: 'none', md: 'flex' } }}>
+          <SearchIconWrapper>
+            <SearchIcon />
+          </SearchIconWrapper>
+          <StyledInputBase
+            placeholder="Tìm kiếm sản phẩm…"
+            inputProps={{ 'aria-label': 'search' }}
+          />
+        </Search>
 
-        {/* Actions (hide on mobile) */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', ml: 2 }}>
+        {/* ACTION BUTTONS (always right aligned) */}
+        <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
           <IconButton color="inherit" component={Link} to="/cart" size="large">
             <Badge badgeContent={2} color="secondary">
               <ShoppingCartIcon />
@@ -133,7 +92,8 @@ export default function Header() {
           </MenuItem>
         </Box>
       </Toolbar>
-      {/* Search bar for mobile (display below appbar) */}
+
+      {/* SEARCH BAR FOR MOBILE BELOW TOOLBAR */}
       <Box sx={{ display: { xs: 'block', md: 'none' }, px: 2, pb: 1 }}>
         <Search>
           <SearchIconWrapper>

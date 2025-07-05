@@ -17,9 +17,9 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/icons-material'
-import { FORM_LABELS } from './constant'
 import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import NotificationDialog from '../../components/notification/NotificationDialog'
+import { LOGIN_TEXT } from './LoginText'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -109,18 +109,20 @@ export default function LoginForm() {
 
       dispatch(loginSuccess(response.token))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
+      localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
+
       setNotification({
         open: true,
         type: 'success',
-        title: 'Thành công',
-        message: 'Đăng nhập tài khoản thành công! Bạn sẽ được chuyển đến trang chủ.',
+        title: LOGIN_TEXT.SUCCESS_TITLE,
+        message: LOGIN_TEXT.SUCCESS_MESSAGE,
       })
     } catch (error) {
       setNotification({
         open: true,
         type: 'error',
-        title: 'Lỗi',
-        message: 'Đăng ký thất bại. Vui lòng thử lại sau.',
+        title: LOGIN_TEXT.ERROR_TITLE,
+        message: LOGIN_TEXT.ERROR_MESSAGE,
       })
     } finally {
       setIsLoading(false)
@@ -134,13 +136,13 @@ export default function LoginForm() {
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <FormTitle variant="h4">{FORM_LABELS.TITLE}</FormTitle>
+        <FormTitle variant="h4">{LOGIN_TEXT.TITLE}</FormTitle>
 
         <Box mb={3}>
           <TextField
             fullWidth
             required
-            label={FORM_LABELS.USERNAME}
+            label={LOGIN_TEXT.USERNAME}
             name="username"
             variant="outlined"
             value={formData.username}
@@ -160,7 +162,7 @@ export default function LoginForm() {
           <TextField
             fullWidth
             required
-            label={FORM_LABELS.PASSWORD}
+            label={LOGIN_TEXT.PASSWORD}
             name="password"
             type={formData.showPassword ? 'text' : 'password'}
             variant="outlined"
@@ -190,7 +192,7 @@ export default function LoginForm() {
             color="primary"
             onClick={() => console.log('Forgot password clicked')}
           >
-            {FORM_LABELS.FORGOT_PASSWORD}
+            {LOGIN_TEXT.FORGOT_PASSWORD}
           </Button>
         </Box>
 
@@ -202,7 +204,7 @@ export default function LoginForm() {
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} /> : null}
         >
-          {isLoading ? 'Đang xử lý...' : FORM_LABELS.SUBMIT_BUTTON}
+          {isLoading ? LOGIN_TEXT.PROCESSING : LOGIN_TEXT.SUBMIT_BUTTON}
         </SubmitButton>
 
         {error && (
@@ -227,19 +229,20 @@ export default function LoginForm() {
               color: 'text.secondary',
             }}
           >
-            {FORM_LABELS.OR_DIVIDER}
+            {LOGIN_TEXT.OR_DIVIDER}
           </Typography>
         </Box>
 
         <Box mt={3} textAlign="center">
           <Typography variant="body2" color="text.secondary">
-            {FORM_LABELS.NO_ACCOUNT}
+            {LOGIN_TEXT.NO_ACCOUNT}
           </Typography>
           <RegisterButton fullWidth variant="contained" onClick={() => navigate(ROUTES.REGISTER)}>
-            {FORM_LABELS.REGISTER_BUTTON}
+            {LOGIN_TEXT.REGISTER_BUTTON}
           </RegisterButton>
         </Box>
       </form>
+
       <NotificationDialog
         open={notification.open}
         type={notification.type as NotificationType}
@@ -248,14 +251,14 @@ export default function LoginForm() {
         onClose={() => {
           setNotification((prev) => ({ ...prev, open: false }))
           if (notification.type === 'success') {
-            navigate(ROUTES.HOME)
+            navigate(ROUTES.AFTER_LOGIN)
           }
         }}
         autoClose={notification.type === 'success'}
         autoCloseDuration={2000}
         onAutoClose={() => {
           if (notification.type === 'success') {
-            navigate(ROUTES.HOME)
+            navigate(ROUTES.AFTER_LOGIN)
           }
         }}
       />

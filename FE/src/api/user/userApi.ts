@@ -1,25 +1,18 @@
-import { RegisterFormData } from '../../types/request/registerRequest'
+import { RegisterFormData } from '../../types/request/RegisterRequest'
 import { AuthResponse } from '../../types/response/AuthResponse'
+import { API_ROUTES } from '../../utils/constant'
 import apiClient from '../apiClient'
 
 export function loginApi(username: string, password: string) {
-  return apiClient<AuthResponse>('/users/login', {
+  return apiClient<AuthResponse>(`${API_ROUTES.USERS}/login`, {
     method: 'POST',
     body: { username, password },
   })
 }
 
 export function registerApi(formData: RegisterFormData) {
-  const { username, email, password, phone, address } = formData
-
-  return apiClient<AuthResponse>('/users/register', {
+  return apiClient<AuthResponse>(`${API_ROUTES.USERS}/register`, {
     method: 'POST',
-    body: {
-      username: username,
-      email: email,
-      password: password,
-      phone: phone,
-      address: address,
-    },
+    body: { ...formData },
   })
 }

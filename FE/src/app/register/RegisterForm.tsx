@@ -24,13 +24,13 @@ import {
   HomeOutlined,
   AlternateEmailOutlined,
 } from '@mui/icons-material'
-import { RegisterFormData } from '../../types/request/registerRequest'
+import { RegisterFormData } from '../../types/request/RegisterRequest'
 import { useDispatch } from 'react-redux'
 import { registerApi } from '../../api/user/userApi'
 import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import { registerSuccess } from '../../redux/authSlice'
-import { FORM_LABELS } from './constant'
 import NotificationDialog from '../../components/notification/NotificationDialog'
+import { REGISTER_TEXT } from './RegisterText'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -79,6 +79,7 @@ const LoginLink = styled(Button)(({ theme }) => ({
 
 export default function RegisterForm() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const [formData, setFormData] = useState<RegisterFormData>({
     username: '',
@@ -107,8 +108,6 @@ export default function RegisterForm() {
   const [apiError, setApiError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const navigate = useNavigate()
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -123,17 +122,11 @@ export default function RegisterForm() {
   }
 
   const togglePasswordVisibility = (field: 'password' | 'confirmPassword') => {
-    if (field === 'password') {
-      setFormData((prev) => ({
-        ...prev,
-        showPassword: !prev.showPassword,
-      }))
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        showConfirmPassword: !prev.showConfirmPassword,
-      }))
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [field === 'password' ? 'showPassword' : 'showConfirmPassword']:
+        !prev[field === 'password' ? 'showPassword' : 'showConfirmPassword'],
+    }))
   }
 
   const validateForm = () => {
@@ -164,19 +157,20 @@ export default function RegisterForm() {
       const response = await registerApi(formData)
       dispatch(registerSuccess(response.token))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
+      localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
 
       setNotification({
         open: true,
         type: 'success',
-        title: 'Thành công',
-        message: 'Đăng ký tài khoản thành công! Bạn sẽ được chuyển đến trang chủ.',
+        title: REGISTER_TEXT.SUCCESS_TITLE,
+        message: REGISTER_TEXT.SUCCESS_MESSAGE,
       })
     } catch (error) {
       setNotification({
         open: true,
         type: 'error',
-        title: 'Lỗi',
-        message: 'Đăng ký thất bại. Vui lòng thử lại sau.',
+        title: REGISTER_TEXT.ERROR_TITLE,
+        message: REGISTER_TEXT.ERROR_MESSAGE,
       })
       console.error('Registration failed:', error)
     } finally {
@@ -195,11 +189,12 @@ export default function RegisterForm() {
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <FormTitle variant="h4">{FORM_LABELS.TITLE}</FormTitle>
+        <FormTitle variant="h4">{REGISTER_TEXT.TITLE}</FormTitle>
+
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.USERNAME}
+            label={REGISTER_TEXT.USERNAME}
             name="username"
             variant="outlined"
             value={formData.username}
@@ -220,7 +215,7 @@ export default function RegisterForm() {
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.EMAIL}
+            label={REGISTER_TEXT.EMAIL}
             name="email"
             variant="outlined"
             value={formData.email}
@@ -241,7 +236,7 @@ export default function RegisterForm() {
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.PASSWORD}
+            label={REGISTER_TEXT.PASSWORD}
             name="password"
             type={formData.showPassword ? 'text' : 'password'}
             variant="outlined"
@@ -270,7 +265,7 @@ export default function RegisterForm() {
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.CONFIRM_PASSWORD}
+            label={REGISTER_TEXT.CONFIRM_PASSWORD}
             name="confirmPassword"
             type={formData.showConfirmPassword ? 'text' : 'password'}
             variant="outlined"
@@ -279,7 +274,7 @@ export default function RegisterForm() {
             disabled={isLoading}
             required
             error={errors.passwordMismatch || (errors.missingRequired && !formData.confirmPassword)}
-            helperText={errors.passwordMismatch ? FORM_LABELS.PASSWORD_MISMATCH : ''}
+            helperText={errors.passwordMismatch ? REGISTER_TEXT.PASSWORD_MISMATCH : ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -300,11 +295,10 @@ export default function RegisterForm() {
           />
         </Box>
 
-        {/* Optional fields */}
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.FULLNAME}
+            label={REGISTER_TEXT.FULLNAME}
             name="fullName"
             variant="outlined"
             value={formData.fullName}
@@ -323,7 +317,7 @@ export default function RegisterForm() {
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.PHONE}
+            label={REGISTER_TEXT.PHONE}
             name="phone"
             variant="outlined"
             value={formData.phone}
@@ -343,7 +337,7 @@ export default function RegisterForm() {
         <Box mb={3}>
           <TextField
             fullWidth
-            label={FORM_LABELS.ADDRESS}
+            label={REGISTER_TEXT.ADDRESS}
             name="address"
             variant="outlined"
             value={formData.address}
@@ -369,16 +363,16 @@ export default function RegisterForm() {
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} /> : null}
         >
-          {isLoading ? 'Đang xử lý...' : FORM_LABELS.SUBMIT_BUTTON}
+          {isLoading ? REGISTER_TEXT.PROCESSING : REGISTER_TEXT.SUBMIT_BUTTON}
         </SubmitButton>
 
         {(errors.missingRequired || apiError || errors.passwordMismatch) && (
           <Box mt={2}>
             <Alert severity="error" variant="outlined">
               {errors.passwordMismatch
-                ? FORM_LABELS.PASSWORD_MISMATCH
+                ? REGISTER_TEXT.PASSWORD_MISMATCH
                 : errors.missingRequired
-                  ? FORM_LABELS.REQUIRED_FIELD
+                  ? REGISTER_TEXT.REQUIRED_FIELD
                   : apiError}
             </Alert>
           </Box>
@@ -398,19 +392,20 @@ export default function RegisterForm() {
               color: 'text.secondary',
             }}
           >
-            {FORM_LABELS.OR_DIVIDER}
+            {REGISTER_TEXT.OR_DIVIDER}
           </Typography>
         </Box>
 
         <Box mt={2} textAlign="center">
           <Typography variant="body2" display="inline">
-            {FORM_LABELS.HAVE_ACCOUNT}
+            {REGISTER_TEXT.HAVE_ACCOUNT}
           </Typography>
           <LoginLink color="primary" onClick={() => navigate(ROUTES.LOGIN)}>
-            {FORM_LABELS.LOGIN_LINK}
+            {REGISTER_TEXT.LOGIN_LINK}
           </LoginLink>
         </Box>
       </form>
+
       <NotificationDialog
         open={notification.open}
         type={notification.type as NotificationType}
