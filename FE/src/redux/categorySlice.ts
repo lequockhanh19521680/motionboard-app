@@ -14,7 +14,6 @@ const initialState: CategoryState = {
   error: null,
 }
 
-// thunk
 export const fetchCategories = createAsyncThunk(
   'category/fetchCategories',
   async (_, { rejectWithValue }) => {

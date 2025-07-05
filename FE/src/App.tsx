@@ -99,7 +99,7 @@ export default function App() {
           <Route path={ROUTES.AFTER_LOGIN} element={<AfterLoginRoute />} />
         </Route>
 
-        <Route path="*" element={<Navigate to={ROUTES.LOGIN} />} />
+        <Route path="*" element={<Navigate to={ROUTES.HOME} />} />
       </Routes>
     </BrowserRouter>
   )
