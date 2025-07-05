@@ -1,4 +1,4 @@
-const baseURL = 'https://192.168.240.170:8000/api'
+const baseURL = 'https://motionboard-app.onrender.com/api'
 
 interface ApiClientOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
