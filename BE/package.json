@@ -2,6 +2,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
     "bcrypt": "^6.0.0",
+    "connect-timeout": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/connect-timeout": "^1.9.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
