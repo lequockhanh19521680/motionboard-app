@@ -1,20 +1,20 @@
-import { Request, Response } from 'express';
-import pool from '../config/db';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import { Request, Response } from "express";
+import pool from "../config/db";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set');
+  throw new Error("JWT_SECRET environment variable is not set");
 }
 
 const generateToken = (userId: number, email: string): string => {
-  return jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: "1h" });
 };
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const result = await pool.query('SELECT * FROM users');
+    const result = await pool.query("SELECT * FROM users");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -25,20 +25,19 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { username, password } = req.body;
 
   try {
-    const result = await pool.query(
-      'SELECT * FROM users WHERE username = $1',
-      [username]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
 
     const user = result.rows[0];
     if (!user) {
-      res.status(401).json({ error: 'User not found' });
+      res.status(401).json({ error: "User not found" });
       return;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: "Invalid credentials" });
       return;
     }
 
@@ -52,17 +51,20 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const registerUser = async (req: Request, res: Response): Promise<void> => {
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { username, email, password, full_name } = req.body;
 
   try {
     const existingUser = await pool.query(
-      'SELECT * FROM users WHERE username = $1 OR email = $2',
+      "SELECT * FROM users WHERE username = $1 OR email = $2",
       [username, email]
     );
 
     if (existingUser.rows.length > 0) {
-      res.status(400).json({ error: 'Username or email already exists' });
+      res.status(400).json({ error: "Username or email already exists" });
       return;
     }
 
@@ -79,7 +81,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
   `,
       [username, email, full_name, hashedPassword, createDate]
     );
-
 
     const newUser = result.rows[0];
 
