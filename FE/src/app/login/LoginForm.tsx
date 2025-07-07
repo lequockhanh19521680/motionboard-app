@@ -17,8 +17,8 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/icons-material'
-import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
-import NotificationDialog from '../../components/notification/NotificationDialog'
+import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../utils/constant'
+import NotificationDialog from '../../components/common/NotificationDialog'
 import { LOGIN_TEXT } from './LoginText'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -237,7 +237,11 @@ export default function LoginForm() {
           <Typography variant="body2" color="text.secondary">
             {LOGIN_TEXT.NO_ACCOUNT}
           </Typography>
-          <RegisterButton fullWidth variant="contained" onClick={() => navigate(ROUTES.REGISTER)}>
+          <RegisterButton
+            fullWidth
+            variant="contained"
+            onClick={() => navigate(PAGE_ROUTES.REGISTER)}
+          >
             {LOGIN_TEXT.REGISTER_BUTTON}
           </RegisterButton>
         </Box>
@@ -251,14 +255,14 @@ export default function LoginForm() {
         onClose={() => {
           setNotification((prev) => ({ ...prev, open: false }))
           if (notification.type === 'success') {
-            navigate(ROUTES.AFTER_LOGIN)
+            navigate(PAGE_ROUTES.AFTER_LOGIN)
           }
         }}
         autoClose={notification.type === 'success'}
         autoCloseDuration={2000}
         onAutoClose={() => {
           if (notification.type === 'success') {
-            navigate(ROUTES.AFTER_LOGIN)
+            navigate(PAGE_ROUTES.AFTER_LOGIN)
           }
         }}
       />

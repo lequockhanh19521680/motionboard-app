@@ -15,15 +15,16 @@ import {
   TextField,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '../../redux/store'
+import { AppDispatch } from '../../redux/store'
 import { useEffect, useState } from 'react'
 import { fetchCategories } from '../../redux/categorySlice'
 import { fetchProducts } from '../../redux/productSlice'
+import { useAppSelector } from '../../redux/hook'
+import { useDispatch } from 'react-redux'
 
 export const Categories: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { categories, error } = useSelector((state: RootState) => state.category)
+  const { categories, error } = useAppSelector((state) => state.category)
 
   const [priceRange, setPriceRange] = useState<number[]>([0, 5000000])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])

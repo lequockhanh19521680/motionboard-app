@@ -4,7 +4,8 @@ export const USER_ROLE = {
   SHOP: 'shop',
 }
 
-export const ROUTES = {
+export const PAGE_ROUTES = {
+  TEST: '/test',
   LOGIN: '/login',
   REGISTER: '/register',
   HOME: '/home',
@@ -21,6 +22,9 @@ export const API_ROUTES = {
   SHOPS: '/shops',
   CARTS: '/carts',
   ORDERS: '/orders',
+  UPLOAD_IMAGE: '/images/upload',
+  UPLOAD_MULTI_IMAGE: '/images/upload-multiple',
+  DELETE_IMAGE: '/images',
 }
 
 export const STORAGE_KEYS = {

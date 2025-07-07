@@ -4,12 +4,11 @@ import ProductImages from './ProductImages'
 import ProductVariants from './ProductVariants'
 import ProductQuantity from './ProductQuantity'
 import ProductActions from './ProductActions'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
 import { useEffect, useState } from 'react'
+import { useAppSelector } from '../../redux/hook'
 
 export default function ProductDetail() {
-  const { selectedProduct, loading, error } = useSelector((state: RootState) => state.product)
+  const { selectedProduct, loading, error } = useAppSelector((state) => state.product)
   const [selectedVariant, setSelectedVariant] = useState<number | undefined>(undefined)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)

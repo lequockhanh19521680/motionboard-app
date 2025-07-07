@@ -27,9 +27,9 @@ import {
 import { RegisterFormData } from '../../types/request/RegisterRequest'
 import { useDispatch } from 'react-redux'
 import { registerApi } from '../../api/user/userApi'
-import { NotificationType, ROUTES, STORAGE_KEYS } from '../../utils/constant'
+import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import { registerSuccess } from '../../redux/authSlice'
-import NotificationDialog from '../../components/notification/NotificationDialog'
+import NotificationDialog from '../../components/common/NotificationDialog'
 import { REGISTER_TEXT } from './RegisterText'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -180,7 +180,7 @@ export default function RegisterForm() {
 
   return (
     <FormContainer elevation={0}>
-      <BackButton onClick={() => navigate(ROUTES.LOGIN)}>
+      <BackButton onClick={() => navigate(PAGE_ROUTES.LOGIN)}>
         <ArrowBack />
       </BackButton>
 
@@ -400,7 +400,7 @@ export default function RegisterForm() {
           <Typography variant="body2" display="inline">
             {REGISTER_TEXT.HAVE_ACCOUNT}
           </Typography>
-          <LoginLink color="primary" onClick={() => navigate(ROUTES.LOGIN)}>
+          <LoginLink color="primary" onClick={() => navigate(PAGE_ROUTES.LOGIN)}>
             {REGISTER_TEXT.LOGIN_LINK}
           </LoginLink>
         </Box>
@@ -414,14 +414,14 @@ export default function RegisterForm() {
         onClose={() => {
           setNotification((prev) => ({ ...prev, open: false }))
           if (notification.type === 'success') {
-            navigate(ROUTES.HOME)
+            navigate(PAGE_ROUTES.HOME)
           }
         }}
         autoClose={notification.type === 'success'}
         autoCloseDuration={2000}
         onAutoClose={() => {
           if (notification.type === 'success') {
-            navigate(ROUTES.HOME)
+            navigate(PAGE_ROUTES.HOME)
           }
         }}
       />

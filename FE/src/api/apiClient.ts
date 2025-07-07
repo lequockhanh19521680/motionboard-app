@@ -1,61 +1,29 @@
-const baseURL = process.env.REACT_APP_API_BASE_URL
-
-interface ApiClientOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-  headers?: Record<string, string>
-  body?: unknown
-  auth?: boolean
-}
-
-async function apiClient<T = unknown>(
-  endpoint: string,
-  options: ApiClientOptions = {}
+export default function apiClient<T>(
+  url: string,
+  options: {
+    method: string
+    body?: any
+    auth?: boolean
+    isFormData?: boolean
+  }
 ): Promise<T> {
-  if (!baseURL) {
-    throw new Error('REACT_APP_API_BASE_URL is not set')
-  }
-
-  const url = `${baseURL}${endpoint}`
-
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-  }
-
-  const headers: Record<string, string> = {
-    ...defaultHeaders,
-    ...(options.headers || {}),
-  }
+  const headers: Record<string, string> = {}
 
   if (options.auth) {
-    const token = localStorage.getItem('token')
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
+    const token = localStorage.getItem('access_token')
+    if (token) headers.Authorization = `Bearer ${token}`
   }
 
-  const config: RequestInit = {
-    method: options.method || 'GET',
+  if (!options.isFormData) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  return fetch(url, {
+    method: options.method,
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-    credentials: 'omit',
-  }
-
-  const response = await fetch(url, config)
-
-  if (!response.ok) {
-    if (response.status === 401 && options.auth) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
-      return Promise.reject(new Error('Unauthorized, redirecting to login...'))
-    }
-
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(
-      `HTTP error ${response.status}: ${response.statusText}\n${JSON.stringify(errorData)}`
-    )
-  }
-
-  return response.json() as Promise<T>
+    body: options.isFormData ? options.body : JSON.stringify(options.body),
+  }).then(async (res) => {
+    if (!res.ok) throw new Error(await res.text())
+    return res.json()
+  })
 }
-
-export default apiClient

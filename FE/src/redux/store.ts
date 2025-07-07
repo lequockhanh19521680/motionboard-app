@@ -4,6 +4,7 @@ import cartReducer from './cartSlice'
 import productReducer from './productSlice'
 import shopReducer from './shopSlice'
 import categoryReducer from './categorySlice'
+import imageReducer from './imageSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     product: productReducer,
     shop: shopReducer,
     category: categoryReducer,
+    image: imageReducer,
   },
 })
 

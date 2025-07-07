@@ -1,9 +1,8 @@
 import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import { Link } from 'react-router-dom'
-import { ROUTES } from '../../utils/constant'
+import { useAppSelector } from '../../redux/hook'
+import { PAGE_ROUTES } from '../../utils/constant'
 
 const SectionHeader: React.FC = () => {
   return (
@@ -47,7 +46,7 @@ const SectionHeader: React.FC = () => {
 }
 
 export const MainContent: React.FC = () => {
-  const { items: products, loading, error } = useSelector((state: RootState) => state.product)
+  const { items: products, loading, error } = useAppSelector((state) => state.product)
 
   return (
     <div className="md:col-span-3 relative">
@@ -73,7 +72,7 @@ export const MainContent: React.FC = () => {
             {products.map((product) => (
               <Link
                 key={product.product_id}
-                to={ROUTES.PRODUCT_DETAIL.replace(':id', product.product_id.toString())}
+                to={PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.product_id.toString())}
                 style={{ textDecoration: 'none' }}
               >
                 <Card className="h-full flex flex-col hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden">

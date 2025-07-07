@@ -11,7 +11,7 @@ import { styled, alpha } from '@mui/material/styles'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
 import { Link } from 'react-router-dom'
-import { ROUTES } from '../utils/constant'
+import { PAGE_ROUTES } from '../utils/constant'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -53,7 +53,7 @@ export default function Header() {
         <Typography
           variant="h6"
           component={Link}
-          to={ROUTES.HOME}
+          to={PAGE_ROUTES.HOME}
           sx={{
             color: 'inherit',
             textDecoration: 'none',
