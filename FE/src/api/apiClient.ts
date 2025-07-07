@@ -26,6 +26,8 @@ export default async function apiClient<T>(
 
   const fetchOptions: RequestInit = {
     method: options.method,
+    credentials: 'include',
+
     headers,
   }
 
