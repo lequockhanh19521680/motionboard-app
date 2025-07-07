@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import path from "path";
-import { s3Client } from "../config/s3Client";
+import { s3Client } from "../../config/s3Client";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME;
@@ -14,7 +14,6 @@ if (!AWS_BUCKET_NAME) {
 const storage = multerS3({
   s3: s3Client,
   bucket: AWS_BUCKET_NAME,
-  acl: "public-read",
   metadata: (req, file, cb) => {
     cb(null, { fieldName: file.fieldname });
   },
@@ -43,15 +42,16 @@ export const uploadImage = (req: Request, res: Response) => {
     }
 
     const uploadedFile = req.file as Express.MulterS3.File;
+
     res.status(200).json({
       message: "File uploaded successfully",
-      imageUrl: uploadedFile.location,
+      key: uploadedFile.key,
     });
   });
 };
 
 export const uploadMultiImage = (req: Request, res: Response) => {
-  const uploadMultiple = upload.array("images", 10); // tối đa 10 ảnh
+  const uploadMultiple = upload.array("images", 10);
 
   uploadMultiple(req, res, (err) => {
     if (err) {
@@ -64,11 +64,11 @@ export const uploadMultiImage = (req: Request, res: Response) => {
 
     const uploadedFiles = req.files as Express.MulterS3.File[];
 
-    const urls = uploadedFiles.map((file) => file.location);
+    const keys = uploadedFiles.map((file) => file.key);
 
     res.status(200).json({
       message: "Files uploaded successfully",
-      urls,
+      keys,
     });
   });
 };
@@ -77,16 +77,13 @@ export const deleteImage = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { imageUrl } = req.body;
+  const { key } = req.body;
 
-  if (!imageUrl) {
-    return res.status(400).json({ error: "Image URL is required" });
+  if (!key) {
+    return res.status(400).json({ error: "Image key is required" });
   }
 
   try {
-    const url = new URL(imageUrl);
-    const key = url.pathname.substring(1); // bỏ dấu / đầu
-
     await s3Client.send(
       new DeleteObjectCommand({
         Bucket: AWS_BUCKET_NAME,

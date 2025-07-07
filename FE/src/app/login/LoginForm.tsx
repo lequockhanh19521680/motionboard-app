@@ -107,7 +107,7 @@ export default function LoginForm() {
       const { username, password } = formData
       const response = await loginApi(username, password)
 
-      dispatch(loginSuccess(response.token))
+      dispatch(loginSuccess(response))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
       localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
 

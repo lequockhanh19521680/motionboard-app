@@ -25,6 +25,7 @@ export const API_ROUTES = {
   UPLOAD_IMAGE: '/images/upload',
   UPLOAD_MULTI_IMAGE: '/images/upload-multiple',
   DELETE_IMAGE: '/images',
+  GET_SIGNED_URL: '/images/signed-url',
 }
 
 export const STORAGE_KEYS = {

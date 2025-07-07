@@ -5,8 +5,12 @@ import {
   isPending,
   isRejected,
 } from '@reduxjs/toolkit'
-import { deleteImageApi, uploadImageApi, uploadMultiImageApi } from '../api/upload/imageApi'
-import { UploadImageResponse, UploadMultiImageResponse } from '../types/response/ImageResponse'
+import {
+  deleteImageApi,
+  uploadImageApi,
+  uploadMultiImageApi,
+  getSignedUrlApi,
+} from '../api/upload/imageApi'
 
 interface ImageState {
   images: string[]
@@ -20,24 +24,36 @@ const initialState: ImageState = {
   error: undefined,
 }
 
-// upload 1 ảnh
 export const uploadImage = createAsyncThunk(
   'image/uploadImage',
   async (formData: FormData, { rejectWithValue }) => {
     try {
-      return await uploadImageApi(formData)
+      // OK, server nhận "image"
+      const uploadRes = await uploadImageApi(formData)
+      const signedUrlRes = await getSignedUrlApi(uploadRes.key)
+      return signedUrlRes.signedUrl
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
   }
 )
 
-// upload nhiều ảnh
 export const uploadMultiImage = createAsyncThunk(
   'image/uploadMultiImage',
-  async (formData: FormData, { rejectWithValue }) => {
+  async (files: File[], { rejectWithValue }) => {
     try {
-      return await uploadMultiImageApi(formData)
+      const formData = new FormData()
+      files.forEach((file) => formData.append('images', file))
+
+      const uploadRes = await uploadMultiImageApi(formData)
+      const signedUrls: string[] = []
+
+      for (const key of uploadRes.keys) {
+        const signedUrlRes = await getSignedUrlApi(key)
+        signedUrls.push(signedUrlRes.signedUrl)
+      }
+
+      return signedUrls
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
@@ -68,17 +84,14 @@ const imageSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(uploadImage.fulfilled, (state, action: PayloadAction<UploadImageResponse>) => {
+      .addCase(uploadImage.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false
-        state.images.push(action.payload.imageUrl)
+        state.images.push(action.payload)
       })
-      .addCase(
-        uploadMultiImage.fulfilled,
-        (state, action: PayloadAction<UploadMultiImageResponse>) => {
-          state.loading = false
-          state.images.push(...action.payload.urls)
-        }
-      )
+      .addCase(uploadMultiImage.fulfilled, (state, action: PayloadAction<string[]>) => {
+        state.loading = false
+        state.images.push(...action.payload)
+      })
       .addCase(deleteImage.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false
         state.images = state.images.filter((url) => url !== action.payload)

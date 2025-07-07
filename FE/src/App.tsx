@@ -44,29 +44,6 @@ function AfterLoginRoute() {
 }
 
 export default function App() {
-  useEffect(() => {
-    let startY = 0
-
-    const handleTouchStart = (e: TouchEvent) => {
-      startY = e.touches[0].clientY
-    }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      const endY = e.changedTouches[0].clientY
-      if (endY - startY > 100) {
-        window.location.reload()
-      }
-    }
-
-    document.addEventListener('touchstart', handleTouchStart)
-    document.addEventListener('touchend', handleTouchEnd)
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart)
-      document.removeEventListener('touchend', handleTouchEnd)
-    }
-  }, [])
-
   return (
     <BrowserRouter>
       <Routes>

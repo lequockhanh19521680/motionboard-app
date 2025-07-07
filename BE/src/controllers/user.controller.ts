@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import pool from "../config/db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { AuthRequest } from "../types/AuthRequest";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -87,6 +88,33 @@ export const registerUser = async (
     const token = generateToken(newUser.user_id, newUser.email);
 
     res.status(201).json({ user: newUser, token });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const getUserDetail = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId = req?.user_id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const result = await pool.query(
+      "SELECT user_id, username, email, full_name, avatar, created_at FROM users WHERE user_id = $1",
+      [userId]
+    );
+
+    const user = result.rows[0];
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

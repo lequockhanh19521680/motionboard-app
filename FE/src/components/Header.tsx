@@ -12,6 +12,12 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
 import { Link } from 'react-router-dom'
 import { PAGE_ROUTES } from '../utils/constant'
+import { Avatar, Menu, MenuList, MenuItem as MuiMenuItem, ListItemIcon } from '@mui/material'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '../redux/store'
+import { logout } from '../redux/authSlice'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -47,6 +53,24 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }))
 
 export default function Header() {
+  const dispatch = useDispatch()
+  const user = useSelector((state: RootState) => state.auth.user)
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(e.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleLogout = () => {
+    dispatch(logout())
+    handleMenuClose()
+  }
+
   return (
     <AppBar position="static" color="primary" elevation={1}>
       <Toolbar>
@@ -84,12 +108,48 @@ export default function Header() {
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
-          <MenuItem component={Link} to="/login">
-            Đăng nhập
-          </MenuItem>
-          <MenuItem component={Link} to="/register">
-            Đăng ký
-          </MenuItem>
+
+          {user ? (
+            <>
+              <IconButton color="inherit" onClick={handleMenuOpen}>
+                <Avatar
+                  src={user.image ? user.image : undefined}
+                  alt={user.full_name}
+                  sx={{ width: 32, height: 32 }}
+                >
+                  {user.full_name?.charAt(0)}
+                </Avatar>
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                <MenuList>
+                  <MuiMenuItem disabled>
+                    <Typography variant="body2">{user.full_name}</Typography>
+                  </MuiMenuItem>
+                  <MuiMenuItem component={Link} to="/profile" onClick={handleMenuClose}>
+                    <ListItemIcon>
+                      <AccountCircleIcon fontSize="small" />
+                    </ListItemIcon>
+                    Trang cá nhân
+                  </MuiMenuItem>
+                  <MuiMenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" />
+                    </ListItemIcon>
+                    Đăng xuất
+                  </MuiMenuItem>
+                </MenuList>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <MenuItem component={Link} to="/login">
+                Đăng nhập
+              </MenuItem>
+              <MenuItem component={Link} to="/register">
+                Đăng ký
+              </MenuItem>
+            </>
+          )}
         </Box>
       </Toolbar>
 

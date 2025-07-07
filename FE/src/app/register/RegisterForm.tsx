@@ -155,7 +155,7 @@ export default function RegisterForm() {
 
     try {
       const response = await registerApi(formData)
-      dispatch(registerSuccess(response.token))
+      dispatch(registerSuccess(response))
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
       localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
 

@@ -1,9 +1,13 @@
-export interface UploadImageResponse {
+export type UploadImageResponse = {
   message: string
-  imageUrl: string
+  key: string
 }
 
-export interface UploadMultiImageResponse {
+export type UploadMultiImageResponse = {
   message: string
-  urls: string[]
+  keys: string[]
+}
+
+export type GetSignedUrlResponse = {
+  signedUrl: string
 }
