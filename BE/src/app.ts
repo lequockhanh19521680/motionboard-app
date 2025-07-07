@@ -13,12 +13,17 @@ app.locals.pool = pool;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://motionboard-app.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://motionboard-app.vercel.app",
+      "https://motionboard-app.onrender.com",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: false,
   })
 );
+
 app.use(timeout("10s"));
 
 app.use(express.json());
