@@ -18,7 +18,7 @@ import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/ico
 import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import NotificationDialog from '../../components/common/NotificationDialog'
 import { LOGIN_TEXT } from './LoginText'
-import { loginUser } from '../../redux/authSlice'
+import { fetchProfile, loginUser } from '../../redux/authSlice'
 import { AppDispatch } from '../../redux/store'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -108,6 +108,8 @@ export default function LoginForm() {
 
       const response = await dispatch(loginUser({ username, password })).unwrap()
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
+      await dispatch(fetchProfile())
+
       setNotification({
         open: true,
         type: 'success',
