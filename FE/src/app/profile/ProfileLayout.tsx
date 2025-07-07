@@ -25,6 +25,8 @@ import ActivityHistory from './ActivityHistory'
 import Notifications from './Notifications'
 import SubscriptionManagement from './SubscriptionManagement'
 import LogoutTab from './LogoutTab'
+import { Navigate } from 'react-router-dom'
+import { PAGE_ROUTES } from '../../utils/constant'
 
 const sidebarWidth = 320
 
@@ -48,7 +50,7 @@ export default function ProfileLayout() {
   ]
 
   const handleLogout = () => {
-    alert('Bạn đã đăng xuất (demo)')
+    return <Navigate to={PAGE_ROUTES.LOGIN} />
   }
 
   return (
@@ -65,7 +67,6 @@ export default function ProfileLayout() {
         boxSizing: 'border-box',
       }}
     >
-      {/* Sidebar */}
       <Box
         sx={{
           width: sidebarWidth,
@@ -79,7 +80,6 @@ export default function ProfileLayout() {
           userSelect: 'none',
         }}
       >
-        {/* User Info */}
         <Box
           sx={{
             mb: 6,
@@ -113,7 +113,6 @@ export default function ProfileLayout() {
           </Box>
         </Box>
 
-        {/* Menu List */}
         <List component="nav" sx={{ flexGrow: 1 }}>
           {menuItems.map((item, index) => (
             <ListItemButton
@@ -155,7 +154,6 @@ export default function ProfileLayout() {
         </List>
       </Box>
 
-      {/* Main content */}
       <Box
         sx={{
           flexGrow: 1,

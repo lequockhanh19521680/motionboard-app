@@ -29,8 +29,7 @@ export const uploadImage = createAsyncThunk(
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const uploadRes = await uploadImageApi(formData)
-      const signedUrlRes = await getSignedUrlApi(uploadRes.key)
-      return signedUrlRes.signedUrl
+      return uploadRes.key
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
@@ -59,7 +58,6 @@ export const uploadMultiImage = createAsyncThunk(
   }
 )
 
-// delete 1 ảnh
 export const deleteImage = createAsyncThunk(
   'image/deleteImage',
   async (imageUrl: string, { rejectWithValue }) => {

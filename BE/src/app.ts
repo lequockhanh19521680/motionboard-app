@@ -24,7 +24,7 @@ app.use(
   })
 );
 
-app.use(timeout("10s"));
+app.use(timeout("20s"));
 
 app.use(express.json());
 app.use(sqlLogger);

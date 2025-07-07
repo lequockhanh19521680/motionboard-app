@@ -110,38 +110,54 @@ export const updateUser = async (
   res: Response
 ): Promise<any> => {
   const userId = req.user_id;
-  if (!userId) return res.status(401).json({ error: "User not authenticated" });
+  if (!userId) {
+    return res.status(401).json({ error: "User not authenticated" });
+  }
 
   const allowedFields = ["username", "email", "full_name", "image", "phone"];
 
+  const remapKeys: Record<string, string> = {
+    fullName: "full_name",
+  };
+
   const fieldsToUpdate: Partial<Record<(typeof allowedFields)[number], any>> =
-    Object.entries(req.body)
+    Object.entries(req.body as Record<string, any>)
+      .map(([key, val]) => {
+        const mappedKey = remapKeys[key] ?? key;
+        return [mappedKey, val];
+      })
       .filter(([key]) => allowedFields.includes(key))
-      .reduce((obj, [key, val]) => {
-        obj[key as (typeof allowedFields)[number]] = val;
-        return obj;
+      .reduce((acc, [key, val]) => {
+        acc[key as (typeof allowedFields)[number]] = val;
+        return acc;
       }, {} as Partial<Record<(typeof allowedFields)[number], any>>);
 
-  if (Object.keys(fieldsToUpdate).length === 0)
+  if (Object.keys(fieldsToUpdate).length === 0) {
     return res.status(400).json({ error: "No valid fields to update" });
+  }
 
   try {
+    // Kiểm tra trùng email
     if (
       fieldsToUpdate.email &&
       !(await checkUnique("email", fieldsToUpdate.email, userId))
-    )
+    ) {
       return res
         .status(400)
         .json({ error: "Email already in use by another user" });
+    }
 
+    // Kiểm tra trùng username
     if (
       fieldsToUpdate.username &&
       !(await checkUnique("username", fieldsToUpdate.username, userId))
-    )
+    ) {
       return res
         .status(400)
         .json({ error: "Username already in use by another user" });
+    }
 
+    // Build query
     const setClause = Object.keys(fieldsToUpdate)
       .map((key, i) => `${key} = $${i + 1}`)
       .join(", ");
@@ -156,11 +172,15 @@ export const updateUser = async (
 
     const result = await pool.query(query, [...values, userId]);
     const updatedUser = result.rows[0];
-    if (updatedUser.image)
+
+    // Lấy presigned URL nếu có image
+    if (updatedUser.image) {
       updatedUser.image = await getPresignedUrl(updatedUser.image);
+    }
 
     return res.json({ user: updatedUser });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: (error as Error).message });
   }
 };

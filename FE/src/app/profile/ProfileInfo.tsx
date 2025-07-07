@@ -1,18 +1,49 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Box, Stack, TextField, Button, Typography, InputAdornment } from '@mui/material'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import {
+  Box,
+  Stack,
+  TextField,
+  Typography,
+  InputAdornment,
+  CircularProgress,
+  styled,
+} from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
-import LockIcon from '@mui/icons-material/Lock'
-import ImageUploader from '../../components/common/ImageUploader'
 import { useAppSelector, useAppDispatch } from '../../redux/hook'
 import { uploadImage } from '../../redux/imageSlice'
-import { updateProfile } from '../../redux/authSlice'
+import { fetchProfile, updateProfile } from '../../redux/authSlice'
+import NotificationDialog from '../../components/common/NotificationDialog'
 import { UpdateProfileRequest } from '../../types/request/UpdateProfileRequest'
 
 const InputIcon = ({ icon }: { icon: React.ReactNode }) => (
   <InputAdornment position="start">{icon}</InputAdornment>
 )
+
+const SubmitButton = styled('button')(({ theme }) => ({
+  marginTop: theme.spacing(5),
+  padding: theme.spacing(1.5, 4),
+  borderRadius: 12,
+  fontWeight: 700,
+  fontSize: '1rem',
+  border: 'none',
+  cursor: 'pointer',
+  backgroundColor: theme.palette.primary.main,
+  color: '#fff',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  '&:disabled': {
+    backgroundColor: theme.palette.grey[400],
+    color: theme.palette.grey[700],
+    cursor: 'not-allowed',
+  },
+}))
 
 export default function ProfileInfo() {
   const dispatch = useAppDispatch()
@@ -24,30 +55,33 @@ export default function ProfileInfo() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('success')
+  const [dialogMessage, setDialogMessage] = useState('')
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    setFullName(user?.full_name || '')
-    setUsername(user?.username || '')
-    setEmail(user?.email || '')
-    setPhone(user?.phone || '')
-    setAvatarUrl(user?.image || '')
+    if (user) {
+      setFullName(user.full_name || '')
+      setUsername(user.username || '')
+      setEmail(user.email || '')
+      setPhone(user.phone || '')
+      setAvatarUrl(user.image || '')
+    }
   }, [user])
 
-  const uploadFile = async (file: File, onProgress: (percent: number) => void) => {
-    const formData = new FormData()
-    formData.append('image', file)
-
-    try {
-      const url = await dispatch(uploadImage(formData)).unwrap()
-      onProgress(100)
-      return url
-    } catch (error: any) {
-      throw new Error(error || 'Upload thất bại')
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      setAvatarUrl(URL.createObjectURL(file)) // preview
     }
   }
-
-  const handleUploadComplete = (url: string) => setAvatarUrl(url)
 
   const handleSave = useCallback(async () => {
     const validateField = () => {
@@ -57,7 +91,8 @@ export default function ProfileInfo() {
       if (!email.trim()) newErrors.email = 'Email là bắt buộc'
       if (phone && !/^\+?\d{7,15}$/.test(phone.trim()))
         newErrors.phone = 'Số điện thoại không hợp lệ'
-      if (password && password.length < 6) newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+      if (password && password.length > 0 && password.length < 6)
+        newErrors.password = 'Mật khẩu ít nhất 6 ký tự'
 
       setErrors(newErrors)
       return Object.keys(newErrors).length === 0
@@ -65,22 +100,50 @@ export default function ProfileInfo() {
 
     if (!validateField()) return
 
+    setIsLoading(true)
+
+    let imageUrl = avatarUrl
+
+    if (selectedFile) {
+      const formData = new FormData()
+      formData.append('image', selectedFile)
+      try {
+        imageUrl = await dispatch(uploadImage(formData)).unwrap()
+      } catch (error: any) {
+        setDialogType('error')
+        setDialogMessage('Upload ảnh thất bại: ' + error?.toString())
+        setDialogOpen(true)
+        setIsLoading(false)
+        return
+      }
+    }
+
     const payload: UpdateProfileRequest = {
       username,
       email,
       password,
       fullName: fullName || undefined,
       phone: phone || undefined,
+      image: imageUrl || undefined,
     }
 
     try {
       await dispatch(updateProfile(payload)).unwrap()
-      alert('Cập nhật thông tin thành công!')
+      await dispatch(fetchProfile()).unwrap()
       setPassword('')
+      setSelectedFile(null)
+
+      setDialogType('success')
+      setDialogMessage('Thông tin đã được cập nhật.')
+      setDialogOpen(true)
     } catch (error: any) {
-      alert('Cập nhật thất bại: ' + (error?.toString() || 'Lỗi không xác định'))
+      setDialogType('error')
+      setDialogMessage('Cập nhật thất bại: ' + error?.toString())
+      setDialogOpen(true)
+    } finally {
+      setIsLoading(false)
     }
-  }, [username, email, password, fullName, phone, dispatch])
+  }, [username, email, password, fullName, phone, selectedFile, avatarUrl, dispatch])
 
   return (
     <Box>
@@ -89,35 +152,34 @@ export default function ProfileInfo() {
       </Typography>
 
       <Stack spacing={4}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
+        <Box display="flex" justifyContent="center">
           <Box
+            onClick={() => fileInputRef.current?.click()}
             sx={{
               borderRadius: '50%',
               border: '2px solid',
               borderColor: 'primary.light',
               overflow: 'hidden',
+              width: 130,
+              height: 130,
               cursor: 'pointer',
               transition: 'box-shadow 0.3s ease',
               '&:hover': {
                 boxShadow: (theme) => `0 0 8px 3px ${theme.palette.primary.light}`,
               },
-              width: 130,
-              height: 130,
             }}
           >
-            <ImageUploader
-              maxFiles={1}
-              previewSize={130}
-              shape="circle"
-              onUpload={uploadFile}
-              defaultImages={avatarUrl ? [avatarUrl] : []}
-              mode="avatar"
-              onUploadComplete={handleUploadComplete}
+            <img
+              src={avatarUrl || '/default-avatar.png'}
+              alt="avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleFileChange}
             />
           </Box>
         </Box>
@@ -127,7 +189,9 @@ export default function ProfileInfo() {
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           fullWidth
-          InputProps={{ startAdornment: <InputIcon icon={<AccountCircleIcon color="action" />} /> }}
+          InputProps={{
+            startAdornment: <InputIcon icon={<AccountCircleIcon color="action" />} />,
+          }}
         />
 
         <TextField
@@ -144,14 +208,16 @@ export default function ProfileInfo() {
         />
 
         <TextField
-          label="Email *"
+          label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
           required
           error={!!errors.email}
           helperText={errors.email}
-          InputProps={{ startAdornment: <InputIcon icon={<EmailIcon color="action" />} /> }}
+          InputProps={{
+            startAdornment: <InputIcon icon={<EmailIcon color="action" />} />,
+          }}
         />
 
         <TextField
@@ -161,39 +227,29 @@ export default function ProfileInfo() {
           fullWidth
           error={!!errors.phone}
           helperText={errors.phone}
-          InputProps={{ startAdornment: <InputIcon icon={<PhoneIphoneIcon color="action" />} /> }}
+          InputProps={{
+            startAdornment: <InputIcon icon={<PhoneIphoneIcon color="action" />} />,
+          }}
         />
 
-        <Box sx={{ textAlign: 'center', mt: 5 }}>
-          <Button
-            variant="contained"
-            color="primary"
+        <Box textAlign="center" mt={5}>
+          <SubmitButton
+            disabled={isLoading || !username.trim() || !email.trim()}
             onClick={handleSave}
-            disabled={!username.trim() || !email.trim()}
-            sx={{
-              px: 6,
-              py: 1.5,
-              fontWeight: 700,
-              fontSize: '1.1rem',
-              borderRadius: 4,
-              textTransform: 'uppercase',
-              boxShadow: 'none',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                boxShadow: (theme) => `0 6px 14px ${theme.palette.primary.main}`,
-                backgroundColor: 'primary.dark',
-              },
-              '&:disabled': {
-                backgroundColor: 'grey.400',
-                color: 'grey.700',
-                boxShadow: 'none',
-              },
-            }}
           >
-            Cập nhật thông tin
-          </Button>
+            {isLoading && <CircularProgress size={20} sx={{ color: '#fff', mr: 1 }} />}
+            {isLoading ? 'Đang lưu...' : 'Cập nhật thông tin'}
+          </SubmitButton>
         </Box>
       </Stack>
+
+      <NotificationDialog
+        open={dialogOpen}
+        type={dialogType}
+        title={dialogType === 'success' ? 'Thành công' : 'Lỗi'}
+        message={dialogMessage}
+        onClose={() => setDialogOpen(false)}
+      />
     </Box>
   )
 }
