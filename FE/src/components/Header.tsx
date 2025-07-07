@@ -10,7 +10,7 @@ import Box from '@mui/material/Box'
 import { styled, alpha } from '@mui/material/styles'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PAGE_ROUTES } from '../utils/constant'
 import { Avatar, Menu, MenuList, MenuItem as MuiMenuItem, ListItemIcon } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
@@ -54,6 +54,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function Header() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
   const user = useSelector((state: RootState) => state.auth.user)
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -69,6 +71,7 @@ export default function Header() {
   const handleLogout = () => {
     dispatch(logout())
     handleMenuClose()
+    navigate('/login')
   }
 
   return (
