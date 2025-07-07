@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { loginSuccess } from '../../redux/authSlice'
-import { loginApi } from '../../api/user/userApi'
 import {
   Box,
   Button,
@@ -20,6 +18,8 @@ import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/ico
 import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../utils/constant'
 import NotificationDialog from '../../components/common/NotificationDialog'
 import { LOGIN_TEXT } from './LoginText'
+import { loginUser } from '../../redux/authSlice'
+import { AppDispatch } from '../../redux/store'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -80,7 +80,7 @@ export default function LoginForm() {
     message: '',
   })
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,12 +105,9 @@ export default function LoginForm() {
 
     try {
       const { username, password } = formData
-      const response = await loginApi(username, password)
 
-      dispatch(loginSuccess(response))
+      const response = await dispatch(loginUser({ username, password })).unwrap()
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
-      localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
-
       setNotification({
         open: true,
         type: 'success',

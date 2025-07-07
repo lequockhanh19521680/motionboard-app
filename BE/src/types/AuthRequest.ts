@@ -1,5 +1,5 @@
 // types/AuthRequest.ts
 import { Request } from "express";
 export interface AuthRequest extends Request {
-    user_id?: string;
+  user_id?: number;
 }

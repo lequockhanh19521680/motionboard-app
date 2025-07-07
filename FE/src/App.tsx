@@ -6,10 +6,14 @@ import AdminPage from './app/admin'
 import ShopPage from './app/shop'
 import AuthLayout from './components/layout/AuthLayout'
 import MainLayout from './components/layout/MainLayout'
-import { useEffect, JSX } from 'react'
+import { JSX, useEffect } from 'react'
 import { PAGE_ROUTES, USER_ROLE } from './utils/constant'
 import ProductDetailPage from './app/product'
 import TestPage from './app/test'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from './redux/store'
+import ProfilePage from './app/profile'
+import { fetchProfile } from './redux/authSlice'
 
 function ProtectedRoute({
   children,
@@ -44,6 +48,11 @@ function AfterLoginRoute() {
 }
 
 export default function App() {
+  const dispatch = useDispatch<AppDispatch>()
+
+  useEffect(() => {
+    dispatch(fetchProfile())
+  }, [dispatch])
   return (
     <BrowserRouter>
       <Routes>
@@ -54,6 +63,7 @@ export default function App() {
 
         <Route element={<MainLayout />}>
           <Route path={PAGE_ROUTES.TEST} element={<TestPage />} />
+          <Route path={PAGE_ROUTES.PROFILE} element={<ProfilePage />} />
 
           <Route path={PAGE_ROUTES.HOME} element={<HomePage />} />
           <Route path={PAGE_ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />

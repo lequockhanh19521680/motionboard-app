@@ -24,13 +24,13 @@ import {
   HomeOutlined,
   AlternateEmailOutlined,
 } from '@mui/icons-material'
-import { RegisterFormData } from '../../types/request/RegisterRequest'
+import { RegisterApiPayload, RegisterFormData } from '../../types/request/RegisterRequest'
 import { useDispatch } from 'react-redux'
-import { registerApi } from '../../api/user/userApi'
 import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../utils/constant'
-import { registerSuccess } from '../../redux/authSlice'
 import NotificationDialog from '../../components/common/NotificationDialog'
 import { REGISTER_TEXT } from './RegisterText'
+import { AppDispatch } from '../../redux/store'
+import { registerUser } from '../../redux/authSlice'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -78,7 +78,7 @@ const LoginLink = styled(Button)(({ theme }) => ({
 }))
 
 export default function RegisterForm() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -95,7 +95,7 @@ export default function RegisterForm() {
 
   const [notification, setNotification] = useState({
     open: false,
-    type: 'success',
+    type: 'success' as NotificationType,
     title: '',
     message: '',
   })
@@ -113,11 +113,7 @@ export default function RegisterForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
 
     if (name === 'password' || name === 'confirmPassword') {
-      setErrors((prev) => ({
-        ...prev,
-        passwordMismatch: false,
-        missingRequired: false,
-      }))
+      setErrors({ passwordMismatch: false, missingRequired: false })
     }
   }
 
@@ -131,31 +127,35 @@ export default function RegisterForm() {
 
   const validateForm = () => {
     const requiredFields = ['username', 'password', 'confirmPassword']
-    const newErrors = {
-      passwordMismatch: formData.password !== formData.confirmPassword,
-      missingRequired: requiredFields.some(
-        (field) =>
-          !formData[field as keyof Omit<RegisterFormData, 'showPassword' | 'showConfirmPassword'>]
-      ),
-    }
+    const missingRequired = requiredFields.some(
+      (field) =>
+        !formData[field as keyof Omit<RegisterFormData, 'showPassword' | 'showConfirmPassword'>]
+    )
+    const passwordMismatch = formData.password !== formData.confirmPassword
 
-    setErrors(newErrors)
-    return !(newErrors.passwordMismatch || newErrors.missingRequired)
+    setErrors({ passwordMismatch, missingRequired })
+    return !(passwordMismatch || missingRequired)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     setApiError('')
     setIsLoading(true)
 
     try {
-      const response = await registerApi(formData)
-      dispatch(registerSuccess(response))
+      const payload: RegisterApiPayload = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        phone: formData.phone,
+      }
+
+      const response = await dispatch(registerUser(payload)).unwrap()
+
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
       localStorage.setItem(STORAGE_KEYS.ROLE, response.user.role)
 
@@ -165,13 +165,14 @@ export default function RegisterForm() {
         title: REGISTER_TEXT.SUCCESS_TITLE,
         message: REGISTER_TEXT.SUCCESS_MESSAGE,
       })
-    } catch (error) {
+    } catch (error: any) {
       setNotification({
         open: true,
         type: 'error',
         title: REGISTER_TEXT.ERROR_TITLE,
-        message: REGISTER_TEXT.ERROR_MESSAGE,
+        message: (error?.message as string) || REGISTER_TEXT.ERROR_MESSAGE,
       })
+      setApiError(error?.message || REGISTER_TEXT.ERROR_MESSAGE)
       console.error('Registration failed:', error)
     } finally {
       setIsLoading(false)
@@ -408,7 +409,7 @@ export default function RegisterForm() {
 
       <NotificationDialog
         open={notification.open}
-        type={notification.type as NotificationType}
+        type={notification.type}
         title={notification.title}
         message={notification.message}
         onClose={() => {

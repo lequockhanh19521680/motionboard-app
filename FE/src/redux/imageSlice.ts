@@ -28,7 +28,6 @@ export const uploadImage = createAsyncThunk(
   'image/uploadImage',
   async (formData: FormData, { rejectWithValue }) => {
     try {
-      // OK, server nhận "image"
       const uploadRes = await uploadImageApi(formData)
       const signedUrlRes = await getSignedUrlApi(uploadRes.key)
       return signedUrlRes.signedUrl

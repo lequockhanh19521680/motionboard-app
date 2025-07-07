@@ -9,3 +9,11 @@ export interface RegisterFormData {
   showPassword: boolean
   showConfirmPassword: boolean
 }
+
+export interface RegisterApiPayload {
+  username: string
+  email: string
+  password: string
+  fullName?: string
+  phone?: string
+}

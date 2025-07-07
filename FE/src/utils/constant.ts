@@ -12,6 +12,8 @@ export const PAGE_ROUTES = {
   SHOP: '/shop',
   ADMIN: '/admin',
   AFTER_LOGIN: '/after-login',
+  PROFILE: '/profile',
+
   PRODUCT_DETAIL: '/product/:id',
 }
 

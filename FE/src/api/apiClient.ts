@@ -12,7 +12,7 @@ export default async function apiClient<T>(
   const headers: Record<string, string> = {}
 
   if (options.auth) {
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('token')
     if (token) {
       headers.Authorization = `Bearer ${token}`
     }

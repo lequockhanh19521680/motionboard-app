@@ -4,13 +4,15 @@ import {
   getUserDetail,
   loginUser,
   registerUser,
+  updateUser,
 } from "../controllers/user.controller";
 import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.get("/", getAllUsers);
+router.get("/", authenticateToken, getAllUsers);
 router.get("/profile", authenticateToken, getUserDetail);
+router.put("/", authenticateToken, updateUser);
 router.post("/login", loginUser);
 router.post("/register", registerUser);
 

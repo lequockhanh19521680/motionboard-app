@@ -1,10 +1,10 @@
-import { RegisterFormData } from '../../types/request/RegisterRequest'
+import { RegisterApiPayload } from '../../types/request/RegisterRequest'
+import { UpdateProfileRequest } from '../../types/request/UpdateProfileRequest'
 import { AuthResponse } from '../../types/response/AuthResponse'
 import { UserDetailResponse } from '../../types/response/UserDetailResponse'
 import { API_ROUTES } from '../../utils/constant'
 import apiClient from '../apiClient'
 
-// login
 export function loginApi(username: string, password: string) {
   return apiClient<AuthResponse>(`${API_ROUTES.USERS}/login`, {
     method: 'POST',
@@ -12,18 +12,37 @@ export function loginApi(username: string, password: string) {
   })
 }
 
-// register
-export function registerApi(formData: RegisterFormData) {
+export function registerApi(formData: RegisterApiPayload) {
   return apiClient<AuthResponse>(`${API_ROUTES.USERS}/register`, {
     method: 'POST',
     body: { ...formData },
   })
 }
-
-// get profile
 export function getProfileApi() {
   return apiClient<UserDetailResponse>(`${API_ROUTES.USERS}/profile`, {
     method: 'GET',
-    auth: true, // nếu apiClient hỗ trợ tự gắn token thì có thể dùng flag này
+    auth: true,
+  })
+}
+
+export function updateProfileApi(
+  updateData: Partial<UpdateProfileRequest> & {
+    image?: string
+    phone?: string
+    address?: string
+    bio?: string
+  }
+) {
+  return apiClient<UserDetailResponse>(`${API_ROUTES.USERS}`, {
+    method: 'PUT',
+    body: updateData,
+    auth: true,
+  })
+}
+
+export function getAllUsersApi() {
+  return apiClient<UserDetailResponse[]>(`${API_ROUTES.USERS}`, {
+    method: 'GET',
+    auth: true,
   })
 }

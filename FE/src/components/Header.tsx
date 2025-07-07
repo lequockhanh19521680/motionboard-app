@@ -77,7 +77,7 @@ export default function Header() {
         <Typography
           variant="h6"
           component={Link}
-          to={PAGE_ROUTES.HOME}
+          to={PAGE_ROUTES.PROFILE}
           sx={{
             color: 'inherit',
             textDecoration: 'none',
@@ -90,7 +90,6 @@ export default function Header() {
           SellBuy
         </Typography>
 
-        {/* SEARCH BAR */}
         <Search sx={{ display: { xs: 'none', md: 'flex' } }}>
           <SearchIconWrapper>
             <SearchIcon />
@@ -101,7 +100,6 @@ export default function Header() {
           />
         </Search>
 
-        {/* ACTION BUTTONS (always right aligned) */}
         <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
           <IconButton color="inherit" component={Link} to="/cart" size="large">
             <Badge badgeContent={2} color="secondary">
