@@ -17,20 +17,36 @@ import {
 import { ProductCreate } from '../types/request/ProductCreate'
 import { ProductUpdate } from '../types/request/ProductUpdate'
 
+// Định nghĩa kiểu dữ liệu cho state của sản phẩm
 interface ProductState {
   items: ProductResponse[]
   selectedProduct?: ProductResponse
   loading: boolean
   error?: string
+  filters: {
+    // Thêm phần filters cho bộ lọc
+    priceRange: number[]
+    selectedBrands: string[]
+    selectedRating: number | null
+    selectedCategories: number[]
+  }
 }
 
+// Thiết lập initial state
 const initialState: ProductState = {
   items: [],
   selectedProduct: undefined,
   loading: false,
   error: undefined,
+  filters: {
+    priceRange: [0, 5000000],
+    selectedBrands: [],
+    selectedRating: null,
+    selectedCategories: [],
+  },
 }
 
+// Định nghĩa các async thunks để fetch dữ liệu sản phẩm
 export const fetchProducts = createAsyncThunk(
   'product/fetchProducts',
   async (params: ProductFilter | undefined, { rejectWithValue }) => {
@@ -78,7 +94,7 @@ export const updateProduct = createAsyncThunk(
   }
 )
 
-// delete
+// Hành động xóa sản phẩm
 export const deleteProduct = createAsyncThunk(
   'product/deleteProduct',
   async (product_id: number, { rejectWithValue }) => {
@@ -91,12 +107,19 @@ export const deleteProduct = createAsyncThunk(
   }
 )
 
+// Khởi tạo slice cho product
 const productSlice = createSlice({
   name: 'product',
   initialState,
   reducers: {
     clearSelectedProduct(state) {
       state.selectedProduct = undefined
+    },
+    setFilters(state, action: PayloadAction<Partial<ProductState['filters']>>) {
+      state.filters = {
+        ...state.filters,
+        ...action.payload,
+      }
     },
   },
   extraReducers: (builder) => {
@@ -144,5 +167,5 @@ const productSlice = createSlice({
   },
 })
 
-export const { clearSelectedProduct } = productSlice.actions
+export const { clearSelectedProduct, setFilters } = productSlice.actions
 export default productSlice.reducer

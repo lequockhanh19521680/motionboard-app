@@ -80,7 +80,7 @@ export default function Header() {
         <Typography
           variant="h6"
           component={Link}
-          to={PAGE_ROUTES.PROFILE}
+          to={PAGE_ROUTES.HOME}
           sx={{
             color: 'inherit',
             textDecoration: 'none',

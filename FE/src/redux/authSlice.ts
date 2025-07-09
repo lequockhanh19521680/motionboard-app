@@ -43,6 +43,10 @@ export const registerUser = createAsyncThunk(
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
   async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      return rejectWithValue('Chưa đăng nhập (thiếu token)')
+    }
     try {
       const response = await getProfileApi()
       return response

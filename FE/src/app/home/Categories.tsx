@@ -15,21 +15,19 @@ import {
   TextField,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { AppDispatch } from '../../redux/store'
 import { useEffect, useState } from 'react'
-import { fetchCategories } from '../../redux/categorySlice'
-import { fetchProducts } from '../../redux/productSlice'
-import { useAppSelector } from '../../redux/hook'
 import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
+import { setFilters } from '../../redux/productSlice' // Import để cập nhật các bộ lọc
+import { useAppSelector } from '../../redux/hook'
+import { fetchCategories } from '../../redux/categorySlice'
 
 export const Categories: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { categories, error } = useAppSelector((state) => state.category)
+  const filters = useAppSelector((state) => state.product.filters)
 
-  const [priceRange, setPriceRange] = useState<number[]>([0, 5000000])
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedRating, setSelectedRating] = useState<number | null>(null)
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([])
   const [searchCategory, setSearchCategory] = useState<string>('')
 
   useEffect(() => {
@@ -37,32 +35,29 @@ export const Categories: React.FC = () => {
   }, [dispatch])
 
   const handleBrandChange = (brand: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    )
+    const updatedBrands = filters.selectedBrands.includes(brand)
+      ? filters.selectedBrands.filter((b) => b !== brand)
+      : [...filters.selectedBrands, brand]
+
+    dispatch(setFilters({ selectedBrands: updatedBrands }))
   }
 
   const handleRatingChange = (value: number | null) => {
     setSelectedRating(value)
+    dispatch(setFilters({ selectedRating: value }))
+  }
+
+  const handlePriceChange = (newRange: number[]) => {
+    dispatch(setFilters({ priceRange: newRange }))
   }
 
   const handleCategoryChange = (id: number) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    )
-  }
+    const updatedCategories = filters.selectedCategories.includes(id)
+      ? filters.selectedCategories.filter((c) => c !== id)
+      : [...filters.selectedCategories, id]
 
-  useEffect(() => {
-    dispatch(
-      fetchProducts({
-        price_min: priceRange[0],
-        price_max: priceRange[1],
-        category_ids: selectedCategories.length ? selectedCategories : [],
-        brand: selectedBrands.length ? selectedBrands : undefined,
-        rating: selectedRating ?? undefined,
-      })
-    )
-  }, [priceRange, selectedCategories, selectedBrands, selectedRating, dispatch])
+    dispatch(setFilters({ selectedCategories: updatedCategories })) // Cập nhật danh mục
+  }
 
   return (
     <div className="md:col-span-1">
@@ -78,7 +73,6 @@ export const Categories: React.FC = () => {
             </Typography>
           ) : (
             <Stack spacing={2}>
-              {/* category section */}
               <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography className="font-bold">Danh mục</Typography>
@@ -102,8 +96,8 @@ export const Categories: React.FC = () => {
                             key={category.id}
                             control={
                               <Checkbox
-                                checked={selectedCategories.includes(category.id)}
-                                onChange={() => handleCategoryChange(category.id)}
+                                checked={filters.selectedCategories.includes(category.id)}
+                                onChange={() => handleCategoryChange(category.id)} // Cập nhật category
                               />
                             }
                             label={
@@ -132,21 +126,21 @@ export const Categories: React.FC = () => {
                 </AccordionDetails>
               </Accordion>
 
-              {/* Price filter */}
+              {/* Giá */}
               <Divider className="!my-4" />
               <Typography variant="subtitle1" className="font-bold">
                 Khoảng giá
               </Typography>
               <Slider
-                value={priceRange}
+                value={filters.priceRange}
                 min={0}
                 max={20000000}
                 step={500000}
-                onChange={(_, value) => setPriceRange(value as number[])}
+                onChange={(_, value) => handlePriceChange(value as number[])} // Cập nhật dải giá
                 valueLabelDisplay="auto"
               />
 
-              {/* Brand filter */}
+              {/* Thương hiệu */}
               <Divider className="!my-4" />
               <Typography variant="subtitle1" className="font-bold">
                 Thương hiệu
@@ -157,8 +151,8 @@ export const Categories: React.FC = () => {
                     key={brand}
                     control={
                       <Checkbox
-                        checked={selectedBrands.includes(brand)}
-                        onChange={() => handleBrandChange(brand)}
+                        checked={filters.selectedBrands.includes(brand)}
+                        onChange={() => handleBrandChange(brand)} // Cập nhật thương hiệu
                       />
                     }
                     label={brand}
@@ -166,7 +160,7 @@ export const Categories: React.FC = () => {
                 ))}
               </FormGroup>
 
-              {/* Rating filter */}
+              {/* Đánh giá */}
               <Divider className="!my-4" />
               <Typography variant="subtitle1" className="font-bold">
                 Đánh giá
@@ -177,8 +171,8 @@ export const Categories: React.FC = () => {
                     key={star}
                     control={
                       <Checkbox
-                        checked={selectedRating === star}
-                        onChange={() => handleRatingChange(selectedRating === star ? null : star)}
+                        checked={filters.selectedRating === star}
+                        onChange={() => handleRatingChange(selectedRating === star ? null : star)} // Cập nhật rating
                       />
                     }
                     label={<Rating name="read-only" value={star} readOnly size="small" />}

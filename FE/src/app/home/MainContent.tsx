@@ -3,6 +3,10 @@ import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../redux/hook'
 import { PAGE_ROUTES } from '../../utils/constant'
+import { useEffect } from 'react'
+import { AppDispatch } from '../../redux/store'
+import { useDispatch } from 'react-redux'
+import { fetchProducts } from '../../redux/productSlice'
 
 const SectionHeader: React.FC = () => {
   return (
@@ -47,6 +51,21 @@ const SectionHeader: React.FC = () => {
 
 export const MainContent: React.FC = () => {
   const { items: products, loading, error } = useAppSelector((state) => state.product)
+  const dispatch = useDispatch<AppDispatch>()
+  const { filters } = useAppSelector((state) => state.product)
+
+  useEffect(() => {
+    console.log('filters', filters)
+    dispatch(
+      fetchProducts({
+        price_min: filters.priceRange[0],
+        price_max: filters.priceRange[1],
+        category_ids: filters.selectedCategories.length ? filters.selectedCategories : [],
+        brand: filters.selectedBrands.length ? filters.selectedBrands : undefined,
+        rating: filters.selectedRating ?? undefined,
+      })
+    )
+  }, [dispatch, filters])
 
   return (
     <div className="md:col-span-3 relative">
