@@ -1,4 +1,4 @@
-name: Deploy FE Static to EC2
+name: Remove FE Docker Container on EC2
 
 on:
   push:
@@ -6,37 +6,21 @@ on:
       - main
     paths:
       - 'FE/**'
-      - '.github/workflows/deploy-fe.yml'  
+      - '.github/workflows/deploy-fe.yml'
+
 jobs:
-  deploy:
+  remove-fe-docker:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build React FE (static) on Actions
-        run: |
-          cd FE
-          echo "REACT_APP_API_BASE_URL=${{ secrets.FE_API_BASE_URL }}" > .env
-          npm install
-          CI= npm run build
-
-      - name: Upload FE static build to EC2 (~/motionboard_FE/build)
-        uses: appleboy/scp-action@v0.1.5
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: 'FE/build/*'
-          target: '~/motionboard_FE/build'
-          rm: true
-
-      - name: Reload Nginx (nếu serve bằng Nginx)
+      - name: Remove old 'motionboard-fe' container/image on EC2 (if exists)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo systemctl reload nginx
+            docker stop motionboard-fe || true
+            docker rm motionboard-fe || true
+            docker rmi motionboard-fe || true
+            echo "Đã xóa container và image 'motionboard-fe' trên EC2 nếu tồn tại."
