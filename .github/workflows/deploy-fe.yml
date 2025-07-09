@@ -1,4 +1,4 @@
-name: Deploy FE to EC2 via Docker
+name: Deploy FE Static to EC2
 
 on:
   push:
@@ -15,38 +15,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug FE contents before upload
-        run: ls -al ./FE
+      - name: Build React FE (static) on Actions
+        run: |
+          cd FE
+          echo "REACT_APP_API_BASE_URL=${{ secrets.FE_API_BASE_URL }}" > .env
+          npm install
+          npm run build
 
-      - name: Upload toàn bộ FE lên EC2 (tạo ~/motionboard_FE/FE)
+      - name: Upload FE static build to EC2 (~/motionboard_FE/build)
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: './FE'
-          target: '~/motionboard_FE'
+          source: 'FE/build/*'
+          target: '~/motionboard_FE/build'
           rm: true
 
-      - name: Kiểm tra vị trí Dockerfile trên EC2
+      - name: Reload Nginx (nếu serve bằng Nginx)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            find ~/motionboard_FE -name Dockerfile
-
-      - name: Build & Run Docker FE tại đúng thư mục trên EC2 với ENV
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/motionboard_FE/FE
-            echo "REACT_APP_API_BASE_URL=${{ secrets.FE_API_BASE_URL }}" > .env
-            docker stop motionboard-fe || true
-            docker rm motionboard-fe || true
-            docker build -t motionboard-fe .
-            docker run -d --name motionboard-fe -p 3000:80 motionboard-fe
+            sudo systemctl reload nginx
