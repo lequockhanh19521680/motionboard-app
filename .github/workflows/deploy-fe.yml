@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'FE/**'
-
+      - '.github/workflows/deploy-fe.yml'  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
           cd FE
           echo "REACT_APP_API_BASE_URL=${{ secrets.FE_API_BASE_URL }}" > .env
           npm install
-          npm run build
+          CI= npm run build
 
       - name: Upload FE static build to EC2 (~/motionboard_FE/build)
         uses: appleboy/scp-action@v0.1.5
