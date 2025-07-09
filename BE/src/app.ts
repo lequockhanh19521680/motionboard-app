@@ -11,6 +11,7 @@ const app = express();
 
 app.locals.pool = pool;
 
+// Đặt cors trên cùng!
 app.use(
   cors({
     origin: [
@@ -24,15 +25,24 @@ app.use(
   })
 );
 
+// Xử lý preflight OPTIONS cho tất cả route (CORS fix)
+app.options("*", cors());
+
+// Timeout cho request
 app.use(timeout("18s"));
 
+// Middleware xử lý body và log SQL
 app.use(express.json());
 app.use(sqlLogger);
 
+// Đăng ký các route
 routes.forEach(({ path, router }) => {
   app.use(path, router);
 });
-app.use(sqlLogger);
+
+// (Không nên có redirect bắt toàn bộ route phía dưới! Nếu có, comment lại hoặc chỉ áp dụng cho FE web, không API)
+
+// Đưa sqlLogger lên trên là đủ, không cần thêm dưới cùng nữa
 
 app.listen(PORT, () => {
   console.log(`🚀 HTTP server started on http://localhost:${PORT}`);
