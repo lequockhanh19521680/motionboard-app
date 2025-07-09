@@ -15,7 +15,7 @@ type Scenario = {
 const TestPage = () => {
   const dispatch = useDispatch<AppDispatch>()
 
-  // Upload single file with redux + progress12
+  // Upload single file with redux + p1rogress12
   const onUploadSingle = async (file: File, onProgress: (percent: number) => void) => {
     onProgress(30)
     const formData = new FormData()
