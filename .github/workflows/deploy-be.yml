@@ -1,0 +1,51 @@
+name: Deploy BE to EC2 via Docker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'BE/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Debug BE contents before upload
+        run: ls -al ./BE
+
+      - name: Upload toàn bộ BE lên EC2 (tạo ~/motionboard_BE/BE)
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: './BE'
+          target: '~/motionboard_BE'
+          rm: true
+
+      - name: Kiểm tra vị trí Dockerfile trên EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            find ~/motionboard_BE -name Dockerfile
+
+      - name: Build & Run Docker BE tại đúng thư mục trên EC2 với đầy đủ ENV
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/motionboard_BE/BE
+            docker stop motionboard-be || true
+            docker rm motionboard-be || true
+            docker build -t motionboard-be .
+            docker run -d --name motionboard-be -p 80:8000 -e JWT_SECRET="${{ secrets.JWT_SECRET }}" -e DB_HOST="${{ secrets.DB_HOST }}" -e DB_USER="${{ secrets.DB_USER }}" -e DB_PASS="${{ secrets.DB_PASS }}" -e DB_NAME="${{ secrets.DB_NAME }}" -e DB_PORT="${{ secrets.DB_PORT }}" -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" -e AWS_REGION="${{ secrets.AWS_REGION }}" -e AWS_BUCKET_NAME="${{ secrets.AWS_BUCKET_NAME }}" -e PORT="${{ secrets.PORT }}" motionboard-be
