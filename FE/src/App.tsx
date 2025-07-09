@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from './redux/store'
 import ProfilePage from './app/profile'
 import { fetchProfile } from './redux/authSlice'
+import CreateProduct from './app/shop/shop-product/create'
 
 function ProtectedRoute({
   children,
@@ -64,6 +65,7 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path={PAGE_ROUTES.TEST} element={<TestPage />} />
           <Route path={PAGE_ROUTES.PROFILE} element={<ProfilePage />} />
+          <Route path="/shop/:shop_id/product/create" element={<CreateProduct />} />
 
           <Route path={PAGE_ROUTES.HOME} element={<HomePage />} />
           <Route path={PAGE_ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />

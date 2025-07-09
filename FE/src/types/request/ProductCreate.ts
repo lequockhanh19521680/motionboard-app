@@ -1,8 +1,13 @@
+import { ProductImage, ProductVariant } from '../response/ProductResponse'
+
 export interface ProductCreate {
-  shop_id: string
-  category_id: string
+  shop_id: number
+  category_id: number
   product_name: string
-  image?: string
   description?: string
   price: number
+  brand_id?: number | null
+  rating?: number
+  images?: ProductImage[]
+  variants?: ProductVariant[]
 }

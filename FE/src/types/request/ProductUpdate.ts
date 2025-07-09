@@ -1,8 +1,15 @@
+import { ProductImage, ProductVariant } from '../response/ProductResponse'
+
 export interface ProductUpdate {
-  shop_id?: string
-  category_id?: string
-  product_name?: string
+  category_id: number
+  product_name: string
   image?: string
   description?: string
-  price?: number
+  price: number
+  brand_id?: number | null
+  rating?: number
+  images?: ProductImage[]
+  imagesToDelete?: number[]
+  variants?: ProductVariant[]
+  variantsToDelete?: number[]
 }

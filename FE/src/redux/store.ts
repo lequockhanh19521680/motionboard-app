@@ -5,6 +5,7 @@ import productReducer from './productSlice'
 import shopReducer from './shopSlice'
 import categoryReducer from './categorySlice'
 import imageReducer from './imageSlice'
+import brandReducer from './brandSlice'
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     product: productReducer,
     shop: shopReducer,
     category: categoryReducer,
+    brand: brandReducer,
     image: imageReducer,
   },
 })

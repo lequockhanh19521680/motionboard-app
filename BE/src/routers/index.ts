@@ -1,17 +1,19 @@
-import userRoutes from "./user.route";
-import productRoutes from "./product.route";
-import categoryRoutes from "./category.route";
-import shopRoutes from "./shop.route";
-import cartRoutes from "./cart.route";
-import orderRoutes from "./order.route";
-import uploadRoutes from "./upload.route";
+import userRouters from "./user.route";
+import productRouters from "./product.route";
+import categoryRouters from "./category.route";
+import shopRouters from "./shop.route";
+import cartRouters from "./cart.route";
+import orderRouters from "./order.route";
+import uploadRouters from "./upload.route";
+import bannerRouters from "./banner.route";
 
 export default [
-  { path: "/api/users", router: userRoutes },
-  { path: "/api/products", router: productRoutes },
-  { path: "/api/categories", router: categoryRoutes },
-  { path: "/api/shops", router: shopRoutes },
-  { path: "/api/carts", router: cartRoutes },
-  { path: "/api/orders", router: orderRoutes },
-  { path: "/api/images", router: uploadRoutes },
+  { path: "/api/users", router: userRouters },
+  { path: "/api/products", router: productRouters },
+  { path: "/api/categories", router: categoryRouters },
+  { path: "/api/shops", router: shopRouters },
+  { path: "/api/carts", router: cartRouters },
+  { path: "/api/orders", router: orderRouters },
+  { path: "/api/images", router: uploadRouters },
+  { path: "/api/banners", router: bannerRouters },
 ];

@@ -8,63 +8,51 @@ import { AppDispatch } from '../../redux/store'
 import { useDispatch } from 'react-redux'
 import { fetchProducts } from '../../redux/productSlice'
 
-const SectionHeader: React.FC = () => {
-  return (
+const SectionHeader: React.FC = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      mb: 4,
+      position: 'relative',
+      justifyContent: 'space-between',
+    }}
+  >
+    <Box>
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          color: 'primary.main',
+        }}
+      >
+        <StarBorderOutlinedIcon color="primary" />
+        Sản phẩm nổi bật
+      </Typography>
+      <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
+        Khám phá những sản phẩm hot nhất tháng này
+      </Typography>
+    </Box>
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        mb: 4,
-        position: 'relative',
-        justifyContent: 'space-between',
+        height: 4,
+        width: 100,
+        background: 'linear-gradient(to right, #3b82f6, #9333ea)',
+        borderRadius: 2,
       }}
-    >
-      <Box>
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            color: 'primary.main',
-          }}
-        >
-          <StarBorderOutlinedIcon color="primary" />
-          Sản phẩm nổi bật
-        </Typography>
-        <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
-          Khám phá những sản phẩm hot nhất tháng này
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          height: 4,
-          width: 100,
-          background: 'linear-gradient(to right, #3b82f6, #9333ea)',
-          borderRadius: 2,
-        }}
-      />
-    </Box>
-  )
-}
+    />
+  </Box>
+)
 
 export const MainContent: React.FC = () => {
-  const { items: products, loading, error } = useAppSelector((state) => state.product)
+  const { items: products, loading, error, filters } = useAppSelector((state) => state.product)
   const dispatch = useDispatch<AppDispatch>()
-  const { filters } = useAppSelector((state) => state.product)
 
   useEffect(() => {
-    console.log('filters', filters)
-    dispatch(
-      fetchProducts({
-        price_min: filters.priceRange[0],
-        price_max: filters.priceRange[1],
-        category_ids: filters.selectedCategories.length ? filters.selectedCategories : [],
-        brand: filters.selectedBrands.length ? filters.selectedBrands : undefined,
-        rating: filters.selectedRating ?? undefined,
-      })
-    )
+    dispatch(fetchProducts(filters))
   }, [dispatch, filters])
 
   return (
@@ -102,13 +90,7 @@ export const MainContent: React.FC = () => {
                     className="h-48 object-contain p-4 bg-white"
                   />
                   <CardContent className="flex-grow">
-                    <Typography
-                      gutterBottom
-                      variant="h6"
-                      component="h3"
-                      className="font-medium"
-                      color="text.primary"
-                    >
+                    <Typography gutterBottom variant="h6" component="h3" color="text.primary">
                       {product.product_name}
                     </Typography>
                     <Typography variant="h6" color="error" className="font-bold my-2">

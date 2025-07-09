@@ -2,18 +2,33 @@ import { Request, Response } from "express";
 import pool from "../config/db";
 import { AuthRequest } from "../types/AuthRequest";
 
-/** Lấy danh sách sản phẩm, có filter */
+// ----------------- GET PRODUCTS (LIST) -----------------
 export const getProducts = async (req: Request, res: Response) => {
   try {
     const {
-      shop_id, category_ids, price_min, price_max, search, rating, brand,
+      shop_id, category_ids, price_min, price_max, search, rating, brand_id,
     } = req.query;
 
     let sql = `
-      SELECT p.*, s.shop_name, c.name as category_name
+      SELECT 
+        p.*, 
+        s.shop_name, 
+        c.name as category_name,
+        b.brand_name,
+        COALESCE(r.avg_rating, 0) as avg_rating,
+        COALESCE(r.total_rating, 0) as total_rating
       FROM product p
       LEFT JOIN shop s ON p.shop_id = s.shop_id
       LEFT JOIN category c ON p.category_id = c.id
+      LEFT JOIN brand b ON p.brand_id = b.brand_id
+      LEFT JOIN (
+        SELECT 
+          product_id, 
+          AVG(rating) as avg_rating,
+          COUNT(*) as total_rating
+        FROM product_rating
+        GROUP BY product_id
+      ) r ON p.product_id = r.product_id
       WHERE p.is_deleted = false
     `;
     const params: any[] = [];
@@ -42,16 +57,16 @@ export const getProducts = async (req: Request, res: Response) => {
       params.push(`%${(search as string).toLowerCase()}%`);
     }
 
-    if (brand) {
-      const brands = (brand as string).split(',').map(b => b.trim());
+    if (brand_id) {
+      const brands = (brand_id as string).split(',').map(Number).filter(v => !isNaN(v));
       if (brands.length > 0) {
-        sql += ` AND p.brand = ANY($${idx++})`;
+        sql += ` AND p.brand_id = ANY($${idx++})`;
         params.push(brands);
       }
     }
 
     if (rating) {
-      sql += ` AND p.rating >= $${idx++}`;
+      sql += ` AND COALESCE(r.avg_rating,0) >= $${idx++}`;
       params.push(rating);
     }
 
@@ -64,16 +79,32 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-/** Lấy 1 sản phẩm kèm images và variants */
+// ----------------- GET ONE PRODUCT -----------------
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const { product_id } = req.params;
 
     const sqlProduct = `
-      SELECT p.*, s.shop_name, c.name as category_name
+      SELECT 
+        p.*, 
+        s.shop_name, 
+        c.name as category_name,
+        b.brand_name,
+        COALESCE(r.avg_rating,0) as avg_rating, 
+        COALESCE(r.total_rating,0) as total_rating
       FROM product p
       LEFT JOIN shop s ON p.shop_id = s.shop_id
       LEFT JOIN category c ON p.category_id = c.id
+      LEFT JOIN brand b ON p.brand_id = b.brand_id
+      LEFT JOIN (
+        SELECT 
+          product_id, 
+          AVG(rating) as avg_rating,
+          COUNT(*) as total_rating
+        FROM product_rating
+        WHERE product_id = $1
+        GROUP BY product_id
+      ) r ON p.product_id = r.product_id
       WHERE p.product_id = $1 AND p.is_deleted = false
     `;
     const productResult = await pool.query(sqlProduct, [product_id]);
@@ -85,7 +116,7 @@ export const getProductById = async (req: Request, res: Response) => {
 
     const sqlImages = `
       SELECT image_id, image_url, sort_order
-      FROM image
+      FROM product_image
       WHERE product_id = $1
       ORDER BY sort_order ASC
     `;
@@ -93,15 +124,25 @@ export const getProductById = async (req: Request, res: Response) => {
 
     const sqlVariants = `
       SELECT variant_id, color, size, stock_quantity, price, sku
-      FROM variant
+      FROM product_variant
       WHERE product_id = $1
     `;
     const variantsResult = await pool.query(sqlVariants, [product_id]);
+
+    const sqlRatings = `
+      SELECT r.rating_id, r.user_id, r.rating, r.comment, r.created_at, u.username
+      FROM product_rating r
+      LEFT JOIN "users" u ON r.user_id = u.user_id
+      WHERE r.product_id = $1
+      ORDER BY r.created_at DESC
+    `;
+    const ratingsResult = await pool.query(sqlRatings, [product_id]);
 
     const response = {
       ...product,
       images: imagesResult.rows,
       variants: variantsResult.rows,
+      ratings: ratingsResult.rows,
     };
 
     res.json(response);
@@ -110,50 +151,72 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
-/** Tạo sản phẩm mới, kèm image/variant */
+// ----------------- CREATE PRODUCT -----------------
 export const createProduct = async (req: Request, res: Response) => {
   const client = await pool.connect();
   try {
-    const shop_id = Number(req.query.shop_id);
+    // 1. Lấy dữ liệu từ body và ép kiểu rõ ràng
+    const shop_id = Number(req.body.shop_id);
     if (!shop_id) return res.status(400).json({ error: "shop_id query param is required!" });
 
     const {
-      category_id, product_name, image, description, price,
-      brand, rating, images, variants
+      category_id,
+      product_name,
+      description,
+      price,
+      brand_id,
+      images,
+      variants
     } = req.body;
 
     if (!category_id || !product_name || !price)
       return res.status(400).json({ error: "category_id, product_name, price là bắt buộc" });
 
     await client.query('BEGIN');
-    // Create sản phẩm
+
+    // 2. Insert sản phẩm (KHÔNG rating)
     const result = await client.query(
-      `INSERT INTO product (shop_id, category_id, product_name, image, description, price, brand, rating)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *;`,
-      [shop_id, category_id, product_name, image || null, description || null, price, brand || null, rating || 0]
+      `INSERT INTO product (shop_id, category_id, product_name, description, price, brand_id)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`,
+      [
+        shop_id,
+        Number(category_id),
+        String(product_name),
+        description ? String(description) : null,
+        Number(price),
+        brand_id !== undefined && brand_id !== null ? Number(brand_id) : null,
+      ]
     );
     const product = result.rows[0], product_id = product.product_id;
 
-    // Images
+    // 3. Images (Chỉ nhận image_url, sort_order)
     let createdImages = [];
     if (Array.isArray(images) && images.length) {
+      // ép kiểu chính xác từng param truyền vào
       const inserts = images.map((_: any, i: number) =>
         `($1, $${i * 2 + 2}, $${i * 2 + 3})`).join(',');
-      const imgQuery = `INSERT INTO image (product_id, image_url, sort_order)
+      const imgQuery = `INSERT INTO product_image (product_id, image_url, sort_order)
         VALUES ${inserts} RETURNING *;`;
-      const values = [product_id, ...images.flatMap((img: any) => [img.image_url, img.sort_order || 0])];
+      const values = [product_id, ...images.flatMap((img: any) => [
+        img.image_url ? String(img.image_url) : '',
+        typeof img.sort_order === 'number' ? img.sort_order : 0
+      ])];
       const resImages = await client.query(imgQuery, values);
       createdImages = resImages.rows;
     }
 
+    // 4. Variants (Bỏ SKU, chỉ truyền đúng field)
     let createdVariants = [];
     if (Array.isArray(variants) && variants.length) {
       const inserts = variants.map((_: any, i: number) =>
-        `($1, $${i * 6 + 2}, $${i * 6 + 3}, $${i * 6 + 4}, $${i * 6 + 5}, $${i * 6 + 6})`).join(',');
-      const varQuery = `INSERT INTO variant (product_id, color, size, stock_quantity, price, sku)
+        `($1, $${i * 5 + 2}, $${i * 5 + 3}, $${i * 5 + 4}, $${i * 5 + 5})`).join(',');
+      const varQuery = `INSERT INTO product_variant (product_id, color, size, stock_quantity, price)
         VALUES ${inserts} RETURNING *;`;
       const values = [product_id, ...variants.flatMap((v: any) => [
-        v.color || null, v.size || null, v.stock_quantity || 0, v.price, v.sku || null
+        v.color ? String(v.color) : null,
+        v.size ? String(v.size) : null,
+        typeof v.stock_quantity === "number" ? v.stock_quantity : 0,
+        typeof v.price === "number" ? v.price : 0,
       ])];
       const resVars = await client.query(varQuery, values);
       createdVariants = resVars.rows;
@@ -164,14 +227,13 @@ export const createProduct = async (req: Request, res: Response) => {
   } catch (error) {
     await client.query('ROLLBACK');
     res.status(500).json({ error: 'Create product failed', details: error });
-  } finally { client.release(); }
+  } finally {
+    client.release();
+  }
 };
 
-/**
- * Cập nhật product, đồng thời update image/variant.
- * - images, variants: mảng object, với { id } thì update, không có thì insert.
- * - imagesToDelete, variantsToDelete: mảng id để xoá (nếu muốn xoá nhanh)
- */
+
+// ----------------- UPDATE PRODUCT -----------------
 export const updateProduct = async (req: Request, res: Response) => {
   const client = await pool.connect();
   try {
@@ -180,7 +242,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     const {
       category_id, product_name, image, description, price,
-      brand, rating, images, imagesToDelete, variants, variantsToDelete
+      brand_id, rating, images, imagesToDelete, variants, variantsToDelete
     } = req.body;
 
     await client.query('BEGIN');
@@ -189,12 +251,11 @@ export const updateProduct = async (req: Request, res: Response) => {
     await client.query(
       `UPDATE product SET
         category_id=$1, product_name=$2, image=$3, description=$4, price=$5,
-        brand=$6, rating=$7, updated_at=CURRENT_TIMESTAMP
+        brand_id=$6, rating=$7, updated_at=CURRENT_TIMESTAMP
       WHERE product_id = $8`,
-      [category_id, product_name, image || null, description || null, price, brand || null, rating || 0, product_id]
+      [category_id, product_name, image || null, description || null, price, brand_id || null, rating || 0, product_id]
     );
 
-    // Xoá image/variant theo id nếu truyền về (nếu không truyền về thì không động vào)
     if (Array.isArray(imagesToDelete) && imagesToDelete.length) {
       await client.query(`DELETE FROM image WHERE product_id = $1 AND image_id = ANY($2)`, [product_id, imagesToDelete]);
     }
@@ -233,7 +294,10 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     await client.query('COMMIT');
     // Trả lại sản phẩm mới
-    const { rows } = await client.query(`SELECT * FROM product WHERE product_id = $1`, [product_id]);
+    const { rows } = await client.query(
+      `SELECT p.*, b.brand_name FROM product p LEFT JOIN brand b ON p.brand_id = b.brand_id WHERE p.product_id = $1`,
+      [product_id]
+    );
     const { rows: imagesNew } = await client.query(`SELECT * FROM image WHERE product_id = $1`, [product_id]);
     const { rows: variantsNew } = await client.query(`SELECT * FROM variant WHERE product_id = $1`, [product_id]);
     res.status(200).json({
@@ -247,7 +311,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   } finally { client.release(); }
 };
 
-/** Xoá mềm sản phẩm và xoá liên quan cứng image/variant */
+// ----------------- DELETE PRODUCT -----------------
 export const deleteProduct = async (
   req: AuthRequest,
   res: Response
@@ -280,4 +344,100 @@ export const deleteProduct = async (
     await client.query('ROLLBACK');
     res.status(500).json({ error: (error as Error).message });
   } finally { client.release(); }
+};
+
+// ----------------- PRODUCT RATING -----------------
+export const rateProduct = async (req: AuthRequest, res: Response) => {
+  try {
+    const product_id = Number(req.params.product_id);
+    const user_id = req.user_id;
+    const { rating, comment } = req.body;
+
+    if (!product_id || !rating) {
+      return res.status(400).json({ error: "product_id & rating are required" });
+    }
+
+    const sql = `
+      INSERT INTO product_rating (product_id, user_id, rating, comment)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (product_id, user_id) DO UPDATE
+        SET rating = EXCLUDED.rating,
+            comment = EXCLUDED.comment,
+            updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
+    const result = await pool.query(sql, [product_id, user_id, rating, comment || null]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const getProductRatings = async (req: Request, res: Response) => {
+  try {
+    const product_id = Number(req.params.product_id);
+    const avgSql = `SELECT COALESCE(AVG(rating),0) AS avg_rating, COUNT(*) AS total 
+                    FROM product_rating WHERE product_id = $1`;
+    const listSql = `SELECT pr.*, u.username 
+                     FROM product_rating pr LEFT JOIN "user" u ON pr.user_id = u.user_id
+                     WHERE pr.product_id = $1 ORDER BY pr.created_at DESC`;
+
+    const [{ rows: [stat] }, { rows: ratings }] = await Promise.all([
+      pool.query(avgSql, [product_id]),
+      pool.query(listSql, [product_id])
+    ]);
+    res.json({ avg_rating: Number(stat.avg_rating || 0), total: Number(stat.total), ratings });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const deleteProductRating = async (req: AuthRequest, res: Response) => {
+  try {
+    const product_id = Number(req.params.product_id);
+    const user_id = req.user_id;
+    await pool.query(
+      `DELETE FROM product_rating WHERE product_id = $1 AND user_id = $2`, [product_id, user_id]
+    );
+    res.json({ message: "Rating deleted" });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+// GET /brands?search=Sam
+export const getBrands = async (req: Request, res: Response) => {
+  try {
+    const { search } = req.query;
+    let sql = `SELECT * FROM brand`;
+    const params: any[] = [];
+    if (search) {
+      sql += ` WHERE LOWER(brand_name) LIKE $1`;
+      params.push(`%${(search as string).toLowerCase()}%`);
+    }
+    sql += ` ORDER BY brand_name ASC`;
+    const result = await pool.query(sql, params);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+/** Tạo brand mới: POST /brands body { brand_name: string } */
+export const createBrand = async (req: Request, res: Response) => {
+  try {
+    const { brand_name } = req.body;
+    if (!brand_name || !brand_name.trim()) {
+      return res.status(400).json({ error: "brand_name is required" });
+    }
+    const sql = `INSERT INTO brand (brand_name) VALUES ($1) RETURNING *`;
+    const result = await pool.query(sql, [brand_name.trim()]);
+    res.status(201).json(result.rows[0]);
+  } catch (error: any) {
+    // Check duplicate error
+    if (error.code === '23505') {
+      return res.status(409).json({ error: "Brand name already exists" });
+    }
+    res.status(500).json({ error: error.message });
+  }
 };

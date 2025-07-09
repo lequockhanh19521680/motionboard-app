@@ -17,36 +17,31 @@ import {
 import { ProductCreate } from '../types/request/ProductCreate'
 import { ProductUpdate } from '../types/request/ProductUpdate'
 
-// Định nghĩa kiểu dữ liệu cho state của sản phẩm
+// Định nghĩa kiểu State Product sử dụng đúng kiểu ProductFilter (brand_id, category_ids đều là number[])
 interface ProductState {
   items: ProductResponse[]
   selectedProduct?: ProductResponse
   loading: boolean
   error?: string
-  filters: {
-    // Thêm phần filters cho bộ lọc
-    priceRange: number[]
-    selectedBrands: string[]
-    selectedRating: number | null
-    selectedCategories: number[]
-  }
+  filters: ProductFilter
 }
 
-// Thiết lập initial state
+// Thiết lập initial state: đúng fields, đồng bộ với ProductFilter
 const initialState: ProductState = {
   items: [],
   selectedProduct: undefined,
   loading: false,
   error: undefined,
   filters: {
-    priceRange: [0, 5000000],
-    selectedBrands: [],
-    selectedRating: null,
-    selectedCategories: [],
+    price_min: 0,
+    price_max: 5000000,
+    rating: undefined, // hoặc undefined
+    brand_id: [],
+    category_ids: [],
   },
 }
 
-// Định nghĩa các async thunks để fetch dữ liệu sản phẩm
+// Async thunks
 export const fetchProducts = createAsyncThunk(
   'product/fetchProducts',
   async (params: ProductFilter | undefined, { rejectWithValue }) => {
@@ -94,7 +89,6 @@ export const updateProduct = createAsyncThunk(
   }
 )
 
-// Hành động xóa sản phẩm
 export const deleteProduct = createAsyncThunk(
   'product/deleteProduct',
   async (product_id: number, { rejectWithValue }) => {
@@ -107,7 +101,7 @@ export const deleteProduct = createAsyncThunk(
   }
 )
 
-// Khởi tạo slice cho product
+// Slice + reducers
 const productSlice = createSlice({
   name: 'product',
   initialState,
@@ -115,7 +109,7 @@ const productSlice = createSlice({
     clearSelectedProduct(state) {
       state.selectedProduct = undefined
     },
-    setFilters(state, action: PayloadAction<Partial<ProductState['filters']>>) {
+    setFilters(state, action: PayloadAction<Partial<ProductFilter>>) {
       state.filters = {
         ...state.filters,
         ...action.payload,
@@ -150,6 +144,7 @@ const productSlice = createSlice({
         state.loading = false
         state.items = state.items.filter((p) => p.product_id !== action.payload)
       })
+      // Loading/Error chung cho mọi thunk
       .addMatcher(
         isPending(fetchProducts, fetchProductById, createProduct, updateProduct, deleteProduct),
         (state) => {

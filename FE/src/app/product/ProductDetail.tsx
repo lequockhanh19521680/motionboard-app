@@ -50,7 +50,7 @@ export default function ProductDetail() {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           <Box flex={1}>
             <ProductImages
-              images={selectedProduct.images}
+              images={selectedProduct.images ?? []}
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
             />
@@ -76,12 +76,12 @@ export default function ProductDetail() {
                 {Number(selectedProduct.price).toLocaleString()} VND
               </Typography>
               <Typography>{selectedProduct.description}</Typography>
-              <Rating value={Number(selectedProduct.rating)} readOnly precision={0.5} />
+              <Rating value={Number(selectedProduct.avg_rating) || 0} readOnly precision={0.5} />
 
               <Box>
                 <Typography variant="subtitle1">Chọn loại: </Typography>
                 <ProductVariants
-                  variants={selectedProduct.variants}
+                  variants={selectedProduct.variants ?? []}
                   selectedVariant={selectedVariant}
                   onSelect={setSelectedVariant}
                 />

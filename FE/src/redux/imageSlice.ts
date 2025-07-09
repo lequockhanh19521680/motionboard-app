@@ -44,14 +44,7 @@ export const uploadMultiImage = createAsyncThunk(
       files.forEach((file) => formData.append('images', file))
 
       const uploadRes = await uploadMultiImageApi(formData)
-      const signedUrls: string[] = []
-
-      for (const key of uploadRes.keys) {
-        const signedUrlRes = await getSignedUrlApi(key)
-        signedUrls.push(signedUrlRes.signedUrl)
-      }
-
-      return signedUrls
+      return uploadRes.keys
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
