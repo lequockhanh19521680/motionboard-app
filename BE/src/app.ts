@@ -1,3 +1,16 @@
+import dotenv from "dotenv";
+
+
+if (process.env.NODE_ENV === "local") {
+  dotenv.config({ path: ".env.local" });
+} else if (process.env.NODE_ENV === "production") {
+  dotenv.config({ path: ".env.production" });
+} else {
+  dotenv.config();
+}
+
+
+
 import express from "express";
 import cors from "cors";
 import routers from "./routers";
@@ -10,6 +23,7 @@ const PORT = process.env.PORT || 8000;
 const app = express();
 
 app.locals.pool = pool;
+
 
 app.use(
   cors({
@@ -24,7 +38,6 @@ app.use(timeout("18s"));
 app.use(express.json());
 app.use(sqlLogger);
 
-// Routers
 routers.forEach(({ path, router }) => {
   app.use(path, router);
 });
