@@ -1,12 +1,7 @@
-export interface CartItemResponse {
-  cart_id: number
-  user_id: number
+export interface CartItemPreview {
   product_id: number
+  product_name: string
   quantity: number
-  is_deleted: boolean
-  created_at: string
-  updated_at: string
-  product_name?: string
-  price?: number
-  image?: string
+  variant_price: string
+  image_url: string
 }

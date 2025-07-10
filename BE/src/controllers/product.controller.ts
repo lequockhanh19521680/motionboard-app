@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import pool from "../config/db";
 import { AuthRequest } from "../types/AuthRequest";
 
-// ----------------- GET PRODUCTS (LIST) -----------------
+// ----------------- GET PRODUCTS (LIST, với IMAGES) -----------------
 export const getProducts = async (req: Request, res: Response) => {
   try {
     const {
@@ -72,12 +72,38 @@ export const getProducts = async (req: Request, res: Response) => {
 
     sql += ` ORDER BY p.updated_at DESC`;
 
+    // Query tất cả product theo filter
     const result = await pool.query(sql, params);
-    res.json(result.rows);
+    const products = result.rows;
+
+    if (products.length === 0) return res.json([]);
+
+    const productIds = products.map(p => p.product_id);
+    const imgSql = `
+      SELECT product_id, image_id, image_url, sort_order
+      FROM product_image
+      WHERE product_id = ANY($1)
+      ORDER BY sort_order ASC
+    `;
+    const imagesResult = await pool.query(imgSql, [productIds]);
+
+    const imgMap = imagesResult.rows.reduce((acc: any, img: any) => {
+      if (!acc[img.product_id]) acc[img.product_id] = [];
+      acc[img.product_id].push(img);
+      return acc;
+    }, {});
+
+    const productsWithImages = products.map(product => ({
+      ...product,
+      images: imgMap[product.product_id] || []
+    }));
+
+    return res.json(productsWithImages);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 };
+
 
 // ----------------- GET ONE PRODUCT -----------------
 export const getProductById = async (req: Request, res: Response) => {

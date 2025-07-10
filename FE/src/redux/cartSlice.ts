@@ -6,11 +6,11 @@ import {
   isRejected,
 } from '@reduxjs/toolkit'
 
-import { CartItemResponse } from '../types/response/CartItemResponse'
 import { addToCartApi, getCartApi, removeFromCartApi, updateCartItemApi } from '../api/cart/cartApi'
+import { CartItemPreview } from '../types/response/CartItemResponse'
 
 interface CartState {
-  items: CartItemResponse[]
+  items: CartItemPreview[]
   loading: boolean
   error?: string
 }
@@ -33,11 +33,11 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, { rejectWi
 export const addToCart = createAsyncThunk(
   'cart/addToCart',
   async (
-    { product_id, quantity }: { product_id: number; quantity: number },
+    { variant_id, quantity }: { variant_id: number; quantity: number },
     { rejectWithValue }
   ) => {
     try {
-      return await addToCartApi(product_id, quantity)
+      return await addToCartApi(variant_id, quantity)
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')
@@ -83,11 +83,11 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCart.fulfilled, (state, action: PayloadAction<CartItemResponse[]>) => {
+      .addCase(fetchCart.fulfilled, (state, action: PayloadAction<CartItemPreview[]>) => {
         state.loading = false
         state.items = action.payload
       })
-      .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItemResponse>) => {
+      .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
         const idx = state.items.findIndex((i) => i.product_id === action.payload.product_id)
         if (idx !== -1) {
@@ -96,7 +96,7 @@ const cartSlice = createSlice({
           state.items.push(action.payload)
         }
       })
-      .addCase(updateCartItem.fulfilled, (state, action: PayloadAction<CartItemResponse>) => {
+      .addCase(updateCartItem.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
         const idx = state.items.findIndex((i) => i.product_id === action.payload.product_id)
         if (idx !== -1) {

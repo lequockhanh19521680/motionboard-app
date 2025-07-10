@@ -1,3 +1,5 @@
+import { showGlobalNotification } from '../components/common/NotificationProvider'
+
 const BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 export default async function apiClient<T>(
@@ -22,12 +24,13 @@ export default async function apiClient<T>(
     headers['Content-Type'] = 'application/json'
   }
 
-  const fullUrl = `${BASE_URL?.replace(/\/$/, '')}${url.startsWith('/') ? url : '/' + url}`
+  const base = BASE_URL
+  const path = url.startsWith('/') ? url : '/' + url
+  const fullUrl = base + path
 
   const fetchOptions: RequestInit = {
     method: options.method,
     credentials: 'include',
-
     headers,
   }
 
@@ -38,6 +41,32 @@ export default async function apiClient<T>(
   const res = await fetch(fullUrl, fetchOptions)
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('token')
+      showGlobalNotification(
+        'error',
+        'Bạn chưa đăng nhập',
+        'Vui lòng đăng nhập để tiếp tục.',
+        () => {
+          window.location.href = '/login'
+        }
+      )
+      throw new Error('Bạn chưa đăng nhập. Redirecting to login...')
+    }
+
+    if (res.status === 403) {
+      localStorage.removeItem('token')
+      showGlobalNotification(
+        'error',
+        'Phiên đăng nhập đã hết hạn',
+        'Vui lòng đăng nhập lại.',
+        () => {
+          window.location.href = '/login'
+        }
+      )
+      throw new Error('Token expired. Redirecting to login...')
+    }
+
     const errorText = await res.text()
     throw new Error(errorText)
   }

@@ -89,7 +89,11 @@ export default function ProductDetail() {
 
               <Box display="flex" alignItems="center" gap={2}>
                 <ProductQuantity quantity={quantity} setQuantity={setQuantity} />
-                <ProductActions />
+                <Box display="flex" alignItems="center" gap={2}>
+                  {selectedVariant && (
+                    <ProductActions variantId={selectedVariant} quantity={quantity} />
+                  )}
+                </Box>{' '}
               </Box>
             </Stack>
           </Box>

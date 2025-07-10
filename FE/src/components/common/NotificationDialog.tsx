@@ -13,12 +13,24 @@ import {
 } from '@mui/material'
 import { CheckCircle, Error, Info, Warning } from '@mui/icons-material'
 import { styled } from '@mui/material/styles'
-import { NotificationDialogProps } from '../../types/common/NotificationType'
+
+// <<<<<<<<<<<<<<< Thêm kiểu mới cho prop >>>>>>>>>>>>>>>
+export interface NotificationDialogProps {
+  open: boolean
+  type: 'success' | 'error' | 'warning' | 'info'
+  title: string
+  message: string
+  onClose?: () => void
+  autoClose?: boolean
+  autoCloseDuration?: number
+  onAutoClose?: () => void
+  onAfterClose?: () => void // <-- mới thêm vào
+}
+// <<<<<<<<<<<<<<< End >>>>>>>>>>>>>>>
 
 const Transition = React.forwardRef<HTMLDivElement, SlideProps>(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />
 })
-
 Transition.displayName = 'Transition'
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -32,6 +44,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     border: `1px solid ${theme.palette.divider}`,
   },
 }))
+
 const IconContainer = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
   '& svg': {
@@ -83,23 +96,32 @@ function NotificationDialog({
   autoClose = false,
   autoCloseDuration = 3000,
   onAutoClose,
+  onAfterClose, // <-- mới thêm vào
 }: NotificationDialogProps) {
   const theme = useTheme()
 
+  // Handle auto close
   useEffect(() => {
     if (autoClose && open) {
       const timer = setTimeout(() => {
         onClose?.()
-        onAutoClose?.() // Thêm dòng này
+        onAutoClose?.()
+        onAfterClose?.() // Gọi khi auto close
       }, autoCloseDuration)
       return () => clearTimeout(timer)
     }
-  }, [open, autoClose, autoCloseDuration, onClose, onAutoClose])
+  }, [open, autoClose, autoCloseDuration, onClose, onAutoClose, onAfterClose])
+
+  // Handle bấm Đóng
+  const handleClose = () => {
+    onClose?.()
+    onAfterClose?.()
+  }
 
   return (
     <StyledDialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       TransitionComponent={Transition}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
@@ -112,7 +134,7 @@ function NotificationDialog({
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', padding: 0 }}>
           <ActionButton
-            onClick={onClose}
+            onClick={handleClose}
             color="primary"
             variant="contained"
             fullWidth
