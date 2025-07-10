@@ -1,17 +1,12 @@
 import { Request, Response } from "express";
-import { container } from "../../shared/container";
-import { LoginUserUseCase } from "../../application/usecases/user/LoginUserUseCase";
-import { RegisterUserUseCase } from "../../application/usecases/user/RegisterUserUseCase";
-import { GetUserDetailUseCase } from "../../application/usecases/user/GetUserDetailUseCase";
-import { UpdateUserUseCase } from "../../application/usecases/user/UpdateUserUseCase";
-import { GetAllUsersUseCase } from "../../application/usecases/user/GetAllUsersUseCase";
-import { AuthRequest } from "../../shared/types/AuthRequest";
+import { ServiceFactory } from "@shared/ServiceFactory";
+import { AuthRequest } from "@shared/types/AuthRequest";
 import { getPresignedUrl } from "../../config/s3Utils";
 
 export class UserController {
   async getAllUsers(_req: Request, res: Response): Promise<any> {
     try {
-      const getAllUsersUseCase = container.get<GetAllUsersUseCase>(GetAllUsersUseCase);
+      const getAllUsersUseCase = ServiceFactory.getInstance().getGetAllUsersUseCase();
       const users = await getAllUsersUseCase.execute();
       return res.json(users);
     } catch (error) {
@@ -21,7 +16,7 @@ export class UserController {
 
   async loginUser(req: Request, res: Response): Promise<any> {
     try {
-      const loginUserUseCase = container.get<LoginUserUseCase>(LoginUserUseCase);
+      const loginUserUseCase = ServiceFactory.getInstance().getLoginUserUseCase();
       const result = await loginUserUseCase.execute(req.body);
       return res.json(result);
     } catch (error) {
@@ -35,7 +30,7 @@ export class UserController {
 
   async registerUser(req: Request, res: Response): Promise<any> {
     try {
-      const registerUserUseCase = container.get<RegisterUserUseCase>(RegisterUserUseCase);
+      const registerUserUseCase = ServiceFactory.getInstance().getRegisterUserUseCase();
       const result = await registerUserUseCase.execute(req.body);
       return res.status(201).json(result);
     } catch (error) {
@@ -54,7 +49,7 @@ export class UserController {
     }
 
     try {
-      const updateUserUseCase = container.get<UpdateUserUseCase>(UpdateUserUseCase);
+      const updateUserUseCase = ServiceFactory.getInstance().getUpdateUserUseCase();
       
       // Remap fullName to match domain model
       const requestBody = { ...req.body };
@@ -92,7 +87,7 @@ export class UserController {
     }
 
     try {
-      const getUserDetailUseCase = container.get<GetUserDetailUseCase>(GetUserDetailUseCase);
+      const getUserDetailUseCase = ServiceFactory.getInstance().getGetUserDetailUseCase();
       const user = await getUserDetailUseCase.execute(userId);
       
       // Add presigned URL for image if exists

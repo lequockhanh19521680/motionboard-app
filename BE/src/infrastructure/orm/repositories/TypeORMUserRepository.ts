@@ -1,10 +1,8 @@
 import { Repository, DataSource } from 'typeorm';
-import { injectable } from 'inversify';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { User } from '../../domain/entities/User';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
+import { User } from '@domain/entities/User';
 import { UserEntity } from '../entities/UserEntity';
 
-@injectable()
 export class TypeORMUserRepository implements IUserRepository {
   private repository: Repository<UserEntity>;
 

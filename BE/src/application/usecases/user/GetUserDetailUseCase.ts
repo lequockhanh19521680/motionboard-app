@@ -1,12 +1,7 @@
-import { injectable, inject } from 'inversify';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { User } from '../../domain/entities/User';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
 
-@injectable()
 export class GetUserDetailUseCase {
-  constructor(
-    @inject('IUserRepository') private userRepository: IUserRepository
-  ) {}
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(userId: number): Promise<{
     id: number;

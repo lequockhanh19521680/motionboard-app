@@ -18,10 +18,11 @@
     "path-to-regexp": "^8.2.0",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
+    "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.25"
   },
   "scripts": {
-    "dev": "cross-env NODE_ENV=local nodemon --watch src --ext ts --exec ts-node src/app.ts",
+    "dev": "cross-env NODE_ENV=local nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/app.ts",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production npm run build && node dist/app.js"
   },

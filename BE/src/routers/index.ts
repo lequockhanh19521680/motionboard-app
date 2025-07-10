@@ -1,4 +1,4 @@
-import userRouters from "../interface/routes/userRoutes";
+import userRouters from "@interface/routes/userRoutes";
 import legacyUserRouters from "./user.route";
 import productRouters from "./product.route";
 import categoryRouters from "./category.route";

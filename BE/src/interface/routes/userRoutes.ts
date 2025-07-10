@@ -5,8 +5,8 @@ import {
   loginUser,
   registerUser,
   updateUser,
-} from "../controllers/UserController";
-import { authenticateToken } from "../../shared/middleware/auth.middleware";
+} from "@interface/controllers/UserController";
+import { authenticateToken } from "@shared/middleware/auth.middleware";
 
 const router = Router();
 

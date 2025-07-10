@@ -15,8 +15,8 @@ import routers from "./routers";
 import { sqlLogger } from "./shared/middleware/sqlLogger";
 import pool from "./config/db";
 import timeout from "connect-timeout";
-import { initializeDatabase } from "./infrastructure/database/connection";
-import { configureContainer } from "./shared/container";
+import { initializeDatabase } from "@infrastructure/database/connection";
+import { ServiceFactory } from "@shared/ServiceFactory";
 
 const PORT = process.env.PORT || 8000;
 
@@ -32,13 +32,14 @@ const initializeApp = async () => {
     const dataSource = await initializeDatabase();
     console.log('✅ Database connected');
     
-    // Configure dependency injection
-    configureContainer(dataSource);
-    console.log('✅ Container configured');
+    // Initialize Service Factory
+    ServiceFactory.initialize(dataSource);
+    console.log('✅ Service Factory initialized');
     
   } catch (error) {
-    console.error('❌ Failed to initialize app:', error);
-    process.exit(1);
+    console.error('❌ Database connection failed:', (error as Error).message);
+    console.log('⚠️  Continuing with legacy database only...');
+    // We'll continue without TypeORM for now to allow legacy functionality
   }
 };
 

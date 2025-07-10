@@ -1,6 +1,4 @@
-import { injectable, inject } from 'inversify';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { User } from '../../domain/entities/User';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
 
 export interface UpdateUserRequest {
   userId: number;
@@ -11,11 +9,8 @@ export interface UpdateUserRequest {
   phone?: string;
 }
 
-@injectable()
 export class UpdateUserUseCase {
-  constructor(
-    @inject('IUserRepository') private userRepository: IUserRepository
-  ) {}
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(request: UpdateUserRequest): Promise<{
     id: number;

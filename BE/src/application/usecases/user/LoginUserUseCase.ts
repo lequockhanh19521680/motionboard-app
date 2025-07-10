@@ -1,8 +1,6 @@
-import { injectable, inject } from 'inversify';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { User } from '../../domain/entities/User';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
 
 export interface LoginRequest {
   username: string;
@@ -23,11 +21,8 @@ export interface LoginResponse {
   token: string;
 }
 
-@injectable()
 export class LoginUserUseCase {
-  constructor(
-    @inject('IUserRepository') private userRepository: IUserRepository
-  ) {}
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(request: LoginRequest): Promise<LoginResponse> {
     const { username, password } = request;
