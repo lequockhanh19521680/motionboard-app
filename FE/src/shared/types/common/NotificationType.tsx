@@ -1,4 +1,4 @@
-import { NotificationType } from '../../utils/constant'
+import { NotificationType } from '../../constants/constant'
 
 export interface NotificationDialogProps {
   open: boolean

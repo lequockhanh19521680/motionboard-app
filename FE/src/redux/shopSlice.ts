@@ -6,10 +6,10 @@ import {
   isRejected,
 } from '@reduxjs/toolkit'
 
-import type { ShopResponse } from '../types/response/ShopResponse'
-import type { OrderResponse } from '../types/response/OrderResponse'
-import type { RevenueResponse } from '../types/response/RevenueResponse'
-import type { ShopCreateRequest, ShopUpdateRequest } from '../types/request/ShopRequest'
+import type { ShopResponse } from '../shared/types/response/ShopResponse'
+import type { OrderResponse } from '../shared/types/response/OrderResponse'
+import type { RevenueResponse } from '../shared/types/response/RevenueResponse'
+import type { ShopCreateRequest, ShopUpdateRequest } from '../shared/types/request/ShopRequest'
 
 import {
   getShopsApi,

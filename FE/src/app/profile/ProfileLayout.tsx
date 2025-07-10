@@ -26,7 +26,7 @@ import Notifications from './Notifications'
 import SubscriptionManagement from './SubscriptionManagement'
 import LogoutTab from './LogoutTab'
 import { Navigate } from 'react-router-dom'
-import { PAGE_ROUTES } from '../../utils/constant'
+import { PAGE_ROUTES } from '../../shared/constants'
 
 const sidebarWidth = 320
 

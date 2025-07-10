@@ -5,9 +5,12 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
-import { NotificationProvider } from './components/common/NotificationProvider'
+import { NotificationProvider } from './shared/components/feedback/NotificationProvider'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root')
+if (!rootElement) throw new Error('Failed to find the root element')
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <Provider store={store}>
       <NotificationProvider>

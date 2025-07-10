@@ -1,7 +1,7 @@
 import apiClient from '../apiClient'
-import { API_ROUTES } from '../../utils/constant'
-import { UploadImageResponse, UploadMultiImageResponse } from '../../types/response/ImageResponse'
-import { GetSignedUrlResponse } from '../../types/response/ImageResponse'
+import { API_ROUTES } from '../../shared/constants'
+import { UploadImageResponse, UploadMultiImageResponse } from '../../shared/types/response/ImageResponse'
+import { GetSignedUrlResponse } from '../../shared/types/response/ImageResponse'
 
 export function getSignedUrlApi(key: string) {
   return apiClient<GetSignedUrlResponse>(

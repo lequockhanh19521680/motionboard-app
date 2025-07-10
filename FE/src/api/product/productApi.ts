@@ -1,10 +1,10 @@
 import apiClient from '../apiClient'
-import type { ProductResponse } from '../../types/response/ProductResponse'
-import type { ProductFilter } from '../../types/request/ProductFilter'
-import type { ProductCreate } from '../../types/request/ProductCreate'
-import type { ProductUpdate } from '../../types/request/ProductUpdate'
-import { API_ROUTES } from '../../utils/constant'
-import { BrandResponse } from '../../types/response/BrandResponse'
+import type { ProductResponse } from '../../shared/types/response/ProductResponse'
+import type { ProductFilter } from '../../shared/types/request/ProductFilter'
+import type { ProductCreate } from '../../shared/types/request/ProductCreate'
+import type { ProductUpdate } from '../../shared/types/request/ProductUpdate'
+import { API_ROUTES } from '../../shared/constants'
+import { BrandResponse } from '../../shared/types/response/BrandResponse'
 
 /** Lấy list sản phẩm, dùng các param filter ở query */
 export function getProductsApi(params?: ProductFilter) {

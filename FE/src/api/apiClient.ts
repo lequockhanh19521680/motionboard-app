@@ -1,4 +1,4 @@
-import { showGlobalNotification } from '../components/common/NotificationProvider'
+import { showGlobalNotification } from '../shared/components/feedback/NotificationProvider'
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL
 

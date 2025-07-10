@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
-import { CategoryResponse } from '../../../../types/response/CategoryResponse'
+import { CategoryResponse } from '../../../../shared/types/response/CategoryResponse'
 
 interface CategorySelectProps {
   value: number

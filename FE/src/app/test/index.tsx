@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Typography, Divider, Paper } from '@mui/material'
-import ImageUploader from '../../components/common/ImageUploader'
+import ImageUploader from '../../shared/components/forms/ImageUploader'
 import { uploadImage, deleteImage } from '../../redux/imageSlice'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'

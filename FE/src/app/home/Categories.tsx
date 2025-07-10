@@ -20,7 +20,6 @@ import {
   Rating,
   Switch,
   FormControl,
-  FormLabel,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import SearchIcon from '@mui/icons-material/Search'

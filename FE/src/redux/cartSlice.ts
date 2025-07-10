@@ -7,7 +7,7 @@ import {
 } from '@reduxjs/toolkit'
 
 import { addToCartApi, getCartApi, removeFromCartApi, updateCartItemApi } from '../api/cart/cartApi'
-import { CartItemPreview } from '../types/response/CartItemResponse'
+import { CartItemPreview } from '../shared/types/response/CartItemResponse'
 
 interface CartState {
   items: CartItemPreview[]

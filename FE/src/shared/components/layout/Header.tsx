@@ -13,7 +13,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Link, useNavigate } from 'react-router-dom'
-import { PAGE_ROUTES } from '../utils/constant'
+import { PAGE_ROUTES } from '../../constants'
 import {
   Menu,
   MenuList,
@@ -25,11 +25,11 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../redux/store'
-import { logout } from '../redux/authSlice'
-import { fetchCart, removeFromCart } from '../redux/cartSlice'
-import { useAppSelector } from '../redux/hook'
-import { CartItemPreview } from '../types/response/CartItemResponse'
+import { AppDispatch } from '../../../redux/store'
+import { logout } from '../../../redux/authSlice'
+import { fetchCart, removeFromCart } from '../../../redux/cartSlice'
+import { useAppSelector } from '../../../redux/hook'
+import { CartItemPreview } from '../../types/response/CartItemResponse'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 

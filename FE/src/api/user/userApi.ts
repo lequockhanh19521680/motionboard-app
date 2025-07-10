@@ -1,8 +1,8 @@
-import { RegisterApiPayload } from '../../types/request/RegisterRequest'
-import { UpdateProfileRequest } from '../../types/request/UpdateProfileRequest'
-import { AuthResponse } from '../../types/response/AuthResponse'
-import { UserDetailResponse } from '../../types/response/UserDetailResponse'
-import { API_ROUTES } from '../../utils/constant'
+import { RegisterApiPayload } from '../../shared/types/request/RegisterRequest'
+import { UpdateProfileRequest } from '../../shared/types/request/UpdateProfileRequest'
+import { AuthResponse } from '../../shared/types/response/AuthResponse'
+import { UserDetailResponse } from '../../shared/types/response/UserDetailResponse'
+import { API_ROUTES } from '../../shared/constants'
 import apiClient from '../apiClient'
 
 export function loginApi(username: string, password: string) {

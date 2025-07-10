@@ -1,5 +1,5 @@
-import Header from '../Header'
-import Footer from '../Footer'
+import Header from '../shared/components/layout/Header'
+import Footer from '../shared/components/layout/Footer'
 import { Container } from '@mui/material'
 import { Outlet } from 'react-router-dom'
 

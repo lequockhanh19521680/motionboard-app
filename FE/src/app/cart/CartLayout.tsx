@@ -20,7 +20,7 @@ import { useAppSelector } from '../../redux/hook'
 import { useDispatch } from 'react-redux'
 import { updateCartItem, removeFromCart } from '../../redux/cartSlice'
 import { AppDispatch } from '../../redux/store'
-import { CartItemPreview } from '../../types/response/CartItemResponse'
+import { CartItemPreview } from '../../shared/types/response/CartItemResponse'
 
 export default function CartLayout() {
   const cart = useAppSelector((state) => state.cart.items)
