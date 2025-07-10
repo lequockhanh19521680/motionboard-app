@@ -69,14 +69,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Header() {
   const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
-  const [pendingRemove, setPendingRemove] = useState(false)
 
   const user = useAppSelector((state) => state.auth.user)
   const cartItems: CartItemPreview[] = useAppSelector((state) => state.cart.items)
   const cartLoading = useAppSelector((state) => state.cart.loading)
   const cartCount = cartItems.length
 
-  // Cart icon scale effect
+  // Khi user login thì fetch cart
+  useEffect(() => {
+    if (user) dispatch(fetchCart())
+  }, [dispatch, user])
+
+  // Cart icon scale effect khi đổi số lượng
   const [animateCart, setAnimateCart] = useState(false)
   const prevCartCount = useRef(cartCount)
   useEffect(() => {
@@ -88,12 +92,14 @@ export default function Header() {
     }
   }, [cartCount])
 
+  // Popover cart
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const handlePopoverToggle = (event: React.MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(anchorEl ? null : event.currentTarget)
   const handlePopoverClose = () => setAnchorEl(null)
   const open = Boolean(anchorEl)
 
+  // User menu state
   const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setUserAnchorEl(e.currentTarget)
   const handleMenuClose = () => setUserAnchorEl(null)
@@ -103,21 +109,19 @@ export default function Header() {
     navigate('/login')
   }
 
-  useEffect(() => {
-    if (user) dispatch(fetchCart())
-  }, [dispatch, user])
-
+  // Xoá sản phẩm trong Popover
+  const [pendingRemove, setPendingRemove] = useState(false)
   const handleRemoveCartItem = (variantId: number) => {
-    setPendingRemove(true) // đánh dấu "đang xoá"
+    setPendingRemove(true)
     dispatch(removeFromCart(variantId))
   }
-
   useEffect(() => {
     if (pendingRemove && !cartLoading) {
       dispatch(fetchCart())
       setPendingRemove(false)
     }
   }, [pendingRemove, cartLoading, dispatch])
+
   const totalPrice = cartItems.reduce(
     (total, item) => total + Number(item.variant_price) * Number(item.quantity),
     0
@@ -170,7 +174,6 @@ export default function Header() {
               </Badge>
             </span>
           </IconButton>
-
           {/* Cart Popover */}
           <Popover
             id="cart-popover"

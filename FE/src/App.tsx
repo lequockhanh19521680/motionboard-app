@@ -15,6 +15,7 @@ import { AppDispatch } from './redux/store'
 import ProfilePage from './app/profile'
 import { fetchProfile } from './redux/authSlice'
 import CreateProduct from './app/shop/shop-product/create'
+import CartPage from './app/cart'
 
 function ProtectedRoute({
   children,
@@ -64,6 +65,8 @@ export default function App() {
 
         <Route element={<MainLayout />}>
           <Route path={PAGE_ROUTES.TEST} element={<TestPage />} />
+          <Route path={PAGE_ROUTES.CART} element={<CartPage />} />
+
           <Route path={PAGE_ROUTES.PROFILE} element={<ProfilePage />} />
           <Route path="/shop/:shop_id/product/create" element={<CreateProduct />} />
 

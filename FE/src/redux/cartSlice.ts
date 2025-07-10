@@ -48,11 +48,11 @@ export const addToCart = createAsyncThunk(
 export const updateCartItem = createAsyncThunk(
   'cart/updateCartItem',
   async (
-    { product_id, quantity }: { product_id: number; quantity: number },
+    { variant_id, quantity }: { variant_id: number; quantity: number },
     { rejectWithValue }
   ) => {
     try {
-      return await updateCartItemApi(product_id, quantity)
+      return await updateCartItemApi(variant_id, quantity)
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')
@@ -89,7 +89,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
-        const idx = state.items.findIndex((i) => i.product_id === action.payload.product_id)
+        const idx = state.items.findIndex((i) => i.variant_id === action.payload.variant_id)
         if (idx !== -1) {
           state.items[idx] = action.payload
         } else {
@@ -98,14 +98,14 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItem.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
-        const idx = state.items.findIndex((i) => i.product_id === action.payload.product_id)
+        const idx = state.items.findIndex((i) => i.variant_id === action.payload.variant_id)
         if (idx !== -1) {
           state.items[idx] = action.payload
         }
       })
       .addCase(removeFromCart.fulfilled, (state, action: PayloadAction<number>) => {
         state.loading = false
-        state.items = state.items.filter((i) => i.product_id !== action.payload)
+        state.items = state.items.filter((i) => i.variant_id !== action.payload)
       })
       .addMatcher(isPending(fetchCart, addToCart, updateCartItem, removeFromCart), (state) => {
         state.loading = true

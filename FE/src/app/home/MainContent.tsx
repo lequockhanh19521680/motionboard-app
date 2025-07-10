@@ -11,7 +11,6 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { fetchProducts } from '../../redux/productSlice'
 
-// Section Header
 const SectionHeader: React.FC = () => (
   <Box
     sx={{
@@ -71,20 +70,21 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
       tabIndex={-1}
     >
       <Card
-        elevation={hovered ? 7 : 1}
+        elevation={hovered ? 8 : 1}
         sx={{
           height: '100%',
           flexDirection: 'column',
           borderRadius: 4,
           overflow: 'hidden',
           boxShadow: hovered
-            ? '0 4px 32px 0 rgba(36,37,47,0.15)'
-            : '0 2px 8px 0 rgba(36,37,47,0.07)',
+            ? '0 6px 32px 0 rgba(36,37,47,0.17)'
+            : '0 1px 10px 0 rgba(36,37,47,0.06)',
           position: 'relative',
           cursor: 'pointer',
-          transition: 'box-shadow 0.22s cubic-bezier(.39,.575,.565,1.0)',
           display: 'flex',
           flexGrow: 1,
+          transition: 'box-shadow 0.25s, background 0.22s',
+          bgcolor: hovered ? 'grey.50' : 'background.paper',
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -99,7 +99,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             bgcolor: '#fff',
           }}
         >
-          {/* Main Image */}
           <CardMedia
             component="img"
             image={mainImage}
@@ -114,7 +113,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               opacity: hovered ? 0 : 1,
             }}
           />
-          {/* Hover Image (if exists) */}
           {images.length > 1 && (
             <CardMedia
               component="img"
@@ -135,7 +133,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               }}
             />
           )}
-          {/* Promotion badge */}
           {promotion && (
             <Box
               sx={{
@@ -145,7 +142,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
                 bgcolor: 'error.main',
                 color: 'white',
                 px: 1.5,
-                py: '3px',
+                py: 0.5,
                 borderBottomRightRadius: 16,
                 fontSize: 13,
                 fontWeight: 700,
@@ -155,7 +152,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               {promotion}
             </Box>
           )}
-          {/* Số ảnh badge */}
           {images.length > 1 && (
             <Box
               sx={{
@@ -174,7 +170,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               <b>{images.length} ảnh</b>
             </Box>
           )}
-          {/* Nút yêu thích và mua nhanh */}
           <Box
             sx={{
               position: 'absolute',
@@ -202,16 +197,20 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             flexGrow: 1,
             py: 2,
             px: 2,
-            minHeight: 120,
-            bgcolor: hovered ? 'grey.50' : 'background.paper',
-            transition: 'background 0.15s',
+            minHeight: 140,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
           }}
         >
           <Typography gutterBottom variant="h6" component="h3" color="text.primary" noWrap>
             {product.product_name}
           </Typography>
-          {/* Rating */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+          {/* DESCRIPTION */}
+          <Typography variant="body2" color="text.secondary" sx={{ minHeight: 44, mb: 1 }} noWrap>
+            {product.description ?? 'Mô tả sản phẩm đang cập nhật.'}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, mt: 0.5 }}>
             <StarIcon sx={{ color: 'orange', fontSize: 18 }} />
             <Typography variant="body2" fontWeight={500}>
               {rating.toFixed(1)}
@@ -234,7 +233,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               </Box>
             )}
           </Box>
-          <Typography variant="h6" color="error" sx={{ fontWeight: 700, mb: 1 }}>
+          <Typography variant="h6" color="error" sx={{ fontWeight: 700 }}>
             {Number(product.price).toLocaleString('vi-VN', {
               style: 'currency',
               currency: 'VND',
@@ -246,7 +245,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   )
 }
 
-// MainContent bảng sản phẩm
 export const MainContent: React.FC = () => {
   const { items: products, loading, error, filters } = useAppSelector((state) => state.product)
   const dispatch = useDispatch<AppDispatch>()
@@ -260,6 +258,7 @@ export const MainContent: React.FC = () => {
     <Card key={i} sx={{ borderRadius: 4, p: 2 }}>
       <Skeleton variant="rectangular" width="100%" height={180} sx={{ mb: 2 }} />
       <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width="90%" height={24} sx={{ mb: 1 }} />
       <Skeleton variant="text" width="40%" height={28} />
     </Card>
   ))
@@ -281,7 +280,6 @@ export const MainContent: React.FC = () => {
               </div>
             </div>
           )}
-
           <div
             className={`grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${
               loading ? 'opacity-60 pointer-events-none' : 'opacity-100'

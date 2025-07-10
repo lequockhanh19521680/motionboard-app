@@ -13,6 +13,7 @@ export const PAGE_ROUTES = {
   ADMIN: '/admin',
   AFTER_LOGIN: '/after-login',
   PROFILE: '/profile',
+  CART: '/cart',
 
   PRODUCT_DETAIL: '/product/:id',
 }
