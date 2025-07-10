@@ -1,4 +1,5 @@
-import userRouters from "./user.route";
+import userRouters from "../interface/routes/userRoutes";
+import legacyUserRouters from "./user.route";
 import productRouters from "./product.route";
 import categoryRouters from "./category.route";
 import shopRouters from "./shop.route";
@@ -8,7 +9,8 @@ import uploadRouters from "./upload.route";
 import bannerRouters from "./banner.route";
 
 export default [
-  { path: "/api/users", router: userRouters },
+  { path: "/api/users", router: userRouters }, // Clean Architecture
+  { path: "/api/legacy/users", router: legacyUserRouters }, // Legacy for comparison
   { path: "/api/products", router: productRouters },
   { path: "/api/categories", router: categoryRouters },
   { path: "/api/shops", router: shopRouters },
