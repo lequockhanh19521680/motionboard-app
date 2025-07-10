@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
-import { BrandResponse } from '../../../../shared/types/response/BrandResponse'
+import { BrandResponse } from '../../../../../shared/types/response/BrandResponse'
 
 interface BrandSelectProps {
   value: number | string // Accept both number and string!

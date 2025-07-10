@@ -1,6 +1,6 @@
 import { Paper, Typography, Box } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { ProductVariant } from '../../shared/types/response/ProductResponse'
+import { ProductVariant } from '../../../shared/types/response/ProductResponse'
 
 interface Props {
   variants: ProductVariant[]

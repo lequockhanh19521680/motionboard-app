@@ -1,8 +1,8 @@
 import { Button } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../redux/store'
-import { addToCart, fetchCart } from '../../redux/cartSlice'
+import { AppDispatch } from '../../../redux/store'
+import { addToCart, fetchCart } from '../../../redux/cartSlice'
 
 interface ProductActionsProps {
   variantId: number

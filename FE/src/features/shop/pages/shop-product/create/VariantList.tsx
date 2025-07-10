@@ -1,7 +1,7 @@
 import React from 'react'
 import { Stack, TextField, IconButton, Button, Typography, Box, Divider } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { ProductVariant } from '../../../../shared/types/response/ProductResponse'
+import { ProductVariant } from '../../../../../shared/types/response/ProductResponse'
 
 interface VariantListProps {
   variants: ProductVariant[]

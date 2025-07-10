@@ -16,11 +16,11 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
-import { useAppSelector } from '../../redux/hook'
+import { useAppSelector } from '../../../redux/hook'
 import { useDispatch } from 'react-redux'
-import { updateCartItem, removeFromCart } from '../../redux/cartSlice'
-import { AppDispatch } from '../../redux/store'
-import { CartItemPreview } from '../../shared/types/response/CartItemResponse'
+import { updateCartItem, removeFromCart } from '../../../redux/cartSlice'
+import { AppDispatch } from '../../../redux/store'
+import { CartItemPreview } from '../../../shared/types/response/CartItemResponse'
 
 export default function CartLayout() {
   const cart = useAppSelector((state) => state.cart.items)

@@ -17,7 +17,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useTheme } from '@mui/material/styles'
 
-import { useAppSelector } from '../../redux/hook'
+import { useAppSelector } from '../../../redux/hook'
 import ProfileInfo from './ProfileInfo'
 import ChangePassword from './ChangePassword'
 import Settings from './Setting'
@@ -26,7 +26,7 @@ import Notifications from './Notifications'
 import SubscriptionManagement from './SubscriptionManagement'
 import LogoutTab from './LogoutTab'
 import { Navigate } from 'react-router-dom'
-import { PAGE_ROUTES } from '../../shared/constants'
+import { PAGE_ROUTES } from '../../../shared/constants'
 
 const sidebarWidth = 320
 

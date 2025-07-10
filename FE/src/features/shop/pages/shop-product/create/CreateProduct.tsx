@@ -11,20 +11,20 @@ import {
   SelectChangeEvent,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../../../redux/store'
-import { fetchBrands } from '../../../../redux/brandSlice'
-import { fetchCategories } from '../../../../redux/categorySlice'
-import { useAppSelector } from '../../../../redux/hook'
-import { ProductCreate } from '../../../../shared/types/request/ProductCreate'
-import { ProductImage, ProductVariant } from '../../../../shared/types/response/ProductResponse'
+import { AppDispatch } from '../../../../../redux/store'
+import { fetchBrands } from '../../../../../redux/brandSlice'
+import { fetchCategories } from '../../../../../redux/categorySlice'
+import { useAppSelector } from '../../../../../redux/hook'
+import { ProductCreate } from '../../../../../shared/types/request/ProductCreate'
+import { ProductImage, ProductVariant } from '../../../../../shared/types/response/ProductResponse'
 
 import { CategorySelect } from './CategorySelect'
 import { BrandSelect } from './BrandSelect'
 import { ProductInfoFields } from './ProductInfoFields'
 import { ProductImages } from './ProductImages'
 import { VariantList } from './VariantList'
-import { createProduct } from '../../../../redux/productSlice'
-import { uploadMultiImage } from '../../../../redux/imageSlice'
+import { createProduct } from '../../../../../redux/productSlice'
+import { uploadMultiImage } from '../../../../../redux/imageSlice'
 
 interface ProductImageUI extends ProductImage {
   preview?: string

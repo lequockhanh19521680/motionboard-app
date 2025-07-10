@@ -1,9 +1,9 @@
 import { useParams } from 'react-router-dom'
 import ProductDetail from './ProductDetail'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../redux/store'
+import { AppDispatch } from '../../../redux/store'
 import { useEffect, useRef } from 'react'
-import { fetchProductById } from '../../redux/productSlice'
+import { fetchProductById } from '../../../redux/productSlice'
 
 export default function ProductDetailPage() {
   const { id } = useParams()

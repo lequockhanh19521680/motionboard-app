@@ -11,11 +11,11 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
-import { useAppSelector, useAppDispatch } from '../../redux/hook'
-import { uploadImage } from '../../redux/imageSlice'
-import { fetchProfile, updateProfile } from '../../redux/authSlice'
-import NotificationDialog from '../../shared/components/feedback/NotificationDialog'
-import { UpdateProfileRequest } from '../../shared/types/request/UpdateProfileRequest'
+import { useAppSelector, useAppDispatch } from '../../../redux/hook'
+import { uploadImage } from '../../../redux/imageSlice'
+import { fetchProfile, updateProfile } from '../../../redux/authSlice'
+import NotificationDialog from '../../../shared/components/feedback/NotificationDialog'
+import { UpdateProfileRequest } from '../../../shared/types/request/UpdateProfileRequest'
 
 const InputIcon = ({ icon }: { icon: React.ReactNode }) => (
   <InputAdornment position="start">{icon}</InputAdornment>

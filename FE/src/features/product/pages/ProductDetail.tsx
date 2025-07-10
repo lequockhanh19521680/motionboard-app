@@ -5,7 +5,7 @@ import ProductVariants from './ProductVariants'
 import ProductQuantity from './ProductQuantity'
 import ProductActions from './ProductActions'
 import { useEffect, useState } from 'react'
-import { useAppSelector } from '../../redux/hook'
+import { useAppSelector } from '../../../redux/hook'
 
 export default function ProductDetail() {
   const { selectedProduct, loading, error } = useAppSelector((state) => state.product)

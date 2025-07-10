@@ -1,5 +1,5 @@
 import { Card, CardMedia, Stack } from '@mui/material'
-import { ProductImage } from '../../shared/types/response/ProductResponse'
+import { ProductImage } from '../../../shared/types/response/ProductResponse'
 
 interface Props {
   images: ProductImage[]
