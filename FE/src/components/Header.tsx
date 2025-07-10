@@ -1,4 +1,3 @@
-import * as React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -8,27 +7,32 @@ import Badge from '@mui/material/Badge'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
 import Popover from '@mui/material/Popover'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import ListItemText from '@mui/material/ListItemText'
 import Avatar from '@mui/material/Avatar'
 import { styled, alpha } from '@mui/material/styles'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { Link, useNavigate } from 'react-router-dom'
 import { PAGE_ROUTES } from '../utils/constant'
-import { Menu, MenuList, MenuItem as MuiMenuItem, ListItemIcon } from '@mui/material'
+import {
+  Menu,
+  MenuList,
+  MenuItem as MuiMenuItem,
+  ListItemIcon,
+  Button,
+  Divider,
+} from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../redux/store'
 import { logout } from '../redux/authSlice'
-import { fetchCart } from '../redux/cartSlice'
+import { fetchCart, removeFromCart } from '../redux/cartSlice'
 import { useAppSelector } from '../redux/hook'
 import { CartItemPreview } from '../types/response/CartItemResponse'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 
-// Search bar styling
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -65,17 +69,17 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Header() {
   const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
+  const [pendingRemove, setPendingRemove] = useState(false)
 
   const user = useAppSelector((state) => state.auth.user)
   const cartItems: CartItemPreview[] = useAppSelector((state) => state.cart.items)
   const cartLoading = useAppSelector((state) => state.cart.loading)
-
   const cartCount = cartItems.length
 
-  // Effect simple: chỉ scale nhanh rồi trở về, không màu mè
-  const [animateCart, setAnimateCart] = React.useState(false)
-  const prevCartCount = React.useRef(cartCount)
-  React.useEffect(() => {
+  // Cart icon scale effect
+  const [animateCart, setAnimateCart] = useState(false)
+  const prevCartCount = useRef(cartCount)
+  useEffect(() => {
     if (prevCartCount.current !== cartCount) {
       setAnimateCart(true)
       const timer = setTimeout(() => setAnimateCart(false), 180)
@@ -84,15 +88,13 @@ export default function Header() {
     }
   }, [cartCount])
 
-  // Popover state cho giỏ hàng
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const handlePopoverToggle = (event: React.MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(anchorEl ? null : event.currentTarget)
   const handlePopoverClose = () => setAnchorEl(null)
   const open = Boolean(anchorEl)
 
-  // Account menu state
-  const [userAnchorEl, setUserAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setUserAnchorEl(e.currentTarget)
   const handleMenuClose = () => setUserAnchorEl(null)
   const handleLogout = () => {
@@ -101,10 +103,25 @@ export default function Header() {
     navigate('/login')
   }
 
-  // Fetch cart khi login
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) dispatch(fetchCart())
   }, [dispatch, user])
+
+  const handleRemoveCartItem = (variantId: number) => {
+    setPendingRemove(true) // đánh dấu "đang xoá"
+    dispatch(removeFromCart(variantId))
+  }
+
+  useEffect(() => {
+    if (pendingRemove && !cartLoading) {
+      dispatch(fetchCart())
+      setPendingRemove(false)
+    }
+  }, [pendingRemove, cartLoading, dispatch])
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + Number(item.variant_price) * Number(item.quantity),
+    0
+  )
 
   return (
     <AppBar position="static" color="primary" elevation={1}>
@@ -124,7 +141,6 @@ export default function Header() {
         >
           SellBuy
         </Typography>
-
         <Search sx={{ display: { xs: 'none', md: 'flex' } }}>
           <SearchIconWrapper>
             <SearchIcon />
@@ -134,7 +150,6 @@ export default function Header() {
             inputProps={{ 'aria-label': 'search' }}
           />
         </Search>
-
         <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
           <IconButton
             color="inherit"
@@ -142,7 +157,6 @@ export default function Header() {
             aria-haspopup="true"
             onClick={handlePopoverToggle}
           >
-            {/* Scale đơn giản, tinh tế, không đổi màu */}
             <span
               className={
                 animateCart
@@ -157,6 +171,7 @@ export default function Header() {
             </span>
           </IconButton>
 
+          {/* Cart Popover */}
           <Popover
             id="cart-popover"
             open={open}
@@ -174,53 +189,130 @@ export default function Header() {
             disableAutoFocus
             disableRestoreFocus
             PaperProps={{
-              sx: { minWidth: 300, p: 1 },
+              sx: { minWidth: 340, maxWidth: 380, p: 1, borderRadius: 3, boxShadow: 6 },
             }}
           >
-            <Typography variant="subtitle1" sx={{ px: 2, pt: 1, pb: 1, fontWeight: 500 }}>
-              Giỏ hàng ({cartCount} sản phẩm)
+            <Typography variant="subtitle1" sx={{ px: 2, pt: 1, fontWeight: 600 }}>
+              Giỏ hàng ({cartItems.length} sản phẩm)
             </Typography>
-            <List dense sx={{ maxHeight: 300, overflow: 'auto' }}>
-              {cartItems.length > 0 ? (
-                cartItems.map((item) => (
-                  <ListItem key={item.product_id} disableGutters>
-                    <ListItemAvatar>
-                      <Avatar variant="square" src={item.image_url} alt={item.product_name} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="body2" fontWeight={600} noWrap>
-                          {item.product_name}
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                          Giá: {item.variant_price} x {item.quantity}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                ))
-              ) : (
-                <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                  Giỏ hàng của bạn đang trống.
-                </Typography>
-              )}
-            </List>
-            <Box sx={{ textAlign: 'center', pt: 1 }}>
-              <Typography
+            <Divider sx={{ mb: 1, mt: 1 }} />
+            <Box
+              sx={{
+                minHeight: 90,
+                maxHeight: 330,
+                overflowY: 'auto',
+                pr: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+              }}
+            >
+              <AnimatePresence initial={false}>
+                {cartItems.length > 0 ? (
+                  cartItems.map((item) => (
+                    <motion.div
+                      key={item.variant_id}
+                      initial={{ x: 80, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 80, opacity: 0 }}
+                      transition={{ duration: 0.17, ease: 'easeOut' }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          bgcolor: 'background.paper',
+                          borderRadius: 2,
+                          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                          p: 1.2,
+                          position: 'relative',
+                          '&:hover': { boxShadow: '0 4px 18px rgba(50,50,150,0.17)' },
+                        }}
+                      >
+                        <Avatar
+                          variant="rounded"
+                          src={item.image_url}
+                          alt={item.product_name}
+                          sx={{
+                            width: 52,
+                            height: 52,
+                            mr: 2,
+                            flexShrink: 0,
+                            borderRadius: 2,
+                            bgcolor: '#f4f6fa',
+                          }}
+                        />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" fontWeight={600} noWrap>
+                            {item.product_name}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.7 }}>
+                            <Typography variant="body2" color="primary.main" fontWeight={700}>
+                              {Number(item.variant_price).toLocaleString()}₫
+                            </Typography>
+                            <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
+                              x {item.quantity}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          style={{ marginLeft: 8 }}
+                          sx={{
+                            color: 'text.disabled',
+                            '&:hover': { color: 'error.main', bgcolor: 'transparent' },
+                          }}
+                          onClick={() => handleRemoveCartItem(item.variant_id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </motion.div>
+                  ))
+                ) : (
+                  <motion.div
+                    key="empty"
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                  >
+                    <Box sx={{ textAlign: 'center', color: 'text.disabled', py: 3 }}>
+                      <ShoppingCartIcon sx={{ fontSize: 38, mb: 1 }} />
+                      <Typography variant="body2">Giỏ hàng của bạn đang trống.</Typography>
+                    </Box>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Box>
+            <Divider sx={{ my: 1 }} />
+            <Typography
+              variant="body2"
+              sx={{ px: 2, textAlign: 'right', fontWeight: 600, mb: 0.5, color: 'text.primary' }}
+            >
+              Tạm tính: {totalPrice.toLocaleString()}₫
+            </Typography>
+            <Box sx={{ textAlign: 'center', pt: 0.5 }}>
+              <Button
+                variant="contained"
+                color="primary"
                 component={Link}
                 to="/cart"
                 onClick={handlePopoverClose}
-                variant="body2"
-                color="primary"
-                sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                sx={{
+                  borderRadius: 7,
+                  px: 4,
+                  mt: 0.5,
+                  fontWeight: 700,
+                  boxShadow: 'none',
+                  letterSpacing: 1,
+                }}
               >
                 Xem chi tiết giỏ hàng
-              </Typography>
+              </Button>
             </Box>
           </Popover>
-
           {user ? (
             <>
               <IconButton color="inherit" onClick={handleMenuOpen}>

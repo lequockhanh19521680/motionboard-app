@@ -70,7 +70,7 @@ export const updateCartItem = async (req: AuthRequest, res: Response): Promise<a
 export const removeFromCart = async (req: AuthRequest, res: Response): Promise<any> => {
     try {
         const userId = req?.user_id;
-        const variant_id = req.params.variant_id || req.body.variant_id;
+        const { variant_id } = req.params;
         const sql = `
             UPDATE cart
             SET is_deleted = true, updated_at = CURRENT_TIMESTAMP

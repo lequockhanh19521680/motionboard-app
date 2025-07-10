@@ -62,10 +62,10 @@ export const updateCartItem = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
-  async (product_id: number, { rejectWithValue }) => {
+  async (variant_id: number, { rejectWithValue }) => {
     try {
-      await removeFromCartApi(product_id)
-      return product_id
+      await removeFromCartApi(variant_id)
+      return variant_id
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')

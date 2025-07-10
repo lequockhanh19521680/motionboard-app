@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material'
+import { Box, Card, CardContent, CardMedia, Typography, IconButton, Skeleton } from '@mui/material'
+import StarIcon from '@mui/icons-material/Star'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../redux/hook'
@@ -8,14 +11,15 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { fetchProducts } from '../../redux/productSlice'
 
+// Section Header
 const SectionHeader: React.FC = () => (
   <Box
     sx={{
       display: 'flex',
       alignItems: 'center',
       mb: 4,
-      position: 'relative',
       justifyContent: 'space-between',
+      flexWrap: 'wrap',
     }}
   >
     <Box>
@@ -42,6 +46,7 @@ const SectionHeader: React.FC = () => (
         width: 100,
         background: 'linear-gradient(to right, #3b82f6, #9333ea)',
         borderRadius: 2,
+        mt: { xs: 2, md: 0 },
       }}
     />
   </Box>
@@ -56,19 +61,44 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
     'https://data.webnhiepanh.com/wp-content/uploads/2020/11/21105453/phong-canh-1.jpg'
   const hoverImage = images[1]?.image_url || mainImage
 
+  const rating = product.rating || 4.8
+  const promotion = product.promotion || null
+
   return (
     <Link
       to={PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.product_id.toString())}
       style={{ textDecoration: 'none' }}
+      tabIndex={-1}
     >
       <Card
-        className="h-full flex flex-col hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden"
+        elevation={hovered ? 7 : 1}
+        sx={{
+          height: '100%',
+          flexDirection: 'column',
+          borderRadius: 4,
+          overflow: 'hidden',
+          boxShadow: hovered
+            ? '0 4px 32px 0 rgba(36,37,47,0.15)'
+            : '0 2px 8px 0 rgba(36,37,47,0.07)',
+          position: 'relative',
+          cursor: 'pointer',
+          transition: 'box-shadow 0.22s cubic-bezier(.39,.575,.565,1.0)',
+          display: 'flex',
+          flexGrow: 1,
+        }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        sx={{ cursor: 'pointer', position: 'relative' }}
       >
-        {/* Image box with increased height and intelligent fade effect */}
-        <Box sx={{ width: '100%', height: 260, position: 'relative', overflow: 'hidden' }}>
+        {/* Khung ảnh */}
+        <Box
+          sx={{
+            width: '100%',
+            height: 220,
+            position: 'relative',
+            overflow: 'hidden',
+            bgcolor: '#fff',
+          }}
+        >
           {/* Main Image */}
           <CardMedia
             component="img"
@@ -77,15 +107,11 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             sx={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 1,
+              objectFit: 'cover',
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              transition: 'opacity 0.32s',
               opacity: hovered ? 0 : 1,
-              transition: 'opacity 0.4s cubic-bezier(0.4,0,0.2,1)',
-              background: '#fff',
-              p: 2,
             }}
           />
           {/* Hover Image (if exists) */}
@@ -97,18 +123,39 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               sx={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain',
+                objectFit: 'cover',
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 zIndex: 2,
                 opacity: hovered ? 1 : 0,
-                transition: 'opacity 0.4s cubic-bezier(0.4,0,0.2,1)',
-                background: '#fff',
-                p: 2,
+                transition: 'opacity 0.32s',
               }}
             />
           )}
+          {/* Promotion badge */}
+          {promotion && (
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bgcolor: 'error.main',
+                color: 'white',
+                px: 1.5,
+                py: '3px',
+                borderBottomRightRadius: 16,
+                fontSize: 13,
+                fontWeight: 700,
+                zIndex: 5,
+              }}
+            >
+              {promotion}
+            </Box>
+          )}
+          {/* Số ảnh badge */}
           {images.length > 1 && (
             <Box
               sx={{
@@ -124,15 +171,70 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
                 zIndex: 3,
               }}
             >
-              {images.length} ảnh
+              <b>{images.length} ảnh</b>
             </Box>
           )}
+          {/* Nút yêu thích và mua nhanh */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              display: hovered ? 'flex' : 'none',
+              flexDirection: 'column',
+              gap: 1,
+              zIndex: 6,
+            }}
+          >
+            <IconButton
+              size="small"
+              sx={{ bgcolor: 'white', mb: 1, '&:hover': { bgcolor: 'grey.200' } }}
+            >
+              <FavoriteBorderIcon fontSize="small" color="error" />
+            </IconButton>
+            <IconButton size="small" sx={{ bgcolor: 'white', '&:hover': { bgcolor: 'grey.200' } }}>
+              <ShoppingCartIcon fontSize="small" color="primary" />
+            </IconButton>
+          </Box>
         </Box>
-        <CardContent className="flex-grow">
-          <Typography gutterBottom variant="h6" component="h3" color="text.primary">
+        <CardContent
+          sx={{
+            flexGrow: 1,
+            py: 2,
+            px: 2,
+            minHeight: 120,
+            bgcolor: hovered ? 'grey.50' : 'background.paper',
+            transition: 'background 0.15s',
+          }}
+        >
+          <Typography gutterBottom variant="h6" component="h3" color="text.primary" noWrap>
             {product.product_name}
           </Typography>
-          <Typography variant="h6" color="error" className="font-bold my-2">
+          {/* Rating */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+            <StarIcon sx={{ color: 'orange', fontSize: 18 }} />
+            <Typography variant="body2" fontWeight={500}>
+              {rating.toFixed(1)}
+            </Typography>
+            {(product.is_hot || product.top_seller) && (
+              <Box
+                component="span"
+                sx={{
+                  ml: 1,
+                  fontSize: 13,
+                  px: 1.1,
+                  py: 0.2,
+                  bgcolor: 'primary.light',
+                  color: 'primary.dark',
+                  borderRadius: 1,
+                  fontWeight: 700,
+                }}
+              >
+                HOT
+              </Box>
+            )}
+          </Box>
+          <Typography variant="h6" color="error" sx={{ fontWeight: 700, mb: 1 }}>
             {Number(product.price).toLocaleString('vi-VN', {
               style: 'currency',
               currency: 'VND',
@@ -153,26 +255,38 @@ export const MainContent: React.FC = () => {
     dispatch(fetchProducts(filters))
   }, [dispatch, filters])
 
+  // Skeleton for loading
+  const skeletons = Array.from({ length: 6 }, (_, i) => (
+    <Card key={i} sx={{ borderRadius: 4, p: 2 }}>
+      <Skeleton variant="rectangular" width="100%" height={180} sx={{ mb: 2 }} />
+      <Skeleton variant="text" width="60%" height={32} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width="40%" height={28} />
+    </Card>
+  ))
+
   return (
     <div className="md:col-span-3 relative">
       <SectionHeader />
 
       {error ? (
         <Typography color="error">{error}</Typography>
-      ) : products.length === 0 ? (
+      ) : products.length === 0 && !loading ? (
         <Typography>Không có sản phẩm nào.</Typography>
       ) : (
         <div className="relative">
           {loading && (
-            <div className="absolute inset-0 bg-white bg-opacity-50 flex justify-center items-center z-10 rounded">
-              <Typography className="text-gray-600">Đang tải sản phẩm...</Typography>
+            <div className="absolute inset-0 z-10">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {skeletons}
+              </div>
             </div>
           )}
 
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${
-              loading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+            className={`grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${
+              loading ? 'opacity-60 pointer-events-none' : 'opacity-100'
             }`}
+            style={{ minHeight: '500px' }}
           >
             {products.map((product) => (
               <ProductCard key={product.product_id} product={product} />
