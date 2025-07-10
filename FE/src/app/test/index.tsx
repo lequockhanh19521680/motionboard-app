@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Typography, Divider, Paper } from '@mui/material'
-import ImageUploader from '../../components/common/ImageUploader'
+import { ImageUploader, type ImageUploaderProps } from '../../components/common/media'
 import { uploadImage, deleteImage } from '../../redux/imageSlice'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
@@ -9,7 +9,7 @@ type Scenario = {
   key: string
   title: string
   description: string
-  props: React.ComponentProps<typeof ImageUploader>
+  props: ImageUploaderProps
 }
 
 const TestPage = () => {

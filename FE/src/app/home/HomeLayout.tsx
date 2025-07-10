@@ -3,7 +3,7 @@ import { Container } from '@mui/material'
 import { Categories } from './Categories'
 import { MainContent } from './MainContent'
 import { motion } from 'framer-motion'
-import { Banner } from './Banner'
+import { Banner } from '../../components/common/media'
 
 const HomeLayout: React.FC = () => {
   return (

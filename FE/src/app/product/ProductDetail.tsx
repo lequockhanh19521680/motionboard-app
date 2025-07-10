@@ -2,8 +2,8 @@ import { Box, Typography, Chip, Paper, CircularProgress, Rating, Stack } from '@
 import { motion } from 'motion/react'
 import ProductImages from './ProductImages'
 import ProductVariants from './ProductVariants'
-import ProductQuantity from './ProductQuantity'
-import ProductActions from './ProductActions'
+import { ProductQuantity } from '../../components/common/ui'
+import { ProductActions } from '../../components/common/business'
 import { useEffect, useState } from 'react'
 import { useAppSelector } from '../../redux/hook'
 
