@@ -26,11 +26,11 @@ import SearchIcon from '@mui/icons-material/Search'
 import StarIcon from '@mui/icons-material/Star'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../redux/store'
-import { setFilters } from '../../redux/productSlice'
-import { useAppSelector } from '../../redux/hook'
-import { fetchCategories } from '../../redux/categorySlice'
-import { fetchBrands } from '../../redux/brandSlice'
+import { AppDispatch } from '../../../redux/store'
+import { setFilters } from '../../../redux/productSlice'
+import { useAppSelector } from '../../../redux/hook'
+import { fetchCategories } from '../../../redux/categorySlice'
+import { fetchBrands } from '../../../redux/brandSlice'
 
 export const Categories: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()

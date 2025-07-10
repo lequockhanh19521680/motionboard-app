@@ -5,11 +5,11 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import { Link } from 'react-router-dom'
-import { useAppSelector } from '../../redux/hook'
-import { PAGE_ROUTES } from '../../shared/constants'
+import { useAppSelector } from '../../../redux/hook'
+import { PAGE_ROUTES } from '../../../shared/constants'
 import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../redux/store'
-import { fetchProducts } from '../../redux/productSlice'
+import { AppDispatch } from '../../../redux/store'
+import { fetchProducts } from '../../../redux/productSlice'
 
 const SectionHeader: React.FC = () => (
   <Box

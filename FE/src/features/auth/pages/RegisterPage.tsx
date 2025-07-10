@@ -1,8 +1,7 @@
-import React from 'react'
-import LoginForm from './LoginForm'
+import RegisterForm from './RegisterForm'
 import { Box } from '@mui/material'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <Box
       sx={{
@@ -26,7 +25,7 @@ export default function LoginPage() {
           minWidth: 350,
         }}
       >
-        <LoginForm />
+        <RegisterForm />
       </Box>
     </Box>
   )

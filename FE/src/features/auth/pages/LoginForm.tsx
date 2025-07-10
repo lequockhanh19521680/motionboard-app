@@ -3,23 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import {
   Box,
-  Button,
-  TextField,
   Typography,
   Paper,
   Alert,
-  CircularProgress,
   Divider,
-  IconButton,
   InputAdornment,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { LockOutlined, PersonOutline, Visibility, VisibilityOff } from '@mui/icons-material'
-import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../shared/constants'
-import NotificationDialog from '../../shared/components/feedback/NotificationDialog'
+import { LockOutlined, PersonOutline } from '@mui/icons-material'
+import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../../shared/constants'
+import NotificationDialog from '../../../shared/components/feedback/NotificationDialog'
+import { Button, Input } from '../../../shared/components/ui'
 import { LOGIN_TEXT } from './LoginText'
-import { fetchProfile, loginUser } from '../../redux/authSlice'
-import { AppDispatch } from '../../redux/store'
+import { fetchProfile, loginUser } from '../../../redux/authSlice'
+import { AppDispatch } from '../../../redux/store'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -39,36 +36,10 @@ const FormTitle = styled(Typography)(({ theme }) => ({
   fontSize: '1.8rem',
 }))
 
-const SubmitButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(3),
-  padding: theme.spacing(1.5),
-  borderRadius: 12,
-  fontWeight: 600,
-  fontSize: '1rem',
-  boxShadow: 'none',
-  '&:hover': {
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-  },
-}))
-
-const RegisterButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  padding: theme.spacing(1.5),
-  borderRadius: 12,
-  fontWeight: 600,
-  fontSize: '1rem',
-  backgroundColor: theme.palette.grey[100],
-  color: theme.palette.text.primary,
-  '&:hover': {
-    backgroundColor: theme.palette.grey[200],
-  },
-}))
-
 export default function LoginForm() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    showPassword: false,
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -89,13 +60,6 @@ export default function LoginForm() {
       ...prev,
       [name]: value,
     }))
-  }
-
-  const handleClickShowPassword = () => {
-    setFormData({
-      ...formData,
-      showPassword: !formData.showPassword,
-    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,12 +102,11 @@ export default function LoginForm() {
         <FormTitle variant="h4">{LOGIN_TEXT.TITLE}</FormTitle>
 
         <Box mb={3}>
-          <TextField
+          <Input
             fullWidth
             required
             label={LOGIN_TEXT.USERNAME}
             name="username"
-            variant="outlined"
             value={formData.username}
             onChange={handleInputChange}
             disabled={isLoading}
@@ -158,27 +121,20 @@ export default function LoginForm() {
         </Box>
 
         <Box mb={3}>
-          <TextField
+          <Input
             fullWidth
             required
             label={LOGIN_TEXT.PASSWORD}
             name="password"
-            type={formData.showPassword ? 'text' : 'password'}
-            variant="outlined"
+            type="password"
             value={formData.password}
             onChange={handleInputChange}
             disabled={isLoading}
+            showPasswordToggle
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <LockOutlined color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleClickShowPassword} edge="end">
-                    {formData.showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
                 </InputAdornment>
               ),
             }}
@@ -188,23 +144,21 @@ export default function LoginForm() {
         <Box textAlign="right" mb={2}>
           <Button
             variant="text"
-            color="primary"
             onClick={() => console.log('Forgot password clicked')}
           >
             {LOGIN_TEXT.FORGOT_PASSWORD}
           </Button>
         </Box>
 
-        <SubmitButton
+        <Button
           fullWidth
-          variant="contained"
-          color="primary"
+          variant="primary"
           type="submit"
-          disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={20} /> : null}
+          loading={isLoading}
+          sx={{ mt: 3 }}
         >
-          {isLoading ? LOGIN_TEXT.PROCESSING : LOGIN_TEXT.SUBMIT_BUTTON}
-        </SubmitButton>
+          {LOGIN_TEXT.SUBMIT_BUTTON}
+        </Button>
 
         {error && (
           <Box mt={2}>
@@ -236,13 +190,14 @@ export default function LoginForm() {
           <Typography variant="body2" color="text.secondary">
             {LOGIN_TEXT.NO_ACCOUNT}
           </Typography>
-          <RegisterButton
+          <Button
             fullWidth
-            variant="contained"
+            variant="secondary"
             onClick={() => navigate(PAGE_ROUTES.REGISTER)}
+            sx={{ mt: 1 }}
           >
             {LOGIN_TEXT.REGISTER_BUTTON}
-          </RegisterButton>
+          </Button>
         </Box>
       </form>
 

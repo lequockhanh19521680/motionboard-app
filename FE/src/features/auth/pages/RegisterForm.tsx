@@ -24,13 +24,13 @@ import {
   HomeOutlined,
   AlternateEmailOutlined,
 } from '@mui/icons-material'
-import { RegisterApiPayload, RegisterFormData } from '../../shared/types/request/RegisterRequest'
+import { RegisterApiPayload, RegisterFormData } from '../../../shared/types/request/RegisterRequest'
 import { useDispatch } from 'react-redux'
-import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../shared/constants'
-import NotificationDialog from '../../shared/components/feedback/NotificationDialog'
+import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../../shared/constants'
+import NotificationDialog from '../../../shared/components/feedback/NotificationDialog'
 import { REGISTER_TEXT } from './RegisterText'
-import { AppDispatch } from '../../redux/store'
-import { registerUser } from '../../redux/authSlice'
+import { AppDispatch } from '../../../redux/store'
+import { registerUser } from '../../../redux/authSlice'
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),

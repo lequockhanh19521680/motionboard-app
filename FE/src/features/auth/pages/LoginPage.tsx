@@ -1,11 +1,12 @@
-import RegisterForm from './RegisterForm'
+import React from 'react'
+import LoginForm from './LoginForm'
 import { Box } from '@mui/material'
-export default function RegisternPage() {
+
+export default function LoginPage() {
   return (
     <Box
       sx={{
         minHeight: '100vh',
-
         background: `linear-gradient(
           to right,
           #a1c4fd 0%,
@@ -25,7 +26,7 @@ export default function RegisternPage() {
           minWidth: 350,
         }}
       >
-        <RegisterForm />
+        <LoginForm />
       </Box>
     </Box>
   )
