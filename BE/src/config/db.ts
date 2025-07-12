@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 import { Banner } from "entities/Banner";
 import { BannerProduct } from "entities/BannerProduct";
-import { BaseEntity } from "entities/BaseEntity";
 import { Brand } from "entities/Brand";
 import { Cart } from "entities/Cart";
 import { Category } from "entities/Category";
@@ -18,6 +17,8 @@ import { Shop } from "entities/Shop";
 import { User } from "entities/User";
 
 dotenv.config();
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_PORT:", process.env.DB_PORT);
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -29,7 +30,6 @@ export const AppDataSource = new DataSource({
   entities: [
     Banner,
     BannerProduct,
-    BaseEntity,
     Brand,
     Cart,
     Category,
@@ -45,3 +45,5 @@ export const AppDataSource = new DataSource({
   synchronize: true, // Chỉ dùng cho Dev!
   logging: false,
 });
+
+console.log("Entities loaded:", AppDataSource.options.entities);

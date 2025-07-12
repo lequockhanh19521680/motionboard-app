@@ -4,15 +4,18 @@ import express from "express";
 import cors from "cors";
 import timeout from "connect-timeout";
 import routes from "./routes";
+import { AppDataSource } from 'config/db';
 
 const PORT = process.env.PORT || 8000;
 
 // Load environment variables
 switch (process.env.NODE_ENV) {
   case "local":
+    console.log('✅ Load env local');
     dotenv.config({ path: ".env.local" });
     break;
   case "production":
+    console.log('✅ Load env production');
     dotenv.config({ path: ".env.production" });
     break;
   default:
@@ -43,15 +46,17 @@ app.use((req, res, next) => {
 // Register routes
 app.use('/api/', routes);
 
-// Start server after DB initialization
+
+
 const startServer = async () => {
   try {
+    await AppDataSource.initialize();
     console.log('✅ Database connected');
     app.listen(PORT, () => {
       console.log(`🚀 HTTP server started on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error('❌ Database connection failed:', (error as Error).message);
+    console.error('❌ Database connection failed:', error);
     process.exit(1);
   }
 };
