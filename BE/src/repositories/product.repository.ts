@@ -2,7 +2,7 @@ import { AppDataSource } from 'config/db'; // Đổi lại đường dẫn nếu
 import { Product } from '../entities/Product';
 import { ProductImage } from '../entities/ProductImage';
 import { ProductVariant } from '../entities/ProductVariant';
-import { Brand } from 'entities/Brand';
+import { ProductDetailDTO } from 'dtos/product/ProductDetailDTO';
 
 export class ProductRepository {
     private repo = AppDataSource.getRepository(Product);
@@ -46,11 +46,70 @@ export class ProductRepository {
         return products;
     }
 
-    async findById(id: number) {
-        return this.repo.findOne({
+    async findById(id: number): Promise<ProductDetailDTO | { error: string }> {
+        // 1. Lấy sản phẩm với đầy đủ quan hệ
+        const productEntity = await this.repo.findOne({
             where: { id, isDeleted: false },
-            relations: ['images', 'variants', 'ratings', 'brand', 'shop', 'category']
+            relations: [
+                "images",
+                "variants",
+                "ratings",
+                "brand",
+                "shop",
+                "category"
+            ],
         });
+
+        if (!productEntity) return { error: "Product not found" };
+
+        const aggregate = await this.repo
+            .createQueryBuilder("product")
+            .leftJoin("product.ratings", "ratings")
+            .select([
+                "AVG(ratings.rating) AS avg_rating",
+                "COUNT(ratings.id) AS total_rating"
+            ])
+            .where("product.id = :id", { id })
+            .getRawOne();
+
+        return {
+            product_id: productEntity.id,
+            shop_id: productEntity.shop?.id ?? 0,
+            category_id: productEntity.category?.id ?? 0,
+            product_name: productEntity.productName,
+            description: productEntity.description ?? undefined,
+            price: Number(productEntity.price),
+            is_deleted: productEntity.isDeleted,
+            created_by: productEntity.createdBy,
+            created_at: productEntity.createdAt?.toISOString?.() ?? undefined,
+            updated_by: productEntity.updatedBy,
+            updated_at: productEntity.updatedAt?.toISOString?.() ?? undefined,
+            brand_id: productEntity.brand?.id ?? undefined,
+            brand_name: productEntity.brand?.brandName ?? undefined,
+            shop_name: productEntity.shop?.shopName ?? undefined,
+            category_name: productEntity.category?.name ?? undefined,
+            avg_rating: aggregate?.avg_rating ? Number(aggregate.avg_rating) : 0.0,
+            total_rating: aggregate?.total_rating ? Number(aggregate.total_rating) : 0,
+            images: productEntity.images?.map(img => ({
+                image_id: img.id,
+                image_url: img.imageUrl,
+                sort_order: img.sortOrder,
+            })) ?? [],
+            variants: productEntity.variants?.map(variant => ({
+                variant_id: variant.id,
+                color: variant.color ?? '',
+                size: variant.size ?? '',
+                stock_quantity: variant.stockQuantity,
+                price: Number(variant.price),
+            })) ?? [],
+            ratings: productEntity.ratings?.map(rating => ({
+                rating_id: rating.id,
+                user_id: rating.userId ?? 0,
+                rating: Number(rating.rating),
+                comment: rating.comment,
+                created_at: rating.createdAt?.toISOString?.(),
+            })) ?? [],
+        };
     }
 
     async createProduct(data: Partial<Product>) {

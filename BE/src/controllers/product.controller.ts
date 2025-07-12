@@ -4,7 +4,6 @@ import { AuthRequest } from "middleware/auth.middleware";
 import { ProductUseCase } from "usecases/product";
 
 const productUseCase = new ProductUseCase();
-const brandUseCase = new BrandUseCase();
 // [GET] /products
 export const searchProducts = async (req: AuthRequest, res: Response) => {
     try {
@@ -27,15 +26,7 @@ export const getProductDetail = async (req: AuthRequest, res: Response) => {
     }
 };
 
-//[GET] /products/brands
-export const getBrands = async (req: AuthRequest, res: Response) => {
-    try {
-        const brands = await brandUseCase.listBrands();
-        res.json(brands);
-    } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-    }
-};
+
 
 // [POST] /products
 export const createProduct = async (req: AuthRequest, res: Response) => {

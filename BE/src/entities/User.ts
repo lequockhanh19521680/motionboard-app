@@ -1,9 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 
 @Entity('users')
 export class User extends BaseEntity {
-
     @Column({ type: 'varchar', length: 255 })
     username!: string;
 
