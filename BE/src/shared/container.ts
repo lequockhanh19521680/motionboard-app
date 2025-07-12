@@ -14,10 +14,10 @@ export const container = new Container();
 export const configureContainer = (dataSource: DataSource) => {
   // Infrastructure
   container.bind<DataSource>('DataSource').toConstantValue(dataSource);
-  
+
   // Repositories
   container.bind<IUserRepository>('IUserRepository').to(TypeORMUserRepository);
-  
+
   // Use Cases
   container.bind<LoginUserUseCase>(LoginUserUseCase).toSelf();
   container.bind<RegisterUserUseCase>(RegisterUserUseCase).toSelf();
