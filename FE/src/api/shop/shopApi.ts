@@ -1,9 +1,9 @@
 import apiClient from '../apiClient'
-import type { ShopResponse } from '../../types/response/ShopResponse'
-import { API_ROUTES } from '../../utils/constant'
-import { ShopCreateRequest, ShopUpdateRequest } from '../../types/request/ShopRequest'
-import { OrderResponse } from '../../types/response/OrderResponse'
-import { RevenueResponse } from '../../types/response/RevenueResponse'
+import type { ShopResponse } from '../../shared/types/response/ShopResponse'
+import { API_ROUTES } from '../../shared/constants'
+import { ShopCreateRequest, ShopUpdateRequest } from '../../shared/types/request/ShopRequest'
+import { OrderResponse } from '../../shared/types/response/OrderResponse'
+import { RevenueResponse } from '../../shared/types/response/RevenueResponse'
 
 export function getShopsApi() {
   return apiClient<ShopResponse[]>(API_ROUTES.SHOPS, {

@@ -5,8 +5,8 @@ import {
   isPending,
   isRejected,
 } from '@reduxjs/toolkit'
-import { ProductResponse } from '../types/response/ProductResponse'
-import { ProductFilter } from '../types/request/ProductFilter'
+import { ProductResponse } from '../shared/types/response/ProductResponse'
+import { ProductFilter } from '../shared/types/request/ProductFilter'
 import {
   createProductApi,
   deleteProductApi,
@@ -14,8 +14,8 @@ import {
   getProductsApi,
   updateProductApi,
 } from '../api/product/productApi'
-import { ProductCreate } from '../types/request/ProductCreate'
-import { ProductUpdate } from '../types/request/ProductUpdate'
+import { ProductCreate } from '../shared/types/request/ProductCreate'
+import { ProductUpdate } from '../shared/types/request/ProductUpdate'
 
 // Định nghĩa kiểu State Product sử dụng đúng kiểu ProductFilter (brand_id, category_ids đều là number[])
 interface ProductState {

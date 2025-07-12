@@ -1,27 +1,34 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AuthRequest } from "../types/AuthRequest";
 
+// Định nghĩa type AuthRequest kế thừa Request, thêm thuộc tính user
+export interface AuthRequest extends Request {
+  user?: {
+    id: number;
+    [key: string]: any;
+  };
+}
+
+/**
+ * Middleware xác thực JWT, gán user vào req.user.
+ */
 export const authenticateToken = (
-  req: AuthRequest,
+  req: AuthRequest,   // Sử dụng AuthRequest thay vì Request
   res: Response,
   next: NextFunction
-): void => {
+) => {
   const authHeader = req.get("authorization");
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader?.split(" ")[1];
 
   if (!token) {
-    res.status(401).json({ message: "Token missing!" });
-    return;
+    return res.status(401).json({ message: "Token missing!" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      userId: number;
-    };
-    req.user_id = decoded.userId;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number;[key: string]: any };
+    req.user = { id: decoded.userId, ...decoded };
     next();
   } catch (err) {
-    res.status(403).json({ message: "Token invalid!" });
+    return res.status(403).json({ message: "Token invalid!" });
   }
 };

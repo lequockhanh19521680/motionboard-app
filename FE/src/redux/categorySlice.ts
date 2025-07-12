@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { CategoryResponse } from '../types/response/CategoryResponse'
+import { CategoryResponse } from '../shared/types/response/CategoryResponse'
 import { getCategoryApi } from '../api/category/categoryApi'
 
 interface CategoryState {

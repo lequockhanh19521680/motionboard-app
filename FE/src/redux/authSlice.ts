@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction, AnyAction } from '@reduxjs/toolkit'
-import { UserDetailResponse } from '../types/response/UserDetailResponse'
+import { UserDetailResponse } from '../shared/types/response/UserDetailResponse'
 import { getProfileApi, loginApi, registerApi, updateProfileApi } from '../api/user/userApi'
 
 interface AuthState {

@@ -1,14 +1,27 @@
-import { Pool } from "pg";
+import "reflect-metadata";
+import { DataSource } from "typeorm";
 import dotenv from "dotenv";
+import { Banner } from "entities/Banner";
+import { BannerProduct } from "entities/BannerProduct";
+
+
 
 dotenv.config();
 
-const pool = new Pool({
+
+export const AppDataSource = new DataSource({
+  type: "postgres",
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   database: process.env.DB_NAME,
-  user: process.env.DB_USER,
+  username: process.env.DB_USER,
   password: process.env.DB_PASS,
-});
+  entities: [
+    Banner,
+    BannerProduct,
 
-export default pool;
+
+  ],
+  synchronize: true, // Chỉ dùng cho dev, KHÔNG NÊN cho production!
+  logging: false,
+});

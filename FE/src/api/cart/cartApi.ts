@@ -1,7 +1,7 @@
 import apiClient from '../apiClient'
-import type { CartAddRequest, CartUpdateRequest } from '../../types/request/CartRequest'
-import { API_ROUTES } from '../../utils/constant'
-import { CartItemPreview } from '../../types/response/CartItemResponse'
+import type { CartAddRequest, CartUpdateRequest } from '../../shared/types/request/CartRequest'
+import { API_ROUTES } from '../../shared/constants'
+import { CartItemPreview } from '../../shared/types/response/CartItemResponse'
 
 export function getCartApi() {
   return apiClient<CartItemPreview[]>(API_ROUTES.CARTS, {

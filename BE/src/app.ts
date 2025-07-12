@@ -1,30 +1,28 @@
+import 'reflect-metadata';
 import dotenv from "dotenv";
-
-
-if (process.env.NODE_ENV === "local") {
-  dotenv.config({ path: ".env.local" });
-} else if (process.env.NODE_ENV === "production") {
-  dotenv.config({ path: ".env.production" });
-} else {
-  dotenv.config();
-}
-
-
-
 import express from "express";
 import cors from "cors";
-import routers from "./routers";
-import { sqlLogger } from "./middleware/sqlLogger";
-import pool from "./config/db";
 import timeout from "connect-timeout";
+import routes from "./routes";
 
 const PORT = process.env.PORT || 8000;
 
+// Load environment variables
+switch (process.env.NODE_ENV) {
+  case "local":
+    dotenv.config({ path: ".env.local" });
+    break;
+  case "production":
+    dotenv.config({ path: ".env.production" });
+    break;
+  default:
+    dotenv.config();
+    break;
+}
+
 const app = express();
 
-app.locals.pool = pool;
-
-
+// Middleware
 app.use(
   cors({
     origin: (origin, callback) => callback(null, origin),
@@ -33,16 +31,29 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-
 app.use(timeout("18s"));
 app.use(express.json());
-app.use(sqlLogger);
 
-routers.forEach(({ path, router }) => {
-  app.use(path, router);
+// SQL Logger Middleware (customize as needed)
+app.use((req, res, next) => {
+  // Example: log SQL queries here if needed
+  next();
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 HTTP server started on http://localhost:${PORT}`);
-});
+// Register routes
+app.use('/', routes);
+
+// Start server after DB initialization
+const startServer = async () => {
+  try {
+    console.log('✅ Database connected');
+    app.listen(PORT, () => {
+      console.log(`🚀 HTTP server started on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Database connection failed:', (error as Error).message);
+    process.exit(1);
+  }
+};
+
+startServer();
