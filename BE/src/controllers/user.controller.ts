@@ -7,7 +7,7 @@ const userUseCase = new UserUseCase();
 const authUseCase = new AuthUseCase();
 
 // [POST] /login
-export const login = async (req: Request, res: Response) => {
+export const loginUsers = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body as { username: string; password: string };
         if (!username || !password) {

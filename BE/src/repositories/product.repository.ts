@@ -2,6 +2,7 @@ import { AppDataSource } from 'config/db'; // Đổi lại đường dẫn nếu
 import { Product } from '../entities/Product';
 import { ProductImage } from '../entities/ProductImage';
 import { ProductVariant } from '../entities/ProductVariant';
+import { Brand } from 'entities/Brand';
 
 export class ProductRepository {
     private repo = AppDataSource.getRepository(Product);
@@ -96,4 +97,5 @@ export class ProductRepository {
 
         return this.repo.manager.save(productVariants);
     }
+
 }

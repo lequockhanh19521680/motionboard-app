@@ -37,4 +37,6 @@ export class ProductUseCase {
     async addVariantsToProduct(productId: number, variants: Partial<ProductVariant>[]) {
         return this.productRepo.addVariants(productId, variants);
     }
+
+
 }

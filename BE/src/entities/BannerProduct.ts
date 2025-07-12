@@ -13,6 +13,6 @@ export class BannerProduct {
     sortOrder?: number;
 
     @ManyToOne(() => Banner, banner => banner.bannerProducts, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'banner_id' })
+    @JoinColumn({ name: 'id' })
     banner!: Banner;
 }

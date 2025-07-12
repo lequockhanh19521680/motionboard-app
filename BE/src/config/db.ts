@@ -17,10 +17,11 @@ import { Shop } from "entities/Shop";
 import { User } from "entities/User";
 
 dotenv.config();
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_PORT:", process.env.DB_PORT);
 
-export const AppDataSource = new DataSource({
+
+import { DataSourceOptions } from "typeorm";
+
+const configDataSource: DataSourceOptions = {
   type: "postgres",
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
@@ -42,8 +43,10 @@ export const AppDataSource = new DataSource({
     Shop,
     User,
   ],
-  synchronize: true, // Chỉ dùng cho Dev!
-  logging: false,
-});
+  synchronize: false, // Set to true only in development
+  logging: true,
+}
 
-console.log("Entities loaded:", AppDataSource.options.entities);
+console.log('configDataSource', configDataSource)
+export const AppDataSource = new DataSource(configDataSource);
+

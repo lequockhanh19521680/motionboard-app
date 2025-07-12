@@ -11,13 +11,14 @@ import { listOrders, getOrderDetails, createOrder, deleteOrder } from "controlle
 // Shop Controllers
 import { listShops, getShop, createShop, updateShop, deleteShop } from "controllers/shop.controller";
 // User Controllers
-import { listUsers, getUserById, getUserByUsername, getUserByEmail, registerUser, updateUser, deleteUser } from "controllers/user.controller";
+import { listUsers, getUserById, getUserByUsername, getUserByEmail, registerUser, updateUser, deleteUser, loginUsers } from "controllers/user.controller";
 
 // Product Controllers (giả định bạn đã tạo controller cho product)
 import {
     searchProducts, getProductDetail, createProduct, updateProduct, deleteProduct,
     addProductImages, addProductVariants
 } from "controllers/product.controller";
+import { getBrands } from "controllers/brand.controller";
 
 const router = Router();
 
@@ -60,6 +61,7 @@ router.get('/users', listUsers);
 router.get('/users/:id', getUserById);
 router.get('/users/username/:username', getUserByUsername);
 router.get('/users/email/:email', getUserByEmail);
+router.post('/users/login', loginUsers);
 router.post('/users', registerUser);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
@@ -72,6 +74,11 @@ router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);
 router.post('/products/:id/images', addProductImages);
 router.post('/products/:id/variants', addProductVariants);
+
+
+// Brand Routes
+router.get('/brands', getBrands);
+
 
 // Export router for use in your app.ts/server.ts
 export default router;

@@ -4,8 +4,6 @@ import { BaseEntity } from './BaseEntity';
 
 @Entity('banner')
 export class Banner extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id!: number;
 
     @Column()
     title!: string;

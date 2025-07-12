@@ -1,12 +1,5 @@
 import 'reflect-metadata';
 import dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
-import timeout from "connect-timeout";
-import routes from "./routes";
-import { AppDataSource } from 'config/db';
-
-const PORT = process.env.PORT || 8000;
 
 // Load environment variables
 switch (process.env.NODE_ENV) {
@@ -22,6 +15,14 @@ switch (process.env.NODE_ENV) {
     dotenv.config();
     break;
 }
+
+import express from "express";
+import cors from "cors";
+import timeout from "connect-timeout";
+import routes from "./routes";
+import { AppDataSource } from 'config/db';
+
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
