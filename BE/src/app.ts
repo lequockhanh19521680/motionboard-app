@@ -41,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Register routes
-app.use('/', routes);
+app.use('/api/', routes);
 
 // Start server after DB initialization
 const startServer = async () => {

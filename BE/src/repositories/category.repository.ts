@@ -1,4 +1,4 @@
-import Category from 'entities/Category';
+import { Category } from 'entities/Category';
 import { EntityRepository, Repository } from 'typeorm';
 import { AppDataSource } from 'config/db';
 

@@ -1,13 +1,23 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
+
 import { Banner } from "entities/Banner";
 import { BannerProduct } from "entities/BannerProduct";
-
-
+import { BaseEntity } from "entities/BaseEntity";
+import { Brand } from "entities/Brand";
+import { Cart } from "entities/Cart";
+import { Category } from "entities/Category";
+import { Order } from "entities/Order";
+import { OrderDetail } from "entities/OrderDetail";
+import { Product } from "entities/Product";
+import { ProductImage } from "entities/ProductImage";
+import { ProductRating } from "entities/ProductRating";
+import { ProductVariant } from "entities/ProductVariant";
+import { Shop } from "entities/Shop";
+import { User } from "entities/User";
 
 dotenv.config();
-
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -19,9 +29,19 @@ export const AppDataSource = new DataSource({
   entities: [
     Banner,
     BannerProduct,
-
-
+    BaseEntity,
+    Brand,
+    Cart,
+    Category,
+    Order,
+    OrderDetail,
+    Product,
+    ProductImage,
+    ProductRating,
+    ProductVariant,
+    Shop,
+    User,
   ],
-  synchronize: true, // Chỉ dùng cho dev, KHÔNG NÊN cho production!
+  synchronize: true, // Chỉ dùng cho Dev!
   logging: false,
 });
