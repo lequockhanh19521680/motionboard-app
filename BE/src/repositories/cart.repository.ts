@@ -42,6 +42,19 @@ export class CartRepository extends BaseRepository<Cart> {
     }
 
     async createCartItem(cartData: Partial<Cart>, userId: number) {
+        // Kiểm tra đã có cart item với userId + variantId chưa
+        const existed = await this.repo.findOne({
+            where: {
+                userId,
+                variantId: cartData.variantId,
+                isDeleted: false
+            }
+        });
+        if (existed) {
+            const newQuantity = (existed.quantity ?? 0) + (cartData.quantity ?? 1);
+            await this.updateWithUser(existed.id, { quantity: newQuantity }, userId);
+            return this.getCartItemDetail(userId, cartData.variantId!);
+        }
         const saved = await this.saveWithUser({ ...cartData, userId }, userId);
         if (typeof saved.userId === 'number' && typeof saved.variantId === 'number') {
             return this.getCartItemDetail(saved.userId, saved.variantId);
@@ -82,13 +95,22 @@ export class CartRepository extends BaseRepository<Cart> {
     }
 
     async updateCartItem(cartId: number, cartData: Partial<Cart>, userId: number) {
-        await this.updateWithUser(cartId, cartData, userId);
+        // Chỉ cho phép cập nhật quantity
+        const { quantity } = cartData;
+        if (typeof quantity !== 'number' || quantity <= 0) {
+            return null; // Invalid quantity
+        }
+
+        await this.updateWithUser(cartId, { quantity }, userId);
         const cart = await this.repo.findOne({ where: { id: cartId } });
         if (!cart || typeof cart.userId !== 'number' || typeof cart.variantId !== 'number') return null;
         return this.getCartItemDetail(cart.userId, cart.variantId);
     }
 
     async softRemoveCartItem(cartId: number, userId: number) {
+        if (!cartId || typeof cartId !== 'number' || isNaN(cartId)) {
+            throw new Error('Invalid cartId');
+        }
         return this.updateWithUser(cartId, { isDeleted: true }, userId);
     }
 
@@ -98,7 +120,5 @@ export class CartRepository extends BaseRepository<Cart> {
         return this.getCartItemDetail(cart.userId, cart.variantId);
     }
 
-    async findByUserIdAndVariantId(userId: number, variantId: number) {
-        return this.getCartItemDetail(userId, variantId);
-    }
+
 }

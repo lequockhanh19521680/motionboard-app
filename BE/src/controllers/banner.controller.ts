@@ -42,7 +42,7 @@ export const createBanner = async (req: AuthRequest, res: Response) => {
 // [PUT] /banners/:id
 export const updateBanner = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const bannerId = Number(req.params.id);
         const { products, ...bannerFields } = req.body;
         const updated = await bannerUseCase.updateBannerWithProductsById(bannerId, bannerFields, products, userId);
@@ -56,7 +56,7 @@ export const updateBanner = async (req: AuthRequest, res: Response) => {
 // [DELETE] /banners/:id
 export const deleteBanner = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const bannerId = Number(req.params.id);
         await bannerUseCase.softDeleteBannerById(bannerId, userId);
         res.json({ message: "Banner deleted" });

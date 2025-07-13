@@ -66,8 +66,8 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   return (
     <Link
       to={
-        product.id !== undefined && product.id !== null
-          ? PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.id.toString())
+        product.productId !== undefined && product.productId !== null
+          ? PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.productId.toString())
           : '#'
       }
       style={{ textDecoration: 'none' }}

@@ -7,7 +7,7 @@ const orderUseCase = new OrderUseCase();
 // [GET] /orders
 export const listOrders = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const orders = await orderUseCase.listOrdersByUser(userId);
         res.json(orders);
     } catch (error) {
@@ -30,7 +30,7 @@ export const getOrderDetails = async (req: AuthRequest, res: Response) => {
 // [POST] /orders
 export const createOrder = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const order = await orderUseCase.createOrderForUser({ ...req.body, userId });
         res.status(201).json(order);
     } catch (error) {

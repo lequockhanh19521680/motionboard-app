@@ -29,9 +29,9 @@ export const addCartItem = async (req: AuthRequest, res: Response) => {
 // [PUT] /cart/:id
 export const updateCartItem = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
-        const cartId = Number(req.params.id);
-        const updated = await cartUseCase.updateCartItemById(cartId, req.body, userId);
+        const userId = Number(req.user?.id)
+        const variantId = Number(req.body.variantId);
+        const updated = await cartUseCase.updateCartItemByVariantId(variantId, req.body, userId);
         if (!updated) return res.status(404).json({ error: "Cart item not found" });
         res.json(updated);
     } catch (error) {
@@ -42,9 +42,9 @@ export const updateCartItem = async (req: AuthRequest, res: Response) => {
 // [DELETE] /cart/:id
 export const removeCartItem = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
-        const cartId = Number(req.params.id);
-        await cartUseCase.removeCartItemById(cartId, userId);
+        const userId = Number(req.user?.id);
+        const variantId = Number(req.params.id);
+        await cartUseCase.removeCartItemByVariantId(variantId, userId);
         res.json({ message: "Cart item removed" });
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });

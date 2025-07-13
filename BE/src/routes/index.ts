@@ -41,7 +41,7 @@ router.delete('/banners/:id', authenticateToken, deleteBanner);
 router.get('/carts', authenticateToken, listCartItems);
 router.post('/carts', authenticateToken, addCartItem);
 router.get('/carts/:id', getCartItem);
-router.put('/carts/:id', authenticateToken, updateCartItem);
+router.patch('/carts', authenticateToken, updateCartItem);
 router.delete('/carts/:id', authenticateToken, removeCartItem);
 
 // --- Category Routes ---

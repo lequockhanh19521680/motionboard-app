@@ -54,7 +54,7 @@ export const updateProduct = async (req: AuthRequest, res: Response) => {
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
     try {
         const id = Number(req.params.id);
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const deleted = await productUseCase.softDeleteProductById(id, userId);
         if (!deleted) return res.status(404).json({ error: "Product not found" });
         res.json({ message: "Product deleted" });

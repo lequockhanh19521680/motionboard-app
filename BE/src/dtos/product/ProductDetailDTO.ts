@@ -3,7 +3,7 @@ import { ProductRatingDTO } from "./ProductRatingDTO";
 import { ProductVariantDTO } from "./ProductVariantDTO";
 
 export interface ProductDetailDTO {
-    id: number;
+    productId: number;
     shopId: number;
     categoryId: number;
     productName: string;

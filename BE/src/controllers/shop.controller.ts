@@ -52,7 +52,7 @@ export const updateShop = async (req: AuthRequest, res: Response) => {
 export const deleteShop = async (req: AuthRequest, res: Response) => {
     try {
         const shopId = Number(req.params.id);
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id);
         const shop = await shopUseCase.softDeleteShopById(shopId, userId);
         if (!shop) return res.status(404).json({ error: "Shop not found" });
         res.json({ message: "Shop deleted" });

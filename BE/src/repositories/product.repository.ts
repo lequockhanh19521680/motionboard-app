@@ -119,7 +119,7 @@ export class ProductRepository {
             Array.isArray(arr) ? arr.map(fn) : [];
 
         return {
-            id: product.id,
+            productId: product.id,
             shopId: product.shop?.id ?? 0,
             categoryId: product.category?.id ?? 0,
             productName: product.productName,

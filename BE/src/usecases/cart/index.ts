@@ -21,15 +21,21 @@ export class CartUseCase {
         return this.cartRepo.updateCartItem(cartId, cartData, userId);
     }
 
-    async removeCartItemById(cartId: number, userId: number) {
-        return this.cartRepo.softRemoveCartItem(cartId, userId);
+    async updateCartItemByVariantId(variantId: number, cartData: Partial<Cart>, userId: number) {
+        const cartItem = await this.cartRepo.getCartItemDetail(userId, variantId);
+        if (!cartItem) return null;
+        return this.cartRepo.updateCartItem(cartItem.cartId, cartData, userId);
+    }
+
+    async removeCartItemByVariantId(variantId: number, userId: number) {
+        const cartItem = await this.cartRepo.getCartItemDetail(userId, variantId);
+        if (!cartItem) return null;
+        return this.cartRepo.softRemoveCartItem(cartItem.cartId, userId);
     }
 
     async getCartItemById(cartId: number) {
         return this.cartRepo.findCartItem(cartId);
     }
 
-    async getCartItemByUserAndVariant(userId: number, variantId: number) {
-        return this.cartRepo.findByUserIdAndVariantId(userId, variantId);
-    }
+
 }
