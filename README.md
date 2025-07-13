@@ -1,5 +1,4 @@
-motionboard-app/
-motionboard-app/
+motionboard-app
 
 # 🚀 Motionboard App: The Next-Gen E-Commerce Foundation
 
