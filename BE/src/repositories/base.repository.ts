@@ -16,4 +16,11 @@ export class BaseRepository<T extends ObjectLiteral> {
         await this.repo.update(id as any, partial as QueryDeepPartialEntity<T>);
         return this.repo.findOne({ where: { id } as any });
     }
+
+    async findOneWithUser(where: any): Promise<T | null> {
+        return this.repo.findOne({
+            where,
+            relations: ['createdByUser', 'updatedByUser'],
+        });
+    }
 }

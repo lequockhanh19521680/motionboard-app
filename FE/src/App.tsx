@@ -51,7 +51,10 @@ export default function App() {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    dispatch(fetchProfile())
+    const token = localStorage.getItem('token')
+    if (token) {
+      dispatch(fetchProfile())
+    }
   }, [dispatch])
   return (
     <BrowserRouter>

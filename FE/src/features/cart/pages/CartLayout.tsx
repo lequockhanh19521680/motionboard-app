@@ -37,10 +37,10 @@ export default function CartLayout() {
       for (const item of cart) {
         // Update nếu local chưa có hoặc đã khớp với store (tức là không phải đang sửa local)
         if (
-          typeof synced[item.variant_id] !== 'number' ||
-          synced[item.variant_id] === item.quantity
+          typeof synced[item.variantId] !== 'number' ||
+          synced[item.variantId] === item.quantity
         ) {
-          synced[item.variant_id] = item.quantity
+          synced[item.variantId] = item.quantity
         }
       }
       return synced
@@ -49,32 +49,32 @@ export default function CartLayout() {
 
   // Khi +/-, local cập nhật ngay, gửi PATCH sau ~500ms ngừng bấm
   const handleChangeQuantity = (item: CartItemPreview, newQuantity: number) => {
-    if (newQuantity < 1 || (item.stock_quantity && newQuantity > item.stock_quantity)) return
+    if (newQuantity < 1 || (item.stockQuantity && newQuantity > item.stockQuantity)) return
 
     setLocalQty((prev) => ({
       ...prev,
-      [item.variant_id]: newQuantity,
+      [item.variantId]: newQuantity,
     }))
 
     // Nếu đang pending timeout -> clear
-    if (timeoutRefs.current[item.variant_id]) {
-      clearTimeout(timeoutRefs.current[item.variant_id])
+    if (timeoutRefs.current[item.variantId]) {
+      clearTimeout(timeoutRefs.current[item.variantId])
     }
     // Debounce gửi PATCH
-    timeoutRefs.current[item.variant_id] = setTimeout(() => {
-      dispatch(updateCartItem({ variant_id: item.variant_id, quantity: newQuantity }))
+    timeoutRefs.current[item.variantId] = setTimeout(() => {
+      dispatch(updateCartItem({ variantId: item.variantId, quantity: newQuantity }))
       // Có thể fetch lại cart nếu muốn sync mạnh tay, nhưng thường không cần
     }, 500)
   }
 
   const handleRemove = (item: CartItemPreview) => {
-    dispatch(removeFromCart(item.variant_id))
+    dispatch(removeFromCart(item.variantId))
   }
 
   const getQty = (item: CartItemPreview) =>
-    typeof localQty[item.variant_id] === 'number' ? localQty[item.variant_id] : item.quantity
+    typeof localQty[item.variantId] === 'number' ? localQty[item.variantId] : item.quantity
 
-  const total = cart.reduce((sum, item) => sum + Number(item.variant_price) * getQty(item), 0)
+  const total = cart.reduce((sum, item) => sum + Number(item.variantPrice) * getQty(item), 0)
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', mt: 3, p: { xs: 1, md: 2 } }}>
@@ -97,17 +97,17 @@ export default function CartLayout() {
           </TableHead>
           <TableBody>
             {cart.map((item) => (
-              <TableRow key={item.cart_id}>
+              <TableRow key={item.cartId}>
                 <TableCell>
                   <Avatar
                     variant="rounded"
-                    src={item.image_url}
-                    alt={item.product_name}
+                    src={item.imageUrl}
+                    alt={item.productName}
                     sx={{ width: 56, height: 56 }}
                   />
                 </TableCell>
                 <TableCell>
-                  <Typography fontWeight={600}>{item.product_name}</Typography>
+                  <Typography fontWeight={600}>{item.productName}</Typography>
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -121,7 +121,7 @@ export default function CartLayout() {
                 </TableCell>
                 <TableCell align="right">
                   <Typography color="error" fontWeight={700}>
-                    {Number(item.variant_price).toLocaleString('vi-VN')}₫
+                    {Number(item.variantPrice).toLocaleString('vi-VN')}₫
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
@@ -141,8 +141,8 @@ export default function CartLayout() {
                       size="small"
                       color="primary"
                       disabled={
-                        typeof item.stock_quantity === 'number'
-                          ? getQty(item) >= item.stock_quantity
+                        typeof item.stockQuantity === 'number'
+                          ? getQty(item) >= item.stockQuantity
                           : false
                       }
                       onClick={() => handleChangeQuantity(item, getQty(item) + 1)}
@@ -152,7 +152,7 @@ export default function CartLayout() {
                   </Box>
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 600 }}>
-                  {(Number(item.variant_price) * getQty(item)).toLocaleString('vi-VN')}₫
+                  {(Number(item.variantPrice) * getQty(item)).toLocaleString('vi-VN')}₫
                 </TableCell>
                 <TableCell align="center">
                   <IconButton color="error" onClick={() => handleRemove(item)}>

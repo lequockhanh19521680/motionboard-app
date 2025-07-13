@@ -65,7 +65,11 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
   return (
     <Link
-      to={PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.product_id.toString())}
+      to={
+        product.id !== undefined && product.id !== null
+          ? PAGE_ROUTES.PRODUCT_DETAIL.replace(':id', product.id.toString())
+          : '#'
+      }
       style={{ textDecoration: 'none' }}
       tabIndex={-1}
     >

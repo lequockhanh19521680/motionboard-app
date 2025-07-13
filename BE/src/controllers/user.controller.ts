@@ -33,7 +33,7 @@ export const listUsers = async (_req: AuthRequest, res: Response) => {
 // [GET] /users/:id
 export const getUserById = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = Number(req.params.id);
+        const userId = Number(req?.user?.id);
         const user = await userUseCase.getUserById(userId);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.json(user);
@@ -69,8 +69,8 @@ export const getUserByEmail = async (req: AuthRequest, res: Response) => {
 // [POST] /users
 export const registerUser = async (req: AuthRequest, res: Response) => {
     try {
-        const user = await userUseCase.registerUser(req.body);
-        res.status(201).json(user);
+        const result = await authUseCase.register(req.body);
+        res.status(201).json(result);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
@@ -79,7 +79,7 @@ export const registerUser = async (req: AuthRequest, res: Response) => {
 // [PUT] /users/:id
 export const updateUser = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = Number(req.params.id);
+        const userId = Number(req?.user?.id);
         const updated = await userUseCase.updateUserById(userId, req.body);
         if (!updated) return res.status(404).json({ error: "User not found" });
         res.json(updated);
@@ -91,7 +91,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 // [DELETE] /users/:id
 export const deleteUser = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = Number(req.params.id);
+        const userId = Number(req?.user?.id);
         const deleted = await userUseCase.softDeleteUserById(userId);
         if (!deleted) return res.status(404).json({ error: "User not found" });
         res.json({ message: "User deleted" });

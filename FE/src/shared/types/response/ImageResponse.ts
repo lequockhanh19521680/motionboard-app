@@ -1,3 +1,7 @@
+export type UploadPublicResponse = {
+  url: string
+}
+
 export type UploadImageResponse = {
   message: string
   key: string

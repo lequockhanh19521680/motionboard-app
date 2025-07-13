@@ -31,7 +31,6 @@ export interface ProductResponse {
   shop_id: number
   category_id: number
   product_name: string
-  image?: string | null
   description?: string | null
   price: number
   is_deleted: boolean

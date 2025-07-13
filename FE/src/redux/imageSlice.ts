@@ -10,6 +10,7 @@ import {
   uploadImageApi,
   uploadMultiImageApi,
   getSignedUrlApi,
+  uploadPublicImageApi,
 } from '../api/upload/imageApi'
 
 interface ImageState {
@@ -23,6 +24,18 @@ const initialState: ImageState = {
   loading: false,
   error: undefined,
 }
+
+export const uploadPublicImage = createAsyncThunk(
+  'image/uploadPublicImage',
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      const uploadRes = await uploadPublicImageApi(formData)
+      return uploadRes.url
+    } catch (err: any) {
+      return rejectWithValue(err.message)
+    }
+  }
+)
 
 export const uploadImage = createAsyncThunk(
   'image/uploadImage',
@@ -75,6 +88,10 @@ const imageSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(uploadImage.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false
+        state.images.push(action.payload)
+      })
+      .addCase(uploadPublicImage.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false
         state.images.push(action.payload)
       })

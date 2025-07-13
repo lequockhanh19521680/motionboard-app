@@ -1,9 +1,11 @@
 import { AppDataSource } from 'config/db'; // Sửa đường dẫn nếu cần
 import { User } from '../entities/User';
+import { BaseRepository } from './base.repository';
 
-export class UserRepository {
-    private repo = AppDataSource.getRepository(User);
-
+export class UserRepository extends BaseRepository<User> {
+    constructor() {
+        super(AppDataSource.getRepository(User));
+    }
     async findByUsername(username: string): Promise<User | null> {
         return this.repo.findOne({ where: { username } });
     }
@@ -18,8 +20,9 @@ export class UserRepository {
     }
 
     async updateUser(userId: number, userData: Partial<User>): Promise<User | null> {
-        await this.repo.update(userId, userData);
-        return this.getUserById(userId);
+        await this.updateWithUser(userId, userData, userId);
+        const user = await this.getUserById(userId);
+        return user as User | null;
     }
 
     async getAllUsers(): Promise<User[]> {
@@ -27,7 +30,8 @@ export class UserRepository {
     }
 
     async getUserById(userId: number): Promise<User | null> {
-        return this.repo.findOne({ where: { id: userId } });
+        const user = await this.repo.findOne({ where: { id: userId } });
+        return user
     }
 
     async deleteUser(userId: number): Promise<User | null> {

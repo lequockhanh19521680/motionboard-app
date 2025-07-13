@@ -7,7 +7,7 @@ const cartUseCase = new CartUseCase();
 // [GET] /cart
 export const listCartItems = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id)
         const items = await cartUseCase.listCartItemsByUserId(userId);
         res.json(items);
     } catch (error) {
@@ -18,7 +18,7 @@ export const listCartItems = async (req: AuthRequest, res: Response) => {
 // [POST] /cart
 export const addCartItem = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id)
         const cartItem = await cartUseCase.addCartItemForUser(req.body, userId);
         res.status(201).json(cartItem);
     } catch (error) {

@@ -19,8 +19,8 @@ export function BrandSelect({ value, onChange, brands }: BrandSelectProps) {
         onChange={onChange}
       >
         {brands.map((brand) => (
-          <MenuItem key={brand.brand_id} value={brand.brand_id}>
-            {brand.brand_name}
+          <MenuItem key={brand.id} value={brand.id}>
+            {brand.brandName}
           </MenuItem>
         ))}
       </Select>

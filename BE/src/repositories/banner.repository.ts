@@ -25,7 +25,6 @@ export class BannerRepository extends BaseRepository<Banner> {
             .getOne();
     }
 
-    // Sử dụng hàm của BaseRepository để tự động gán createdBy/updatedBy
     async createBanner(bannerData: Partial<Banner>, products: BannerProduct[], userId: number) {
         bannerData.bannerProducts = products;
         return this.saveWithUser(bannerData, userId);

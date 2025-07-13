@@ -58,9 +58,7 @@ export function deleteProductApi(productId: number) {
 
 /** Lấy danh sách brand, có thể truyền search */
 export function getBrandsApi(search?: string) {
-  const url = search
-    ? `${API_ROUTES.PRODUCTS}/brands?search=${encodeURIComponent(search)}`
-    : `${API_ROUTES.PRODUCTS}/brands`
+  const url = search ? `/brands?search=${encodeURIComponent(search)}` : `/brands`
 
   return apiClient<BrandResponse[]>(url, {
     method: 'GET',

@@ -29,7 +29,7 @@ export const getBannerById = async (req: AuthRequest, res: Response) => {
 // [POST] /banners
 export const createBanner = async (req: AuthRequest, res: Response) => {
     try {
-        const userId = req.user?.id || 0;
+        const userId = Number(req.user?.id)
         // Giả định req.body có products: BannerProduct[] và các field khác
         const { products, ...bannerFields } = req.body;
         const newBanner = await bannerUseCase.createBannerWithProducts(bannerFields, products, userId);

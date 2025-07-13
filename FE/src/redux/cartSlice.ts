@@ -47,12 +47,9 @@ export const addToCart = createAsyncThunk(
 
 export const updateCartItem = createAsyncThunk(
   'cart/updateCartItem',
-  async (
-    { variant_id, quantity }: { variant_id: number; quantity: number },
-    { rejectWithValue }
-  ) => {
+  async ({ variantId, quantity }: { variantId: number; quantity: number }, { rejectWithValue }) => {
     try {
-      return await updateCartItemApi(variant_id, quantity)
+      return await updateCartItemApi(variantId, quantity)
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')
@@ -62,10 +59,10 @@ export const updateCartItem = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
-  async (variant_id: number, { rejectWithValue }) => {
+  async (variantId: number, { rejectWithValue }) => {
     try {
-      await removeFromCartApi(variant_id)
-      return variant_id
+      await removeFromCartApi(variantId)
+      return variantId
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')
@@ -89,7 +86,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
-        const idx = state.items.findIndex((i) => i.variant_id === action.payload.variant_id)
+        const idx = state.items.findIndex((i) => i.variantId === action.payload.variantId)
         if (idx !== -1) {
           state.items[idx] = action.payload
         } else {
@@ -98,14 +95,14 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItem.fulfilled, (state, action: PayloadAction<CartItemPreview>) => {
         state.loading = false
-        const idx = state.items.findIndex((i) => i.variant_id === action.payload.variant_id)
+        const idx = state.items.findIndex((i) => i.variantId === action.payload.variantId)
         if (idx !== -1) {
           state.items[idx] = action.payload
         }
       })
       .addCase(removeFromCart.fulfilled, (state, action: PayloadAction<number>) => {
         state.loading = false
-        state.items = state.items.filter((i) => i.variant_id !== action.payload)
+        state.items = state.items.filter((i) => i.variantId !== action.payload)
       })
       .addMatcher(isPending(fetchCart, addToCart, updateCartItem, removeFromCart), (state) => {
         state.loading = true

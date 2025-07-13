@@ -1,6 +1,10 @@
 import apiClient from '../apiClient'
 import { API_ROUTES } from '../../shared/constants'
-import { UploadImageResponse, UploadMultiImageResponse } from '../../shared/types/response/ImageResponse'
+import {
+  UploadImageResponse,
+  UploadMultiImageResponse,
+  UploadPublicResponse,
+} from '../../shared/types/response/ImageResponse'
 import { GetSignedUrlResponse } from '../../shared/types/response/ImageResponse'
 
 export function getSignedUrlApi(key: string) {
@@ -11,6 +15,15 @@ export function getSignedUrlApi(key: string) {
       auth: true,
     }
   )
+}
+
+export function uploadPublicImageApi(formData: FormData) {
+  return apiClient<UploadPublicResponse>(API_ROUTES.UPLOAD_IMAGE, {
+    method: 'POST',
+    body: formData,
+    auth: true,
+    isFormData: true,
+  })
 }
 
 export function uploadImageApi(formData: FormData) {

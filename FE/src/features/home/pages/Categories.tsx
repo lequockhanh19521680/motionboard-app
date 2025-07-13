@@ -84,7 +84,6 @@ export const Categories: React.FC = () => {
     if (!event.target.checked) {
       dispatch(setFilters({ rating: undefined }))
     } else {
-      // Nếu bật lại mà chưa có rating, mặc định là 5
       if (!filters.rating) dispatch(setFilters({ rating: 5 }))
     }
   }
@@ -119,9 +118,12 @@ export const Categories: React.FC = () => {
                   />
                   <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                     <FormGroup>
-                      {categories
-                        .filter((cat) =>
-                          cat.name.toLowerCase().includes(searchCategory.toLowerCase())
+                      {(categories || [])
+                        .filter(
+                          (cat) =>
+                            cat &&
+                            typeof cat.name === 'string' &&
+                            cat.name.toLowerCase().includes(searchCategory.toLowerCase())
                         )
                         .map((category) => (
                           <FormControlLabel
@@ -209,34 +211,37 @@ export const Categories: React.FC = () => {
                     sx={{ mb: 1, fontWeight: 500 }}
                   />
                   {(brands || [])
-                    .filter((brand) =>
-                      brand.brand_name.toLowerCase().includes(searchBrand.toLowerCase())
+                    .filter(
+                      (brand) =>
+                        brand &&
+                        typeof brand.brandName === 'string' &&
+                        brand.brandName.toLowerCase().includes(searchBrand.toLowerCase())
                     )
                     .map((brand) => (
                       <Chip
-                        key={brand.brand_id}
-                        label={brand.brand_name}
+                        key={brand.id}
+                        label={brand.brandName}
                         color={
-                          filters.brand_id && filters.brand_id.includes(brand.brand_id)
+                          filters.brand_id && filters.brand_id.includes(brand.id)
                             ? 'primary'
                             : 'default'
                         }
                         variant={
-                          filters.brand_id && filters.brand_id.includes(brand.brand_id)
+                          filters.brand_id && filters.brand_id.includes(brand.id)
                             ? 'filled'
                             : 'outlined'
                         }
                         clickable
-                        onClick={() => handleBrandChipClick(brand.brand_id)}
+                        onClick={() => handleBrandChipClick(brand.id)}
                         sx={{
                           mb: 1,
                           fontWeight: 500,
                           bgcolor:
-                            filters.brand_id && filters.brand_id.includes(brand.brand_id)
+                            filters.brand_id && filters.brand_id.includes(brand.id)
                               ? 'primary.light'
                               : '#f3f6fa',
                           color:
-                            filters.brand_id && filters.brand_id.includes(brand.brand_id)
+                            filters.brand_id && filters.brand_id.includes(brand.id)
                               ? '#1976d2'
                               : undefined,
                         }}

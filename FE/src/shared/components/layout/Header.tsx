@@ -122,10 +122,13 @@ export default function Header() {
     }
   }, [pendingRemove, cartLoading, dispatch])
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + Number(item.variant_price) * Number(item.quantity),
-    0
-  )
+  const totalPrice =
+    cartItems && cartItems.length > 0
+      ? cartItems.reduce(
+          (total, item) => total + Number(item.variantPrice) * Number(item.quantity),
+          0
+        )
+      : 0
 
   return (
     <AppBar position="static" color="primary" elevation={1}>
@@ -214,7 +217,7 @@ export default function Header() {
                 {cartItems.length > 0 ? (
                   cartItems.map((item) => (
                     <motion.div
-                      key={item.variant_id}
+                      key={item.variantId}
                       initial={{ x: 80, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: 80, opacity: 0 }}
@@ -234,8 +237,8 @@ export default function Header() {
                       >
                         <Avatar
                           variant="rounded"
-                          src={item.image_url}
-                          alt={item.product_name}
+                          src={item.imageUrl}
+                          alt={item.productName}
                           sx={{
                             width: 52,
                             height: 52,
@@ -247,11 +250,11 @@ export default function Header() {
                         />
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Typography variant="body2" fontWeight={600} noWrap>
-                            {item.product_name}
+                            {item.productName}
                           </Typography>
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.7 }}>
                             <Typography variant="body2" color="primary.main" fontWeight={700}>
-                              {Number(item.variant_price).toLocaleString()}₫
+                              {Number(item.variantPrice).toLocaleString()}₫
                             </Typography>
                             <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
                               x {item.quantity}
@@ -266,7 +269,7 @@ export default function Header() {
                             color: 'text.disabled',
                             '&:hover': { color: 'error.main', bgcolor: 'transparent' },
                           }}
-                          onClick={() => handleRemoveCartItem(item.variant_id)}
+                          onClick={() => handleRemoveCartItem(item.variantId)}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
@@ -321,16 +324,16 @@ export default function Header() {
               <IconButton color="inherit" onClick={handleMenuOpen}>
                 <Avatar
                   src={user.image ? user.image : undefined}
-                  alt={user.full_name}
+                  alt={user.fullName}
                   sx={{ width: 32, height: 32 }}
                 >
-                  {user.full_name?.charAt(0)}
+                  {user.fullName?.charAt(0)}
                 </Avatar>
               </IconButton>
               <Menu anchorEl={userAnchorEl} open={Boolean(userAnchorEl)} onClose={handleMenuClose}>
                 <MenuList>
                   <MuiMenuItem disabled>
-                    <Typography variant="body2">{user.full_name}</Typography>
+                    <Typography variant="body2">{user.fullName}</Typography>
                   </MuiMenuItem>
                   <MuiMenuItem component={Link} to="/profile" onClick={handleMenuClose}>
                     <ListItemIcon>

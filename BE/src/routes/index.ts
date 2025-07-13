@@ -19,61 +19,68 @@ import {
     addProductImages, addProductVariants
 } from "controllers/product.controller";
 import { getBrands } from "controllers/brand.controller";
+import { upload } from "middleware/uploadS3";
+import { uploadImage } from "controllers/s3.controller";
+import { authenticateToken } from "middleware/auth.middleware";
 
 const router = Router();
+
+
+router.post('/images/upload', upload.single('image'), uploadImage);
+router.post('/users/login', loginUsers);
+router.post('/users/register', registerUser);
 
 // --- Banner Routes ---
 router.get('/banners', getAllBanners);
 router.get('/banners/:id', getBannerById);
-router.post('/banners', createBanner);
-router.put('/banners/:id', updateBanner);
-router.delete('/banners/:id', deleteBanner);
+router.post('/banners', authenticateToken, createBanner);
+router.put('/banners/:id', authenticateToken, updateBanner);
+router.delete('/banners/:id', authenticateToken, deleteBanner);
 
 // --- Cart Routes ---
-router.get('/cart', listCartItems);
-router.post('/cart', addCartItem);
-router.get('/cart/:id', getCartItem);
-router.put('/cart/:id', updateCartItem);
-router.delete('/cart/:id', removeCartItem);
+router.get('/carts', authenticateToken, listCartItems);
+router.post('/carts', authenticateToken, addCartItem);
+router.get('/carts/:id', getCartItem);
+router.put('/carts/:id', authenticateToken, updateCartItem);
+router.delete('/carts/:id', authenticateToken, removeCartItem);
 
 // --- Category Routes ---
 router.get('/categories', listCategories);
 router.get('/categories/:id', getCategory);
-router.post('/categories', createCategory);
-router.put('/categories/:id', updateCategory);
-router.delete('/categories/:id', deleteCategory);
+router.post('/categories', authenticateToken, createCategory);
+router.put('/categories/:id', authenticateToken, updateCategory);
+router.delete('/categories/:id', authenticateToken, deleteCategory);
 
 // --- Order Routes ---
 router.get('/orders', listOrders);
 router.get('/orders/:id', getOrderDetails);
-router.post('/orders', createOrder);
-router.delete('/orders/:id', deleteOrder);
+router.post('/orders', authenticateToken, createOrder);
+router.delete('/orders/:id', authenticateToken, deleteOrder);
 
 // --- Shop Routes ---
 router.get('/shops', listShops);
 router.get('/shops/:id', getShop);
-router.post('/shops', createShop);
-router.put('/shops/:id', updateShop);
-router.delete('/shops/:id', deleteShop);
+router.post('/shops', authenticateToken, createShop);
+router.put('/shops/:id', authenticateToken, updateShop);
+router.delete('/shops/:id', authenticateToken, deleteShop);
 
 // --- User Routes ---
 router.get('/users', listUsers);
-router.get('/users/:id', getUserById);
+router.get('/users/profile', authenticateToken, getUserById);
 router.get('/users/username/:username', getUserByUsername);
 router.get('/users/email/:email', getUserByEmail);
-router.post('/users/login', loginUsers);
-router.post('/users', registerUser);
-router.put('/users/:id', updateUser);
-router.delete('/users/:id', deleteUser);
+
+router.put('/users/', authenticateToken, updateUser);
+router.delete('/users/', authenticateToken, deleteUser);
 
 // --- Product Routes ---
 router.get('/products', searchProducts);
 router.get('/products/:id', getProductDetail);
-router.post('/products', createProduct);
-router.put('/products/:id', updateProduct);
-router.delete('/products/:id', deleteProduct);
-router.post('/products/:id/images', addProductImages);
-router.post('/products/:id/variants', addProductVariants);
+router.post('/products', authenticateToken, createProduct);
+router.put('/products/:id', authenticateToken, updateProduct);
+router.delete('/products/:id', authenticateToken, deleteProduct);
+router.post('/products/:id/images', authenticateToken, addProductImages);
+router.post('/products/:id/variants', authenticateToken, addProductVariants);
 
 
 // Brand Routes

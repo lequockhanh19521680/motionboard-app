@@ -12,7 +12,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
 import { useAppSelector, useAppDispatch } from '../../../redux/hook'
-import { uploadImage } from '../../../redux/imageSlice'
+import { uploadPublicImage } from '../../../redux/imageSlice'
 import { fetchProfile, updateProfile } from '../../../redux/authSlice'
 import NotificationDialog from '../../../shared/components/feedback/NotificationDialog'
 import { UpdateProfileRequest } from '../../../shared/types/request/UpdateProfileRequest'
@@ -67,7 +67,7 @@ export default function ProfileInfo() {
 
   useEffect(() => {
     if (user) {
-      setFullName(user.full_name || '')
+      setFullName(user.fullName || '')
       setUsername(user.username || '')
       setEmail(user.email || '')
       setPhone(user.phone || '')
@@ -79,7 +79,7 @@ export default function ProfileInfo() {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedFile(file)
-      setAvatarUrl(URL.createObjectURL(file)) // preview
+      setAvatarUrl(URL.createObjectURL(file))
     }
   }
 
@@ -108,7 +108,7 @@ export default function ProfileInfo() {
       const formData = new FormData()
       formData.append('image', selectedFile)
       try {
-        imageUrl = await dispatch(uploadImage(formData)).unwrap()
+        imageUrl = await dispatch(uploadPublicImage(formData)).unwrap()
       } catch (error: any) {
         setDialogType('error')
         setDialogMessage('Upload ảnh thất bại: ' + error?.toString())

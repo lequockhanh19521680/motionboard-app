@@ -30,4 +30,35 @@ export class AuthUseCase {
 
         return { user: publicUser, token };
     }
+
+    async register(userData: Partial<User>) {
+        if (!userData.username || !userData.password) {
+            throw new Error("Username and password are required");
+        }
+        // Kiểm tra username/email đã tồn tại
+        const existedByUsername = await this.userRepo.findByUsername(userData.username);
+        if (existedByUsername) throw new Error("Username already exists");
+        if (userData.email) {
+            const existedByEmail = await this.userRepo.findByEmail(userData.email);
+            if (existedByEmail) throw new Error("Email already exists");
+        }
+        // Hash password
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+        // Tạo user mới
+        const user = await this.userRepo.createUser({
+            ...userData,
+            password: hashedPassword,
+        });
+
+        // Tạo token
+        const token = jwt.sign(
+            { id: user.id, username: user.username, email: user.email },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        const { password, ...publicUser } = user as any;
+        return { user: publicUser, token };
+    }
 }

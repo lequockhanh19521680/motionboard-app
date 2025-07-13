@@ -3,6 +3,9 @@ import { Product } from '../entities/Product';
 import { ProductImage } from '../entities/ProductImage';
 import { ProductVariant } from '../entities/ProductVariant';
 import { ProductDetailDTO } from 'dtos/product/ProductDetailDTO';
+import { ProductRatingDTO } from 'dtos/product/ProductRatingDTO';
+import { ProductVariantDTO } from 'dtos/product/ProductVariantDTO';
+import { ProductImageDTO } from 'dtos/product/ProductImageDTO';
 
 export class ProductRepository {
     private repo = AppDataSource.getRepository(Product);
@@ -47,71 +50,65 @@ export class ProductRepository {
     }
 
     async findById(id: number): Promise<ProductDetailDTO | { error: string }> {
-        // 1. Lấy sản phẩm với đầy đủ quan hệ
-        const productEntity = await this.repo.findOne({
+        // Lấy sản phẩm và các quan hệ
+        const product = await this.repo.findOne({
             where: { id, isDeleted: false },
-            relations: [
-                "images",
-                "variants",
-                "ratings",
-                "brand",
-                "shop",
-                "category"
-            ],
+            relations: ["images", "variants", "ratings", "brand", "shop", "category"],
         });
+        if (!product) return { error: "Product not found" };
 
-        if (!productEntity) return { error: "Product not found" };
+        const { avg_rating = 0, total_rating = 0 } =
+            await this.repo.createQueryBuilder("product")
+                .leftJoin("product.ratings", "ratings")
+                .select([
+                    "COALESCE(AVG(ratings.rating), 0)::float AS avg_rating",
+                    "COUNT(ratings.id)::int AS total_rating",
+                ])
+                .where("product.id = :id", { id })
+                .getRawOne() || {};
 
-        const aggregate = await this.repo
-            .createQueryBuilder("product")
-            .leftJoin("product.ratings", "ratings")
-            .select([
-                "AVG(ratings.rating) AS avg_rating",
-                "COUNT(ratings.id) AS total_rating"
-            ])
-            .where("product.id = :id", { id })
-            .getRawOne();
+        const mapOrEmpty = <T, R>(arr: T[] | undefined, fn: (item: T) => R): R[] =>
+            Array.isArray(arr) ? arr.map(fn) : [];
 
         return {
-            product_id: productEntity.id,
-            shop_id: productEntity.shop?.id ?? 0,
-            category_id: productEntity.category?.id ?? 0,
-            product_name: productEntity.productName,
-            description: productEntity.description ?? undefined,
-            price: Number(productEntity.price),
-            is_deleted: productEntity.isDeleted,
-            created_by: productEntity.createdBy,
-            created_at: productEntity.createdAt?.toISOString?.() ?? undefined,
-            updated_by: productEntity.updatedBy,
-            updated_at: productEntity.updatedAt?.toISOString?.() ?? undefined,
-            brand_id: productEntity.brand?.id ?? undefined,
-            brand_name: productEntity.brand?.brandName ?? undefined,
-            shop_name: productEntity.shop?.shopName ?? undefined,
-            category_name: productEntity.category?.name ?? undefined,
-            avg_rating: aggregate?.avg_rating ? Number(aggregate.avg_rating) : 0.0,
-            total_rating: aggregate?.total_rating ? Number(aggregate.total_rating) : 0,
-            images: productEntity.images?.map(img => ({
+            product_id: product.id,
+            shop_id: product.shop?.id ?? 0,
+            category_id: product.category?.id ?? 0,
+            product_name: product.productName,
+            description: product.description ?? null,
+            price: Number(product.price),
+            is_deleted: !!product.isDeleted,
+            created_by: product.createdBy,
+            created_at: product.createdAt?.toISOString?.(),
+            updated_by: product.updatedBy,
+            updated_at: product.updatedAt?.toISOString?.(),
+            brand_id: product.brand?.id ?? null,
+            brand_name: product.brand?.brandName ?? null,
+            shop_name: product.shop?.shopName,
+            category_name: product.category?.name,
+            avg_rating: Number(avg_rating),
+            total_rating: Number(total_rating),
+            images: mapOrEmpty(product.images, (img): ProductImageDTO => ({
                 image_id: img.id,
                 image_url: img.imageUrl,
                 sort_order: img.sortOrder,
-            })) ?? [],
-            variants: productEntity.variants?.map(variant => ({
-                variant_id: variant.id,
-                color: variant.color ?? '',
-                size: variant.size ?? '',
-                stock_quantity: variant.stockQuantity,
-                price: Number(variant.price),
-            })) ?? [],
-            ratings: productEntity.ratings?.map(rating => ({
-                rating_id: rating.id,
-                user_id: rating.userId ?? 0,
-                rating: Number(rating.rating),
-                comment: rating.comment,
-                created_at: rating.createdAt?.toISOString?.(),
-            })) ?? [],
+            })),
+            variants: mapOrEmpty(product.variants, (v): ProductVariantDTO => ({
+                variant_id: v.id,
+                color: v.color ?? "",
+                size: v.size ?? "",
+                stock_quantity: v.stockQuantity,
+                price: Number(v.price),
+            })),
+            ratings: mapOrEmpty(product.ratings, (r): ProductRatingDTO => ({
+                rating_id: r.id,
+                user_id: r.userId ?? 0,
+                rating: Number(r.rating),
+                comment: r.comment,
+                created_at: r.createdAt?.toISOString?.(),
+            })),
         };
     }
-
     async createProduct(data: Partial<Product>) {
         const product = this.repo.create(data);
         return await this.repo.save(product);

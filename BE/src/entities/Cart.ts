@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
+import { ProductVariant } from './ProductVariant';
 
 @Entity('cart')
 export class Cart extends BaseEntity {
@@ -11,4 +12,10 @@ export class Cart extends BaseEntity {
 
     @Column({ name: 'variant_id', type: 'int', nullable: true })
     variantId?: number;
+
+    @ManyToOne(() => ProductVariant, { nullable: false })
+    @JoinColumn({ name: "variant_id" })
+    variant!: ProductVariant;
+
+
 }

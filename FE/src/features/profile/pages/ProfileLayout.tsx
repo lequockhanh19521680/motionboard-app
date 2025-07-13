@@ -91,7 +91,7 @@ export default function ProfileLayout() {
         >
           <Avatar
             src={user?.image || undefined}
-            alt={user?.full_name || 'User'}
+            alt={user?.fullName || 'User'}
             sx={{
               width: 64,
               height: 64,
@@ -101,11 +101,11 @@ export default function ProfileLayout() {
               boxShadow: `0 0 8px ${theme.palette.primary.contrastText}80`,
             }}
           >
-            {user?.full_name?.charAt(0) || user?.username?.charAt(0)}
+            {user?.fullName?.charAt(0) || user?.username?.charAt(0)}
           </Avatar>
           <Box>
             <Typography variant="h6" fontWeight="bold" noWrap>
-              {user?.full_name || user?.username}
+              {user?.fullName || user?.username}
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }} noWrap>
               {user?.email}

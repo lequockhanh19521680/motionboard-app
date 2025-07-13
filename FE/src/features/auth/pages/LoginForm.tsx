@@ -1,14 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import {
-  Box,
-  Typography,
-  Paper,
-  Alert,
-  Divider,
-  InputAdornment,
-} from '@mui/material'
+import { Box, Typography, Paper, Alert, Divider, InputAdornment } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { LockOutlined, PersonOutline } from '@mui/icons-material'
 import { NotificationType, PAGE_ROUTES, STORAGE_KEYS } from '../../../shared/constants'
@@ -72,8 +65,9 @@ export default function LoginForm() {
 
       const response = await dispatch(loginUser({ username, password })).unwrap()
       localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
-      await dispatch(fetchProfile())
-
+      if (localStorage.getItem(STORAGE_KEYS.TOKEN)) {
+        await dispatch(fetchProfile())
+      }
       setNotification({
         open: true,
         type: 'success',
@@ -142,21 +136,12 @@ export default function LoginForm() {
         </Box>
 
         <Box textAlign="right" mb={2}>
-          <Button
-            variant="text"
-            onClick={() => console.log('Forgot password clicked')}
-          >
+          <Button variant="text" onClick={() => console.log('Forgot password clicked')}>
             {LOGIN_TEXT.FORGOT_PASSWORD}
           </Button>
         </Box>
 
-        <Button
-          fullWidth
-          variant="primary"
-          type="submit"
-          loading={isLoading}
-          sx={{ mt: 3 }}
-        >
+        <Button fullWidth variant="primary" type="submit" loading={isLoading} sx={{ mt: 3 }}>
           {LOGIN_TEXT.SUBMIT_BUTTON}
         </Button>
 

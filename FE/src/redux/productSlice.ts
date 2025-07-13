@@ -17,7 +17,6 @@ import {
 import { ProductCreate } from '../shared/types/request/ProductCreate'
 import { ProductUpdate } from '../shared/types/request/ProductUpdate'
 
-// Định nghĩa kiểu State Product sử dụng đúng kiểu ProductFilter (brand_id, category_ids đều là number[])
 interface ProductState {
   items: ProductResponse[]
   selectedProduct?: ProductResponse
@@ -26,7 +25,6 @@ interface ProductState {
   filters: ProductFilter
 }
 
-// Thiết lập initial state: đúng fields, đồng bộ với ProductFilter
 const initialState: ProductState = {
   items: [],
   selectedProduct: undefined,
@@ -35,7 +33,7 @@ const initialState: ProductState = {
   filters: {
     price_min: 0,
     price_max: 5000000,
-    rating: undefined, // hoặc undefined
+    rating: undefined,
     brand_id: [],
     category_ids: [],
   },
