@@ -1,9 +1,9 @@
 export interface CartAddRequest {
-  variant_id: number
+  variantId: number
   quantity: number
 }
 
 export interface CartUpdateRequest {
-  variant_id: number
+  variantId: number
   quantity: number
 }

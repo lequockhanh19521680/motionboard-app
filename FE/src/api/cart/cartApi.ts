@@ -12,7 +12,7 @@ export function getCartApi() {
 
 export function addToCartApi(productId: number, quantity: number) {
   const body: CartAddRequest = {
-    variant_id: productId,
+    variantId: productId,
     quantity,
   }
   return apiClient<CartItemPreview>(API_ROUTES.CARTS, {
@@ -24,7 +24,7 @@ export function addToCartApi(productId: number, quantity: number) {
 
 export function updateCartItemApi(productId: number, quantity: number) {
   const body: CartUpdateRequest = {
-    variant_id: productId,
+    variantId: productId,
     quantity,
   }
   return apiClient<CartItemPreview>(API_ROUTES.CARTS, {

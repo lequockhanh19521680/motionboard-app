@@ -20,30 +20,30 @@ export default function ProductVariants({ variants, selectedVariant, onSelect }:
       }}
     >
       {variants
-        .filter((v) => typeof v.variant_id === 'number') // Lọc các variant_id undefined/null
+        .filter((v) => typeof v.variantId === 'number') // Lọc các variantId undefined/null
         .map((v) => (
           <Paper
-            key={v.variant_id}
-            elevation={selectedVariant === v.variant_id ? 8 : 1}
+            key={v.variantId}
+            elevation={selectedVariant === v.variantId ? 8 : 1}
             sx={{
               p: 1,
               borderRadius: 3,
               minWidth: 180,
               flex: '1 0 180px',
               boxSizing: 'border-box',
-              border: selectedVariant === v.variant_id ? '2px solid' : '1px solid #ccc',
-              borderColor: selectedVariant === v.variant_id ? 'primary.main' : '#ccc',
+              border: selectedVariant === v.variantId ? '2px solid' : '1px solid #ccc',
+              borderColor: selectedVariant === v.variantId ? 'primary.main' : '#ccc',
               cursor: 'pointer',
               transition: '0.3s',
               display: 'flex',
               alignItems: 'center',
               gap: 1,
-              backgroundColor: selectedVariant === v.variant_id ? '#e3f2fd' : '#fff',
+              backgroundColor: selectedVariant === v.variantId ? '#e3f2fd' : '#fff',
               '&:hover': { borderColor: 'primary.main' },
             }}
-            onClick={() => onSelect(v.variant_id as number)}
+            onClick={() => onSelect(v.variantId as number)}
           >
-            <CheckCircleIcon color={selectedVariant === v.variant_id ? 'primary' : 'disabled'} />
+            <CheckCircleIcon color={selectedVariant === v.variantId ? 'primary' : 'disabled'} />
             <Typography variant="body2" fontWeight="bold" noWrap>
               {v.color} | {v.size}
             </Typography>

@@ -1,7 +1,7 @@
 export interface ProductVariantDTO {
-    variant_id?: number;
+    variantId?: number;
     color: string;
     size: string;
-    stock_quantity: number;
+    stockQuantity: number;
     price: number;
 }

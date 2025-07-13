@@ -2,7 +2,7 @@ import { TextField } from '@mui/material'
 
 interface ProductInfoFieldsProps {
   values: {
-    product_name: string
+    productName: string
     description: string
     price: number
   }
@@ -13,9 +13,9 @@ export function ProductInfoFields({ values, handleChange }: ProductInfoFieldsPro
   return (
     <>
       <TextField
-        name="product_name"
+        name="productName"
         label="Tên sản phẩm"
-        value={values.product_name}
+        value={values.productName}
         onChange={handleChange}
         required
         fullWidth

@@ -2,8 +2,8 @@ import { ProductImage, ProductVariant } from '../response/ProductResponse'
 
 export interface ProductCreate {
   shop_id: number
-  category_id: number
-  product_name: string
+  categoryId: number
+  productName: string
   description?: string
   price: number
   brand_id?: number | null

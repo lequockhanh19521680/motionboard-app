@@ -51,9 +51,9 @@ export const VariantList: React.FC<VariantListProps> = ({
           <TextField
             placeholder="Số lượng"
             type="number"
-            value={v.stock_quantity}
+            value={v.stockQuantity}
             size="small"
-            onChange={(e) => handleVariantChange(idx, 'stock_quantity', Number(e.target.value))}
+            onChange={(e) => handleVariantChange(idx, 'stockQuantity', Number(e.target.value))}
             inputProps={{ min: 0 }}
             sx={{ width: 80 }}
           />

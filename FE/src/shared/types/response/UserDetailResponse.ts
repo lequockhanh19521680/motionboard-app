@@ -6,5 +6,5 @@ export interface UserDetailResponse {
   fullName: string
   image?: string
   role: string
-  created_at: string
+  createdAt: string
 }

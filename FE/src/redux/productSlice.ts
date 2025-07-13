@@ -35,7 +35,7 @@ const initialState: ProductState = {
     price_max: 5000000,
     rating: undefined,
     brand_id: [],
-    category_ids: [],
+    categoryIds: [],
   },
 }
 
@@ -53,9 +53,9 @@ export const fetchProducts = createAsyncThunk(
 
 export const fetchProductById = createAsyncThunk(
   'product/fetchProductById',
-  async (product_id: number, { rejectWithValue }) => {
+  async (productId: number, { rejectWithValue }) => {
     try {
-      return await getProductByIdApi(product_id)
+      return await getProductByIdApi(productId)
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
@@ -76,11 +76,11 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   'product/updateProduct',
   async (
-    { product_id, product }: { product_id: number; product: ProductUpdate },
+    { productId, product }: { productId: number; product: ProductUpdate },
     { rejectWithValue }
   ) => {
     try {
-      return await updateProductApi(product_id, product)
+      return await updateProductApi(productId, product)
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
@@ -89,10 +89,10 @@ export const updateProduct = createAsyncThunk(
 
 export const deleteProduct = createAsyncThunk(
   'product/deleteProduct',
-  async (product_id: number, { rejectWithValue }) => {
+  async (productId: number, { rejectWithValue }) => {
     try {
-      await deleteProductApi(product_id)
-      return product_id
+      await deleteProductApi(productId)
+      return productId
     } catch (err: any) {
       return rejectWithValue(err.message)
     }
@@ -130,17 +130,17 @@ const productSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action: PayloadAction<ProductResponse>) => {
         state.loading = false
-        const idx = state.items.findIndex((p) => p.product_id === action.payload.product_id)
+        const idx = state.items.findIndex((p) => p.productId === action.payload.productId)
         if (idx !== -1) {
           state.items[idx] = action.payload
         }
-        if (state.selectedProduct?.product_id === action.payload.product_id) {
+        if (state.selectedProduct?.productId === action.payload.productId) {
           state.selectedProduct = action.payload
         }
       })
       .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<number>) => {
         state.loading = false
-        state.items = state.items.filter((p) => p.product_id !== action.payload)
+        state.items = state.items.filter((p) => p.productId !== action.payload)
       })
       // Loading/Error chung cho mọi thunk
       .addMatcher(

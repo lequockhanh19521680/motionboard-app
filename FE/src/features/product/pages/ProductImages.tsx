@@ -21,19 +21,19 @@ export default function ProductImages({ images, selectedImage, setSelectedImage 
       <Stack direction="row" spacing={1} sx={{ mt: 1, overflowX: 'auto' }}>
         {images.map((img) => (
           <Card
-            key={img.image_id}
+            key={img.imageId}
             sx={{
               width: 80,
               height: 80,
               cursor: 'pointer',
-              border: selectedImage === img.image_url ? '2px solid' : '1px solid #eee',
-              borderColor: selectedImage === img.image_url ? 'primary.main' : '#eee',
+              border: selectedImage === img.imageUrl ? '2px solid' : '1px solid #eee',
+              borderColor: selectedImage === img.imageUrl ? 'primary.main' : '#eee',
             }}
-            onClick={() => setSelectedImage(img.image_url)}
+            onClick={() => setSelectedImage(img.imageUrl)}
           >
             <CardMedia
               component="img"
-              image={img.image_url}
+              image={img.imageUrl}
               sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </Card>

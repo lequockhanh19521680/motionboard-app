@@ -56,9 +56,9 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
   const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : []
   const mainImage =
-    images[0]?.image_url ||
+    images[0]?.imageUrl ||
     'https://data.webnhiepanh.com/wp-content/uploads/2020/11/21105453/phong-canh-1.jpg'
-  const hoverImage = images[1]?.image_url || mainImage
+  const hoverImage = images[1]?.imageUrl || mainImage
 
   const rating = product.rating || 4.8
   const promotion = product.promotion || null
@@ -106,7 +106,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
           <CardMedia
             component="img"
             image={mainImage}
-            alt={product.product_name}
+            alt={product.productName}
             sx={{
               width: '100%',
               height: '100%',
@@ -121,7 +121,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             <CardMedia
               component="img"
               image={hoverImage}
-              alt={product.product_name}
+              alt={product.productName}
               sx={{
                 width: '100%',
                 height: '100%',
@@ -208,7 +208,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
           }}
         >
           <Typography gutterBottom variant="h6" component="h3" color="text.primary" noWrap>
-            {product.product_name}
+            {product.productName}
           </Typography>
           {/* DESCRIPTION */}
           <Typography variant="body2" color="text.secondary" sx={{ minHeight: 44, mb: 1 }} noWrap>
@@ -291,7 +291,7 @@ export const MainContent: React.FC = () => {
             style={{ minHeight: '500px' }}
           >
             {products.map((product) => (
-              <ProductCard key={product.product_id} product={product} />
+              <ProductCard key={product.productId} product={product} />
             ))}
           </div>
         </div>

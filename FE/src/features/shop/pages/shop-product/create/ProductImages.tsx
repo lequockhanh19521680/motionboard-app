@@ -15,9 +15,9 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 interface ProductImageUI {
-  image_id?: number
-  image_url: string
-  sort_order: number
+  imageId?: number
+  imageUrl: string
+  sortOrder: number
   preview?: string
   file?: File
 }
@@ -59,19 +59,19 @@ export function ProductImages({
                   }}
                 />
                 <CardMedia
-                  image={img.preview || img.image_url || ''} // Use preview if available, else image_url
+                  image={img.preview || img.imageUrl || ''} // Use preview if available, else imageUrl
                   sx={{
                     height: 96,
                     width: '100%',
                     borderTopLeftRadius: 12,
                     borderTopRightRadius: 12,
-                    bgcolor: img.image_url || img.preview ? '#eef2fb' : '#dbeafe',
+                    bgcolor: img.imageUrl || img.preview ? '#eef2fb' : '#dbeafe',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  {(img.preview || img.image_url) && (
+                  {(img.preview || img.imageUrl) && (
                     <Stack width="100%" height="100%" alignItems="center" justifyContent="center">
                       <PhotoCamera sx={{ color: '#1992ff', fontSize: 32 }} />
                       <Typography color="#999" fontSize={13}>

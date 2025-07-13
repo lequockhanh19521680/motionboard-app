@@ -1,8 +1,8 @@
 import { ProductImage, ProductVariant } from '../response/ProductResponse'
 
 export interface ProductUpdate {
-  category_id: number
-  product_name: string
+  categoryId: number
+  productName: string
   image?: string
   description?: string
   price: number

@@ -59,9 +59,9 @@ export const Categories: React.FC = () => {
 
   // Danh mục
   const handleCategoryChange = (id: number) => {
-    const prev = filters.category_ids ?? []
+    const prev = filters.categoryIds ?? []
     const updated = prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    dispatch(setFilters({ category_ids: updated }))
+    dispatch(setFilters({ categoryIds: updated }))
   }
 
   // Brand chip click
@@ -130,7 +130,7 @@ export const Categories: React.FC = () => {
                             key={category.id}
                             control={
                               <Checkbox
-                                checked={(filters.category_ids ?? []).includes(category.id)}
+                                checked={(filters.categoryIds ?? []).includes(category.id)}
                                 onChange={() => handleCategoryChange(category.id)}
                               />
                             }

@@ -32,12 +32,9 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, { rejectWi
 
 export const addToCart = createAsyncThunk(
   'cart/addToCart',
-  async (
-    { variant_id, quantity }: { variant_id: number; quantity: number },
-    { rejectWithValue }
-  ) => {
+  async ({ variantId, quantity }: { variantId: number; quantity: number }, { rejectWithValue }) => {
     try {
-      return await addToCartApi(variant_id, quantity)
+      return await addToCartApi(variantId, quantity)
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message)
       return rejectWithValue('Unknown error')

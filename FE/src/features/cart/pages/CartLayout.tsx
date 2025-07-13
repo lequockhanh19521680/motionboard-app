@@ -26,7 +26,7 @@ export default function CartLayout() {
   const cart = useAppSelector((state) => state.cart.items)
   const dispatch = useDispatch<AppDispatch>()
 
-  // Local state: số lượng dự kiến cho từng variant_id
+  // Local state: số lượng dự kiến cho từng variantId
   const [localQty, setLocalQty] = useState<Record<number, number>>({})
   const timeoutRefs = useRef<Record<number, ReturnType<typeof setTimeout>>>({})
 

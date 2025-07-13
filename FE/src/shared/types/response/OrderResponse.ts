@@ -1,9 +1,9 @@
 export interface OrderResponse {
-  order_id: number
-  shop_id: number
-  user_id: number
-  order_date: string
+  orderId: number
+  shopId: number
+  userId: number
+  orderDate: string
   status: string
-  total_amount: number
+  totalAmount: number
   username?: string
 }

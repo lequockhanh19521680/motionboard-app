@@ -15,10 +15,10 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (selectedProduct?.images?.length) {
-      setSelectedImage(selectedProduct.images[0].image_url)
+      setSelectedImage(selectedProduct.images[0].imageUrl)
     }
     if (selectedProduct?.variants?.length) {
-      setSelectedVariant(selectedProduct.variants[0].variant_id)
+      setSelectedVariant(selectedProduct.variants[0].variantId)
     }
   }, [selectedProduct])
 
@@ -59,24 +59,24 @@ export default function ProductDetail() {
           <Box flex={1}>
             <Stack spacing={2}>
               <Typography variant="h4" fontWeight="bold" color="primary.main">
-                {selectedProduct.product_name}
+                {selectedProduct.productName}
               </Typography>
               <div className="w-[40%]">
                 <Chip
-                  label={selectedProduct.category_name}
+                  label={selectedProduct.categoryName}
                   color="secondary"
                   sx={{ fontWeight: 'bold' }}
                 />
               </div>
 
               <Typography variant="subtitle1" color="text.secondary">
-                Shop: {selectedProduct.shop_name}
+                Shop: {selectedProduct.shopName}
               </Typography>
               <Typography variant="h5" fontWeight={700} color="primary.dark">
                 {Number(selectedProduct.price).toLocaleString()} VND
               </Typography>
               <Typography>{selectedProduct.description}</Typography>
-              <Rating value={Number(selectedProduct.avg_rating) || 0} readOnly precision={0.5} />
+              <Rating value={Number(selectedProduct.avgRating) || 0} readOnly precision={0.5} />
 
               <Box>
                 <Typography variant="subtitle1">Chọn loại: </Typography>
@@ -90,9 +90,7 @@ export default function ProductDetail() {
               <Box display="flex" alignItems="center" gap={2}>
                 <ProductQuantity quantity={quantity} setQuantity={setQuantity} />
                 <Box display="flex" alignItems="center" gap={2}>
-                  {selectedVariant && (
-                    <ProductActions variantId={selectedVariant} quantity={quantity} />
-                  )}
+                  <ProductActions variantId={selectedVariant ?? 0} quantity={quantity} />
                 </Box>{' '}
               </Box>
             </Stack>

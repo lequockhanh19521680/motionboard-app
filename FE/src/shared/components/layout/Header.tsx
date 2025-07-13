@@ -124,10 +124,9 @@ export default function Header() {
 
   const totalPrice =
     cartItems && cartItems.length > 0
-      ? cartItems.reduce(
-          (total, item) => total + Number(item.variantPrice) * Number(item.quantity),
-          0
-        )
+      ? cartItems
+          .filter((item) => item != null)
+          .reduce((total, item) => total + Number(item.variantPrice) * Number(item.quantity), 0)
       : 0
 
   return (
@@ -215,67 +214,69 @@ export default function Header() {
             >
               <AnimatePresence initial={false}>
                 {cartItems.length > 0 ? (
-                  cartItems.map((item) => (
-                    <motion.div
-                      key={item.variantId}
-                      initial={{ x: 80, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: 80, opacity: 0 }}
-                      transition={{ duration: 0.17, ease: 'easeOut' }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          bgcolor: 'background.paper',
-                          borderRadius: 2,
-                          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                          p: 1.2,
-                          position: 'relative',
-                          '&:hover': { boxShadow: '0 4px 18px rgba(50,50,150,0.17)' },
-                        }}
+                  cartItems
+                    .filter((item) => item != null)
+                    .map((item) => (
+                      <motion.div
+                        key={item.variantId}
+                        initial={{ x: 80, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 80, opacity: 0 }}
+                        transition={{ duration: 0.17, ease: 'easeOut' }}
                       >
-                        <Avatar
-                          variant="rounded"
-                          src={item.imageUrl}
-                          alt={item.productName}
+                        <Box
                           sx={{
-                            width: 52,
-                            height: 52,
-                            mr: 2,
-                            flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            bgcolor: 'background.paper',
                             borderRadius: 2,
-                            bgcolor: '#f4f6fa',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            p: 1.2,
+                            position: 'relative',
+                            '&:hover': { boxShadow: '0 4px 18px rgba(50,50,150,0.17)' },
                           }}
-                        />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="body2" fontWeight={600} noWrap>
-                            {item.productName}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.7 }}>
-                            <Typography variant="body2" color="primary.main" fontWeight={700}>
-                              {Number(item.variantPrice).toLocaleString()}₫
-                            </Typography>
-                            <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
-                              x {item.quantity}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <IconButton
-                          edge="end"
-                          size="small"
-                          style={{ marginLeft: 8 }}
-                          sx={{
-                            color: 'text.disabled',
-                            '&:hover': { color: 'error.main', bgcolor: 'transparent' },
-                          }}
-                          onClick={() => handleRemoveCartItem(item.variantId)}
                         >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </motion.div>
-                  ))
+                          <Avatar
+                            variant="rounded"
+                            src={item.imageUrl}
+                            alt={item.productName}
+                            sx={{
+                              width: 52,
+                              height: 52,
+                              mr: 2,
+                              flexShrink: 0,
+                              borderRadius: 2,
+                              bgcolor: '#f4f6fa',
+                            }}
+                          />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" fontWeight={600} noWrap>
+                              {item.productName}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.7 }}>
+                              <Typography variant="body2" color="primary.main" fontWeight={700}>
+                                {Number(item.variantPrice).toLocaleString()}₫
+                              </Typography>
+                              <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary' }}>
+                                x {item.quantity}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <IconButton
+                            edge="end"
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            sx={{
+                              color: 'text.disabled',
+                              '&:hover': { color: 'error.main', bgcolor: 'transparent' },
+                            }}
+                            onClick={() => handleRemoveCartItem(item.variantId)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </motion.div>
+                    ))
                 ) : (
                   <motion.div
                     key="empty"

@@ -13,7 +13,7 @@ export default function ProductActions({ variantId, quantity }: ProductActionsPr
   const dispatch = useDispatch<AppDispatch>()
 
   const handleAddToCart = async () => {
-    const resultAction = await dispatch(addToCart({ variant_id: variantId, quantity }))
+    const resultAction = await dispatch(addToCart({ variantId: variantId, quantity }))
     if (addToCart.fulfilled.match(resultAction)) {
       dispatch(fetchCart())
     }

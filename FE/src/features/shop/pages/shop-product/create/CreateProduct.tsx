@@ -32,8 +32,8 @@ interface ProductImageUI extends ProductImage {
 }
 
 interface ProductFormState {
-  category_id: number
-  product_name: string
+  categoryId: number
+  productName: string
   description: string
   price: number
   brand_id: number | null
@@ -42,8 +42,8 @@ interface ProductFormState {
 }
 
 const initialImage: ProductImageUI = {
-  image_url: '',
-  sort_order: 0,
+  imageUrl: '',
+  sortOrder: 0,
   preview: '',
   file: undefined,
 }
@@ -51,13 +51,13 @@ const initialImage: ProductImageUI = {
 const initialVariant: ProductVariant = {
   color: '',
   size: '',
-  stock_quantity: 0,
+  stockQuantity: 0,
   price: 0,
 }
 
 const initialForm = {
-  category_id: 0,
-  product_name: '',
+  categoryId: 0,
+  productName: '',
   description: '',
   price: 0,
   brand_id: null,
@@ -86,7 +86,7 @@ export default function CreateProduct() {
   const handleCategoryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setForm((f) => ({
       ...f,
-      category_id: Number(event.target.value),
+      categoryId: Number(event.target.value),
     }))
   }
 
@@ -128,8 +128,8 @@ export default function CreateProduct() {
       images: [
         ...f.images,
         {
-          image_url: '',
-          sort_order: f.images.length,
+          imageUrl: '',
+          sortOrder: f.images.length,
           preview: '',
         },
       ],
@@ -145,7 +145,7 @@ export default function CreateProduct() {
       const list = [...f.images]
       const [removed] = list.splice(from, 1)
       list.splice(to, 0, removed)
-      const updated = list.map((img, idx) => ({ ...img, sort_order: idx }))
+      const updated = list.map((img, idx) => ({ ...img, sortOrder: idx }))
       return { ...f, images: updated }
     })
   }
@@ -190,7 +190,7 @@ export default function CreateProduct() {
           if (img.file) {
             const newUrl = signedUrls[urlIdx]
             urlIdx += 1
-            return { ...img, image_url: newUrl }
+            return { ...img, imageUrl: newUrl }
           }
           return img
         })
@@ -200,9 +200,9 @@ export default function CreateProduct() {
         shop_id: Number(shop_id),
         ...form,
         images: updatedImages.map((img, idx) => ({
-          image_id: img.image_id,
-          image_url: img.image_url,
-          sort_order: idx,
+          imageId: img.imageId,
+          imageUrl: img.imageUrl,
+          sortOrder: idx,
         })),
         variants: form.variants,
       }
@@ -241,7 +241,7 @@ export default function CreateProduct() {
           <form onSubmit={handleSubmit} autoComplete="off">
             <Stack spacing={2}>
               <CategorySelect
-                value={form.category_id}
+                value={form.categoryId}
                 onChange={handleCategoryChange as any}
                 categories={categories}
               />
@@ -252,7 +252,7 @@ export default function CreateProduct() {
               />
               <ProductInfoFields
                 values={{
-                  product_name: form.product_name,
+                  productName: form.productName,
                   description: form.description ?? '',
                   price: form.price,
                 }}

@@ -1,14 +1,14 @@
 export interface ProductImage {
-  image_id?: number
-  image_url: string
-  sort_order: number
+  imageId?: number
+  imageUrl: string
+  sortOrder: number
 }
 
 export interface ProductVariant {
-  variant_id?: number
+  variantId?: number
   color: string
   size: string
-  stock_quantity: number
+  stockQuantity: number
   price: number
 }
 
@@ -18,32 +18,32 @@ export interface ProductMeta {
 }
 
 export interface ProductRating {
-  rating_id: number
-  user_id: number
+  ratingId: number
+  userId: number
   rating: number
   comment?: string | null
-  created_at?: string
+  createdAt?: string
   username?: string
 }
 
 export interface ProductResponse {
-  product_id: number
-  shop_id: number
-  category_id: number
-  product_name: string
+  productId: number
+  shopId: number
+  categoryId: number
+  productName: string
   description?: string | null
   price: number
-  is_deleted: boolean
-  created_by?: number
-  created_at?: string
-  updated_by?: number
-  updated_at?: string
-  brand_id?: number | null
-  brand_name?: string | null
-  shop_name?: string
-  category_name?: string
-  avg_rating?: number
-  total_rating?: number
+  isDeleted: boolean
+  createdBy?: number
+  createdAt?: string
+  updatedBy?: number
+  updatedAt?: string
+  brandId?: number | null
+  brandName?: string | null
+  shopName?: string
+  categoryName?: string
+  avgRating?: number
+  totalRating?: number
   images?: ProductImage[]
   variants?: ProductVariant[]
   ratings?: ProductRating[]
