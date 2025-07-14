@@ -24,7 +24,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import SearchIcon from '@mui/icons-material/Search'
 import StarIcon from '@mui/icons-material/Star'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { setFilters } from '../../../redux/productSlice'
@@ -42,20 +42,39 @@ export const Categories: React.FC = () => {
   const [searchBrand, setSearchBrand] = useState('')
   const [enableRating, setEnableRating] = useState(!!filters.rating)
 
+  // ==== Đặt state riêng cho range giá slider (debounce) ====
+  // Nhận giá min/max mới nhất từ store mỗi khi filter thay đổi
+  const [sliderRange, setSliderRange] = useState<[number, number]>([
+    filters.price_min ?? 0,
+    filters.price_max ?? 20000000,
+  ])
+  // Nếu filters bên ngoài đổi (khi clear all) -> cập nhật vào slider luôn
   useEffect(() => {
-    dispatch(fetchCategories())
-    dispatch(fetchBrands())
-  }, [dispatch])
+    setSliderRange([
+      typeof filters.price_min === "number" ? filters.price_min : 0,
+      typeof filters.price_max === "number" ? filters.price_max : 20000000
+    ])
+  }, [filters.price_min, filters.price_max])
 
-  // Giá
-  const handlePriceChange = (newRange: number[]) => {
-    dispatch(
-      setFilters({
-        price_min: newRange[0],
-        price_max: newRange[1],
-      })
-    )
-  }
+  // ==== DEBOUNCE LOGIC cho giá ====
+  // Lưu timer ref để clearTimeout khi kéo tiếp hoặc unmount
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  useEffect(() => {
+    // Đừng dispatch ngay khi user đang kéo
+    // Đợi 400ms user không kéo nữa mới setFilters (API/search)
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(() => {
+      dispatch(setFilters({
+        price_min: sliderRange[0],
+        price_max: sliderRange[1],
+      }))
+    }, 400)
+    // Clear khi unmount
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    }
+    // eslint-disable-next-line
+  }, [sliderRange])
 
   // Danh mục
   const handleCategoryChange = (id: number) => {
@@ -89,6 +108,11 @@ export const Categories: React.FC = () => {
   }
 
   const RATINGS = [5, 4, 3]
+
+  useEffect(() => {
+    dispatch(fetchCategories())
+    dispatch(fetchBrands())
+  }, [dispatch])
 
   return (
     <div className="md:col-span-1">
@@ -166,15 +190,15 @@ export const Categories: React.FC = () => {
                 </AccordionDetails>
               </Accordion>
 
-              {/* Giá */}
+              {/* Giá (debounce gọi api) */}
               <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1">Khoảng giá</Typography>
               <Slider
-                value={[filters.price_min ?? 0, filters.price_max ?? 20000000]}
+                value={sliderRange}
                 min={0}
                 max={20000000}
                 step={500000}
-                onChange={(_, value) => handlePriceChange(value as number[])}
+                onChange={(_, value) => setSliderRange(value as [number, number])}
                 valueLabelDisplay="auto"
               />
 

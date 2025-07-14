@@ -19,6 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import { useAppSelector } from '../../../redux/hook'
 import { useDispatch } from 'react-redux'
 import { updateCartItem, removeFromCart } from '../../../redux/cartSlice'
@@ -55,12 +56,10 @@ export default function CartLayout() {
 
   const handleChangeQuantity = (item: CartItemPreview, newQuantity: number) => {
     if (newQuantity < 1 || (item.stockQuantity && newQuantity > item.stockQuantity)) return
-
     setLocalQty((prev) => ({
       ...prev,
       [item.variantId]: newQuantity,
     }))
-
     if (timeoutRefs.current[item.variantId]) {
       clearTimeout(timeoutRefs.current[item.variantId])
     }
@@ -69,19 +68,14 @@ export default function CartLayout() {
     }, 500)
   }
 
-  // Xóa ngay trong store và sử dụng local state để giữ animation
   const handleRemove = (variantId: number, cartId: number) => {
     setRemovingIds((prev) => new Set(prev).add(cartId))
-
-    // Xóa ngay trong store
     for (const shop of cart) {
       if (shop.items.some((item) => item.variantId === variantId)) {
         dispatch(removeFromCart({ shopId: shop.shopId, variantId }))
         break
       }
     }
-
-    // Sau animation 1.5s, remove id khỏi removingIds để ẩn khỏi UI
     setTimeout(() => {
       setRemovingIds((prev) => {
         const newSet = new Set(prev)
@@ -104,6 +98,53 @@ export default function CartLayout() {
     0
   )
 
+  // ---------- TRẠNG THÁI GIỎ HÀNG TRỐNG -----------
+  if (cart.length === 0) {
+    return (
+      <Box
+        sx={{
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          p: 3
+        }}
+      >
+        <Box
+          sx={{
+            mb: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'rgba(25, 118, 210, 0.08)',
+            borderRadius: '50%',
+            width: { xs: 84, md: 104 },
+            height: { xs: 84, md: 104 }
+          }}
+        >
+          <ShoppingCartOutlinedIcon sx={{ color: 'primary.main', fontSize: { xs: 48, md: 62 } }} />
+        </Box>
+        <Typography variant="h5" fontWeight={700} gutterBottom>
+          Giỏ hàng của bạn đang trống!
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          Bạn chưa thêm sản phẩm nào vào giỏ hàng.<br />
+          Hãy khám phá ngay để chọn món yêu thích nhé!
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ fontWeight: 700, px: 4, borderRadius: 3 }}
+          href="/products"
+        >
+          Khám phá sản phẩm
+        </Button>
+      </Box>
+    )
+  }
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', mt: 3, p: { xs: 1, md: 2 } }}>
       <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
