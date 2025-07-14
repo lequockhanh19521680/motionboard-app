@@ -66,6 +66,7 @@ export class CartRepository extends BaseRepository<Cart> {
         return this.repo.createQueryBuilder('cart')
             .innerJoin('cart.variant', 'variant')
             .innerJoin('variant.product', 'product')
+            .innerJoin('product.shop', 'shop') // Join thêm bảng shop
             .leftJoin(
                 qb => qb
                     .select('image.product_id', 'product_id')
@@ -87,7 +88,9 @@ export class CartRepository extends BaseRepository<Cart> {
                 'variant.size AS "size"',
                 'variant.sku AS "sku"',
                 'product.brandId AS "brandId"',
-                'variant.stockQuantity AS "stockQuantity"'
+                'variant.stockQuantity AS "stockQuantity"',
+                'shop.id AS "shopId"',         // Thêm shopId
+                'shop.shopName AS "shopName"'  // Thêm shopName
             ])
             .where('cart.userId = :userId', { userId })
             .andWhere('cart.isDeleted = false')

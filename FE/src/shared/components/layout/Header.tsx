@@ -29,7 +29,7 @@ import { AppDispatch } from '../../../redux/store'
 import { logout } from '../../../redux/authSlice'
 import { fetchCart, removeFromCart } from '../../../redux/cartSlice'
 import { useAppSelector } from '../../../redux/hook'
-import { CartItemPreview } from '../../types/response/CartItemResponse'
+import { CartItemPreview, ShopCart } from '../../types/response/CartItemResponse'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
@@ -71,16 +71,19 @@ export default function Header() {
   const navigate = useNavigate()
 
   const user = useAppSelector((state) => state.auth.user)
-  const cartItems: CartItemPreview[] = useAppSelector((state) => state.cart.items)
+  const cart: ShopCart[] = useAppSelector((state) => state.cart.items)
   const cartLoading = useAppSelector((state) => state.cart.loading)
-  const cartCount = cartItems.length
 
-  // Khi user login thì fetch cart
+  // Tính tổng số lượng sản phẩm trong tất cả các shop
+  const cartCount = cart.reduce(
+    (sumShop, shop) => sumShop + shop.items.length,
+    0
+  )
+
   useEffect(() => {
     if (user) dispatch(fetchCart())
   }, [dispatch, user])
 
-  // Cart icon scale effect khi đổi số lượng
   const [animateCart, setAnimateCart] = useState(false)
   const prevCartCount = useRef(cartCount)
   useEffect(() => {
@@ -111,9 +114,9 @@ export default function Header() {
 
   // Xoá sản phẩm trong Popover
   const [pendingRemove, setPendingRemove] = useState(false)
-  const handleRemoveCartItem = (variantId: number) => {
+  const handleRemoveCartItem = (shopId: number, variantId: number) => {
     setPendingRemove(true)
-    dispatch(removeFromCart(variantId))
+    dispatch(removeFromCart({ shopId, variantId }))
   }
   useEffect(() => {
     if (pendingRemove && !cartLoading) {
@@ -122,12 +125,15 @@ export default function Header() {
     }
   }, [pendingRemove, cartLoading, dispatch])
 
-  const totalPrice =
-    cartItems && cartItems.length > 0
-      ? cartItems
-          .filter((item) => item != null)
-          .reduce((total, item) => total + Number(item.variantPrice) * Number(item.quantity), 0)
-      : 0
+  const totalPrice = cart.reduce(
+    (sumShop, shop) =>
+      sumShop +
+      shop.items.reduce(
+        (sumItem, item) => sumItem + Number(item.variantPrice) * Number(item.quantity),
+        0
+      ),
+    0
+  )
 
   return (
     <AppBar position="static" color="primary" elevation={1}>
@@ -162,6 +168,7 @@ export default function Header() {
             size="large"
             aria-haspopup="true"
             onClick={handlePopoverToggle}
+            aria-label="cart"
           >
             <span
               className={
@@ -171,7 +178,7 @@ export default function Header() {
               }
               style={{ display: 'inline-block' }}
             >
-              <Badge badgeContent={cartLoading ? 0 : cartCount} color="secondary" showZero>
+              <Badge badgeContent={cartCount} color="secondary" showZero>
                 <ShoppingCartIcon className="text-xl" />
               </Badge>
             </span>
@@ -198,7 +205,7 @@ export default function Header() {
             }}
           >
             <Typography variant="subtitle1" sx={{ px: 2, pt: 1, fontWeight: 600 }}>
-              Giỏ hàng ({cartItems.length} sản phẩm)
+              Giỏ hàng ({cartCount} sản phẩm)
             </Typography>
             <Divider sx={{ mb: 1, mt: 1 }} />
             <Box
@@ -213,10 +220,9 @@ export default function Header() {
               }}
             >
               <AnimatePresence initial={false}>
-                {cartItems.length > 0 ? (
-                  cartItems
-                    .filter((item) => item != null)
-                    .map((item) => (
+                {cartCount > 0 ? (
+                  cart.map((shop) =>
+                    shop.items.map((item) => (
                       <motion.div
                         key={item.variantId}
                         initial={{ x: 80, opacity: 0 }}
@@ -265,19 +271,19 @@ export default function Header() {
                           <IconButton
                             edge="end"
                             size="small"
-                            style={{ marginLeft: 8 }}
                             sx={{
                               color: 'text.disabled',
                               '&:hover': { color: 'error.main', bgcolor: 'transparent' },
                             }}
-                            onClick={() => handleRemoveCartItem(item.variantId)}
+                            onClick={() => handleRemoveCartItem(shop.shopId, item.variantId)}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Box>
                       </motion.div>
                     ))
-                ) : (
+                  )
+                ) : !cartLoading ? (
                   <motion.div
                     key="empty"
                     initial={{ scale: 0.95, opacity: 0 }}
@@ -290,7 +296,7 @@ export default function Header() {
                       <Typography variant="body2">Giỏ hàng của bạn đang trống.</Typography>
                     </Box>
                   </motion.div>
-                )}
+                ) : null}
               </AnimatePresence>
             </Box>
             <Divider sx={{ my: 1 }} />
@@ -320,6 +326,7 @@ export default function Header() {
               </Button>
             </Box>
           </Popover>
+
           {user ? (
             <>
               <IconButton color="inherit" onClick={handleMenuOpen}>
@@ -368,10 +375,7 @@ export default function Header() {
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Tìm kiếm sản phẩm…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
+          <StyledInputBase placeholder="Tìm kiếm sản phẩm…" inputProps={{ 'aria-label': 'search' }} />
         </Search>
       </Box>
     </AppBar>

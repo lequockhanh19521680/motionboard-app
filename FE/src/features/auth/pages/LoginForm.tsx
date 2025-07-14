@@ -64,16 +64,16 @@ export default function LoginForm() {
       const { username, password } = formData
 
       const response = await dispatch(loginUser({ username, password })).unwrap()
-      localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
-      if (localStorage.getItem(STORAGE_KEYS.TOKEN)) {
+      if (response.token) {
+        localStorage.setItem(STORAGE_KEYS.TOKEN, response.token)
         await dispatch(fetchProfile())
+        setNotification({
+          open: true,
+          type: 'success',
+          title: LOGIN_TEXT.SUCCESS_TITLE,
+          message: LOGIN_TEXT.SUCCESS_MESSAGE,
+        })
       }
-      setNotification({
-        open: true,
-        type: 'success',
-        title: LOGIN_TEXT.SUCCESS_TITLE,
-        message: LOGIN_TEXT.SUCCESS_MESSAGE,
-      })
     } catch (error) {
       setNotification({
         open: true,

@@ -1,10 +1,10 @@
 import apiClient from '../apiClient'
 import type { CartAddRequest, CartUpdateRequest } from '../../shared/types/request/CartRequest'
 import { API_ROUTES } from '../../shared/constants'
-import { CartItemPreview } from '../../shared/types/response/CartItemResponse'
+import { ShopCart, CartItemPreview } from '../../shared/types/response/CartItemResponse'
 
 export function getCartApi() {
-  return apiClient<CartItemPreview[]>(API_ROUTES.CARTS, {
+  return apiClient<ShopCart[]>(API_ROUTES.CARTS, {
     method: 'GET',
     auth: true,
   })

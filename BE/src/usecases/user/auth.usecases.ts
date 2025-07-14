@@ -14,11 +14,13 @@ export class AuthUseCase {
 
     async login({ username, password }: { username: string, password: string }) {
         const user: User | null = await this.userRepo.findByUsername(username);
-        if (!user) throw new Error("User not found");
-        if (!user.password) throw new Error("Invalid user data");
+        // Không phân biệt lỗi user không tồn tại hay sai mật khẩu
+        if (!user || !user.password) {
+            throw new Error("Invalid username or password");
+        }
 
         const match = await bcrypt.compare(password, user.password);
-        if (!match) throw new Error("Invalid credentials");
+        if (!match) throw new Error("Invalid username or password");
 
         const token = jwt.sign(
             { id: user.id, username: user.username, email: user.email },
@@ -30,7 +32,6 @@ export class AuthUseCase {
 
         return { user: publicUser, token };
     }
-
     async register(userData: Partial<User>) {
         if (!userData.username || !userData.password) {
             throw new Error("Username and password are required");

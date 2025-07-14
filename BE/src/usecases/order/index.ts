@@ -1,4 +1,5 @@
 import { Order } from "entities/Order";
+import { OrderDetail } from "entities/OrderDetail";
 import { OrderRepository } from "repositories/order.repository";
 
 
@@ -17,8 +18,8 @@ export class OrderUseCase {
         return this.orderRepo.findOrderDetails(orderId);
     }
 
-    async createOrderForUser(orderData: Partial<Order>) {
-        return this.orderRepo.createOrder(orderData);
+    async createOrderForUser(orderData: Partial<Order>, details: Partial<OrderDetail>[], userId: number) {
+        return this.orderRepo.createOrder(orderData, details, userId);
     }
 
     async softDeleteOrderById(orderId: number) {

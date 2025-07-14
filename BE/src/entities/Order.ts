@@ -1,5 +1,6 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
+import { OrderDetail } from './OrderDetail';
 
 @Entity('orders')
 export class Order extends BaseEntity {
@@ -15,4 +16,12 @@ export class Order extends BaseEntity {
     @Column({ type: 'varchar', length: 32 })
     status!: string;
 
+    @Column({ name: 'shipping_address', type: 'text', nullable: true })
+    shippingAddress?: string;
+
+    @Column({ type: 'text', nullable: true })
+    note?: string;
+
+    @OneToMany(() => OrderDetail, orderDetail => orderDetail.order)
+    orderDetails!: OrderDetail[];
 }

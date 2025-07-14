@@ -10,6 +10,6 @@ export const LOGIN_TEXT = {
   SUCCESS_TITLE: 'Thành công',
   SUCCESS_MESSAGE: 'Đăng nhập thành công! Bạn sẽ được chuyển đến trang chủ.',
   ERROR_TITLE: 'Lỗi',
-  ERROR_MESSAGE: 'Đăng nhập thất bại. Vui lòng thử lại sau.',
+  ERROR_MESSAGE: 'Tên đăng nhập và mật khẩu không trùng.',
   PROCESSING: 'Đang xử lý...',
 }

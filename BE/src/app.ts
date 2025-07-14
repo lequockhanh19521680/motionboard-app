@@ -44,15 +44,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Register routes
-app.use('/api/', routes);
-
-
-
+// Đảm bảo chỉ import và sử dụng routes sau khi DB đã kết nối
 const startServer = async () => {
   try {
     await AppDataSource.initialize();
     console.log('✅ Database connected');
+
+    // Đăng ký routes sau khi DB đã kết nối
+    app.use('/api/', routes);
+
     app.listen(PORT, () => {
       console.log(`🚀 HTTP server started on http://localhost:${PORT}`);
     });

@@ -8,6 +8,7 @@ export default async function apiClient<T>(
     method: string
     body?: any
     auth?: boolean
+    isLogin?: boolean
     isFormData?: boolean
   }
 ): Promise<T> {
@@ -41,7 +42,8 @@ export default async function apiClient<T>(
   const res = await fetch(fullUrl, fetchOptions)
 
   if (!res.ok) {
-    if (res.status === 401) {
+    // Chỉ xóa token khi gọi API có yêu cầu xác thực (auth option true)
+    if (res.status === 401 && !options.isLogin) {
       localStorage.removeItem('token')
       showGlobalNotification(
         'error',
@@ -54,7 +56,7 @@ export default async function apiClient<T>(
       throw new Error('Bạn chưa đăng nhập. Redirecting to login...')
     }
 
-    if (res.status === 403) {
+    if (res.status === 403 && !options.isLogin) {
       localStorage.removeItem('token')
       showGlobalNotification(
         'error',

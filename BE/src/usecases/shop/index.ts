@@ -6,7 +6,7 @@ export class ShopUseCase {
     private shopRepo: ShopRepository;
 
     constructor() {
-        this.shopRepo = new ShopRepository();
+        this.shopRepo = new ShopRepository;
     }
 
     async listActiveShops(): Promise<Shop[]> {

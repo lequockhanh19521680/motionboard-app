@@ -1,8 +1,11 @@
 import { AppDataSource } from 'config/db'; // Đổi lại đường dẫn cho đúng dự án
 import { Shop } from '../entities/Shop';
+import { BaseRepository } from './base.repository';
 
-export class ShopRepository {
-    private repo = AppDataSource.getRepository(Shop);
+export class ShopRepository extends BaseRepository<Shop> {
+    constructor() {
+        super(AppDataSource.getRepository(Shop));
+    }
 
     async findAllActiveShops(): Promise<Shop[]> {
         return await this.repo.find({
@@ -12,6 +15,19 @@ export class ShopRepository {
 
     async findShopById(shopId: number): Promise<Shop | null> {
         return await this.repo.findOne({ where: { id: shopId, isDeleted: false } });
+    }
+
+    async findShopByUserId(userId: number): Promise<Shop | null> {
+        return await this.repo.findOne({ where: { ownerId: userId, isDeleted: false }, relations: ['user'] });
+    }
+
+    async findShopByVariantId(vartantId: number): Promise<Shop | null> {
+        return await this.repo.createQueryBuilder('shop')
+            .leftJoinAndSelect('shop.products', 'product')
+            .leftJoinAndSelect('product.variants', 'variant')
+            .where('variant.id = :variantId', { variantId: vartantId })
+            .andWhere('shop.isDeleted = false')
+            .getOne();
     }
 
     async createShop(shopData: Partial<Shop>): Promise<Shop> {

@@ -18,7 +18,7 @@ export function getSignedUrlApi(key: string) {
 }
 
 export function uploadPublicImageApi(formData: FormData) {
-  return apiClient<UploadPublicResponse>(API_ROUTES.UPLOAD_IMAGE, {
+  return apiClient<UploadPublicResponse>(`${API_ROUTES.UPLOAD_IMAGE}/`, {
     method: 'POST',
     body: formData,
     auth: true,

@@ -10,7 +10,23 @@ export class CartUseCase {
     }
 
     async listCartItemsByUserId(userId: number) {
-        return this.cartRepo.getCartItemsByUserId(userId);
+        const cartItems = await this.cartRepo.getCartItemsByUserId(userId);
+
+        // Group theo shopId
+        const grouped = cartItems.reduce((acc, item) => {
+            const shopId = item.shopId;
+            if (!acc[shopId]) {
+                acc[shopId] = {
+                    shopId: item.shopId,
+                    shopName: item.shopName,
+                    items: []
+                };
+            }
+            acc[shopId].items.push(item);
+            return acc;
+        }, {});
+
+        return Object.values(grouped);
     }
 
     async addCartItemForUser(cartData: Partial<Cart>, userId: number) {

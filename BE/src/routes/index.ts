@@ -52,7 +52,7 @@ router.put('/categories/:id', authenticateToken, updateCategory);
 router.delete('/categories/:id', authenticateToken, deleteCategory);
 
 // --- Order Routes ---
-router.get('/orders', listOrders);
+router.get('/orders', authenticateToken, listOrders);
 router.get('/orders/:id', getOrderDetails);
 router.post('/orders', authenticateToken, createOrder);
 router.delete('/orders/:id', authenticateToken, deleteOrder);

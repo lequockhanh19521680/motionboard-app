@@ -1,5 +1,6 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
+import { Shop } from './Shop';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -23,4 +24,7 @@ export class User extends BaseEntity {
 
     @Column({ type: 'varchar', length: 20, nullable: true })
     phone?: string;
+
+    @OneToMany(() => Shop, (shop) => shop.user)
+    shops?: Shop[];
 }

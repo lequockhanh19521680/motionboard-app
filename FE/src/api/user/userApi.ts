@@ -9,6 +9,7 @@ export function loginApi(username: string, password: string) {
   return apiClient<AuthResponse>(`${API_ROUTES.USERS}/login`, {
     method: 'POST',
     body: { username, password },
+    isLogin: true,
   })
 }
 
@@ -16,6 +17,7 @@ export function registerApi(formData: RegisterApiPayload) {
   return apiClient<AuthResponse>(`${API_ROUTES.USERS}/register`, {
     method: 'POST',
     body: { ...formData },
+    isLogin: true,
   })
 }
 export function getProfileApi() {
