@@ -66,20 +66,31 @@ export class CartRepository extends BaseRepository<Cart> {
         return this.repo.createQueryBuilder('cart')
             .innerJoin('cart.variant', 'variant')
             .innerJoin('variant.product', 'product')
-            .innerJoin('product.shop', 'shop') // Join thêm bảng shop
+            .innerJoin('product.shop', 'shop')
             .leftJoin(
                 qb => qb
-                    .select('image.product_id', 'product_id')
-                    .addSelect('image.image_url', 'image_url')
-                    .from('product_image', 'image')
-                    .orderBy('image.sort_order', 'ASC')
-                    .limit(1),
+                    .select([
+                        'img.product_id AS product_id',
+                        'img.image_url AS image_url'
+                    ])
+                    .from(subQb =>
+                        subQb
+                            .select([
+                                'image.product_id AS product_id',
+                                'image.image_url AS image_url',
+                                'ROW_NUMBER() OVER (PARTITION BY image.product_id ORDER BY image.sort_order ASC) AS rn'
+                            ])
+                            .from('product_image', 'image')
+                        , 'img'
+                    )
+                    .where('img.rn = 1'),
                 'first_image',
                 'first_image.product_id = product.id'
             )
             .select([
                 'cart.id AS "cartId"',
                 'variant.id AS "variantId"',
+                'product.id AS "productId"',
                 'product.productName AS "productName"',
                 'cart.quantity AS "quantity"',
                 'variant.price AS "variantPrice"',
@@ -89,13 +100,15 @@ export class CartRepository extends BaseRepository<Cart> {
                 'variant.sku AS "sku"',
                 'product.brandId AS "brandId"',
                 'variant.stockQuantity AS "stockQuantity"',
-                'shop.id AS "shopId"',         // Thêm shopId
-                'shop.shopName AS "shopName"'  // Thêm shopName
+                'shop.id AS "shopId"',
+                'shop.shopName AS "shopName"'
             ])
             .where('cart.userId = :userId', { userId })
             .andWhere('cart.isDeleted = false')
             .getRawMany();
     }
+
+
 
     async updateCartItem(cartId: number, cartData: Partial<Cart>, userId: number) {
         // Chỉ cho phép cập nhật quantity

@@ -18,6 +18,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import StorefrontIcon from '@mui/icons-material/Storefront'
 import { useAppSelector } from '../../../redux/hook'
 import { useDispatch } from 'react-redux'
 import { updateCartItem, removeFromCart } from '../../../redux/cartSlice'
@@ -116,10 +117,47 @@ export default function CartLayout() {
       )}
 
       {cart.map((shop) => (
-        <Box key={shop.shopId} sx={{ mb: 4 }}>
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-            {shop.shopName}
-          </Typography>
+        <Box
+          key={shop.shopId}
+          sx={{
+            mb: 4,
+            borderRadius: 2.5,
+            boxShadow: '0 4px 18px 0 rgba(30,32,44,0.10), 0 1px 3px 0 rgba(0,0,0,0.08)', // lighter shadow
+            border: theme => `1.5px solid ${theme.palette.primary.light}`,
+            background: theme => theme.palette.mode === 'dark'
+              ? theme.palette.grey[900]
+              : theme.palette.grey[50],
+            overflow: 'hidden',
+            transition: 'box-shadow .2s,border .2s',
+          }}
+        >
+          {/* Shop Header đẹp mắt */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              background: theme => theme.palette.grey[100],
+              px: 2.5,
+              py: 2,
+              borderBottom: theme => `1px solid ${theme.palette.primary.light}`,
+              boxShadow: '0 2px 8px -6px #2d37481a',
+              zIndex: 1,
+              position: 'relative',
+            }}
+          >
+            <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36, boxShadow: '0 1px 3px rgba(0,0,0,0.13)' }}>
+              <StorefrontIcon />
+            </Avatar>
+            <Typography variant="h6" fontWeight={700} letterSpacing={1}>
+              {shop.shopName}
+            </Typography>
+          </Box>
+          {/* End shop header block */}
+
+          <Divider sx={{ m: 0 }} />
+
+          <Box sx={{ p: { xs: 1, md: 2 } }}>
           {isMobile ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {shop.items.map((item) => {
@@ -138,6 +176,8 @@ export default function CartLayout() {
                       overflow: 'hidden',
                       transition: 'opacity 1.5s ease, max-height 1.5s ease, transform 1.5s ease',
                       transform: isRemoving ? 'translateX(150%)' : 'translateX(0)',
+                      background: theme => theme.palette.background.paper,
+                      boxShadow: '0 1.5px 8px 0 rgba(31,32,40,0.06)',
                     }}
                   >
                     <Avatar
@@ -219,7 +259,7 @@ export default function CartLayout() {
               })}
             </Box>
           ) : (
-            <Card variant="outlined" sx={{ mb: 3 }}>
+            <Card variant="outlined" sx={{ mb: 3, background: theme => theme.palette.grey[50], boxShadow: 'none', border: 'none' }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -320,6 +360,7 @@ export default function CartLayout() {
               </Table>
             </Card>
           )}
+          </Box>
         </Box>
       ))}
 

@@ -53,7 +53,6 @@ export default function ProfileInfo() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [password, setPassword] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -91,10 +90,7 @@ export default function ProfileInfo() {
       if (!email.trim()) newErrors.email = 'Email là bắt buộc'
       if (phone && !/^\+?\d{7,15}$/.test(phone.trim()))
         newErrors.phone = 'Số điện thoại không hợp lệ'
-      if (password && password.length > 0 && password.length < 6)
-        newErrors.password = 'Mật khẩu ít nhất 6 ký tự'
 
-      setErrors(newErrors)
       return Object.keys(newErrors).length === 0
     }
 
@@ -121,7 +117,6 @@ export default function ProfileInfo() {
     const payload: UpdateProfileRequest = {
       username,
       email,
-      password,
       fullName: fullName || undefined,
       phone: phone || undefined,
       image: imageUrl || undefined,
@@ -130,7 +125,6 @@ export default function ProfileInfo() {
     try {
       await dispatch(updateProfile(payload)).unwrap()
       await dispatch(fetchProfile()).unwrap()
-      setPassword('')
       setSelectedFile(null)
 
       setDialogType('success')
@@ -143,7 +137,7 @@ export default function ProfileInfo() {
     } finally {
       setIsLoading(false)
     }
-  }, [username, email, password, fullName, phone, selectedFile, avatarUrl, dispatch])
+  }, [username, email, fullName, phone, selectedFile, avatarUrl, dispatch])
 
   return (
     <Box>

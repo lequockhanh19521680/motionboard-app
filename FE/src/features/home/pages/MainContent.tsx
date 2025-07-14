@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Card, CardContent, CardMedia, Typography, IconButton, Skeleton } from '@mui/material'
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  IconButton,
+  Skeleton,
+  Tooltip,
+  Chip,
+} from '@mui/material'
 import StarIcon from '@mui/icons-material/Star'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
+import LabelOutlinedIcon from '@mui/icons-material/LabelOutlined'
+import BusinessIcon from '@mui/icons-material/Business'
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../../redux/hook'
 import { PAGE_ROUTES } from '../../../shared/constants'
@@ -54,14 +66,20 @@ const SectionHeader: React.FC = () => (
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const [hovered, setHovered] = useState(false)
 
-  const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : []
+  // Image logic
+  const images =
+    Array.isArray(product.images) && product.images.length > 0 ? product.images : []
   const mainImage =
     images[0]?.imageUrl ||
     'https://data.webnhiepanh.com/wp-content/uploads/2020/11/21105453/phong-canh-1.jpg'
   const hoverImage = images[1]?.imageUrl || mainImage
+  const canHover = images.length > 1 && hoverImage !== mainImage
 
   const rating = product.rating || 4.8
   const promotion = product.promotion || null
+
+  const categoryText = product.categoryName || 'Không xác định'
+  const brandText = product.brandName
 
   return (
     <Link
@@ -90,10 +108,10 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
           transition: 'box-shadow 0.25s, background 0.22s',
           bgcolor: hovered ? 'grey.50' : 'background.paper',
         }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => canHover && setHovered(true)}
+        onMouseLeave={() => canHover && setHovered(false)}
       >
-        {/* Khung ảnh */}
+        {/* Hình ảnh */}
         <Box
           sx={{
             width: '100%',
@@ -103,6 +121,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             bgcolor: '#fff',
           }}
         >
+          {/* Always show main image */}
           <CardMedia
             component="img"
             image={mainImage}
@@ -114,10 +133,11 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               borderTopLeftRadius: 16,
               borderTopRightRadius: 16,
               transition: 'opacity 0.32s',
-              opacity: hovered ? 0 : 1,
+              opacity: canHover && hovered ? 0 : 1,
             }}
           />
-          {images.length > 1 && (
+          {/* Only overlay hover image if more than 1 image and not same as main */}
+          {canHover && (
             <CardMedia
               component="img"
               image={hoverImage}
@@ -156,24 +176,6 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               {promotion}
             </Box>
           )}
-          {images.length > 1 && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                bgcolor: 'rgba(0,0,0,0.6)',
-                color: 'white',
-                px: 1,
-                py: '1px',
-                borderRadius: 1,
-                fontSize: 14,
-                zIndex: 3,
-              }}
-            >
-              <b>{images.length} ảnh</b>
-            </Box>
-          )}
           <Box
             sx={{
               position: 'absolute',
@@ -196,25 +198,67 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             </IconButton>
           </Box>
         </Box>
+
+        {/* Nội dung chính */}
         <CardContent
           sx={{
-            flexGrow: 1,
-            py: 2,
-            px: 2,
-            minHeight: 140,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            py: 2,
+            px: 2,
+            flexGrow: 1,
+            minHeight: 220,
           }}
         >
-          <Typography gutterBottom variant="h6" component="h3" color="text.primary" noWrap>
+          <Typography
+            gutterBottom
+            variant="h6"
+            component="h3"
+            color="text.primary"
+            noWrap
+            sx={{ mb: 1 }}
+          >
             {product.productName}
           </Typography>
-          {/* DESCRIPTION */}
-          <Typography variant="body2" color="text.secondary" sx={{ minHeight: 44, mb: 1 }} noWrap>
-            {product.description ?? 'Mô tả sản phẩm đang cập nhật.'}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, mt: 0.5 }}>
+
+          {/* Chip category luôn hiện */}
+          <Tooltip title={`Danh mục: ${categoryText}`} arrow>
+            <Chip
+              icon={<LabelOutlinedIcon />}
+              label={categoryText}
+              color="primary"
+              variant="filled"
+              sx={{
+                fontWeight: 700,
+                textTransform: 'capitalize',
+                mb: 1,
+                width: 'fit-content',
+              }}
+              size="small"
+            />
+          </Tooltip>
+
+          {/* Chip brand chỉ hiện nếu có */}
+          {brandText && (
+            <Tooltip title={`Thương hiệu: ${brandText}`} arrow>
+              <Chip
+                icon={<BusinessIcon />}
+                label={brandText}
+                color="secondary"
+                variant="outlined"
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'capitalize',
+                  mb: 1,
+                  width: 'fit-content',
+                }}
+                size="small"
+              />
+            </Tooltip>
+          )}
+
+          {/* Phần rating và HOT */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
             <StarIcon sx={{ color: 'orange', fontSize: 18 }} />
             <Typography variant="body2" fontWeight={500}>
               {rating.toFixed(1)}
@@ -237,7 +281,9 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               </Box>
             )}
           </Box>
-          <Typography variant="h6" color="error" sx={{ fontWeight: 700 }}>
+
+          {/* Giá tiền */}
+          <Typography variant="h6" color="error" sx={{ fontWeight: 700, mb: 1 }}>
             {Number(product.price).toLocaleString('vi-VN', {
               style: 'currency',
               currency: 'VND',
@@ -257,7 +303,6 @@ export const MainContent: React.FC = () => {
     dispatch(fetchProducts(filters))
   }, [dispatch, filters])
 
-  // Skeleton for loading
   const skeletons = Array.from({ length: 6 }, (_, i) => (
     <Card key={i} sx={{ borderRadius: 4, p: 2 }}>
       <Skeleton variant="rectangular" width="100%" height={180} sx={{ mb: 2 }} />
@@ -270,7 +315,6 @@ export const MainContent: React.FC = () => {
   return (
     <div className="md:col-span-3 relative">
       <SectionHeader />
-
       {error ? (
         <Typography color="error">{error}</Typography>
       ) : products.length === 0 && !loading ? (
@@ -279,13 +323,13 @@ export const MainContent: React.FC = () => {
         <div className="relative">
           {loading && (
             <div className="absolute inset-0 z-10">
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
                 {skeletons}
               </div>
             </div>
           )}
           <div
-            className={`grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${
+            className={`grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${
               loading ? 'opacity-60 pointer-events-none' : 'opacity-100'
             }`}
             style={{ minHeight: '500px' }}
