@@ -3,6 +3,7 @@ import { Order } from "../entities/Order";
 import { BaseRepository } from "./base.repository";
 import { OrderDetailRepository } from "./order-detail.repository";
 import { CartRepository } from "./cart.repository";
+import { OrderDetail } from "entities/OrderDetail";
 
 export class OrderRepository extends BaseRepository<Order> {
   private detailRepo: OrderDetailRepository;
@@ -31,11 +32,7 @@ export class OrderRepository extends BaseRepository<Order> {
     });
   }
   // Tạo order mới (và details)
-  async createOrder(
-    orderData: Partial<Order>,
-    orderRequests: any[],
-    userId: number
-  ) {
+  async createOrder(orderRequests: any[], userId: number) {
     const allResults = [];
     for (const shopOrder of orderRequests) {
       // Tạo order cho từng shop
@@ -51,7 +48,7 @@ export class OrderRepository extends BaseRepository<Order> {
       // Lưu các OrderDetail cho từng item trong shop
       for (const item of shopOrder.items) {
         // Tùy schema OrderDetail, bạn map các trường phù hợp
-        const detail: Partial<any> = {
+        const detail: Partial<OrderDetail> = {
           ...item,
           orderId: savedOrder.id,
         };

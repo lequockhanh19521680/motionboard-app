@@ -17,12 +17,8 @@ export class OrderUseCase {
     return this.orderRepo.findOrderDetails(orderId);
   }
 
-  async createOrderForUser(
-    orderData: Partial<Order>,
-    details: Partial<OrderDetail>[],
-    userId: number
-  ) {
-    return this.orderRepo.createOrder(orderData, details, userId);
+  async createOrderForUser(details: Partial<OrderDetail>[], userId: number) {
+    return this.orderRepo.createOrder(details, userId);
   }
 
   async softDeleteOrderById(orderId: number) {
