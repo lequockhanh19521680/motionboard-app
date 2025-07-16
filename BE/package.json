@@ -24,7 +24,7 @@
   },
   "scripts": {
     "dev": "cross-env NODE_ENV=local nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/app.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production npm run build && node dist/app.js",
     "test": "jest",
     "test:watch": "jest --watch"
