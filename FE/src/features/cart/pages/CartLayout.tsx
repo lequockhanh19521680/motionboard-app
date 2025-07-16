@@ -1,41 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react'
-import {
-  Box,
-  Card,
-  Avatar,
-  Typography,
-  IconButton,
-  Divider,
-  Button,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import AddIcon from '@mui/icons-material/Add'
-import RemoveIcon from '@mui/icons-material/Remove'
-import StorefrontIcon from '@mui/icons-material/Storefront'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
-import { useAppSelector } from '../../../redux/hook'
-import { useDispatch } from 'react-redux'
-import { updateCartItem, removeFromCart } from '../../../redux/cartSlice'
-import { AppDispatch } from '../../../redux/store'
-import { CartItemPreview, ShopCart } from '../../../shared/types/response/CartItemResponse'
+import React, { useState, useEffect, useRef } from "react"
+import { Box, Card, Avatar, Typography, IconButton, Divider, Button, Table, TableHead, TableRow, TableCell, TableBody, useTheme, useMediaQuery } from "@mui/material"
+import DeleteIcon from "@mui/icons-material/Delete"
+import AddIcon from "@mui/icons-material/Add"
+import RemoveIcon from "@mui/icons-material/Remove"
+import StorefrontIcon from "@mui/icons-material/Storefront"
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
+import { useAppSelector } from "../../../redux/hook"
+import { useDispatch } from "react-redux"
+import { updateCartItem, removeFromCart } from "../../../redux/cartSlice"
+import { AppDispatch } from "../../../redux/store"
+import { CartItemPreview, ShopCart } from "../../../shared/types/response/CartItemResponse"
+import AddressInput from "./AddressInput"
+import ShopNoteInput from "./ShopNoteInput"
+import { createOrder } from "../../../redux/orderSlice"
+import { OrderRequest } from "../../../shared/types/request/OrderRequest"
+
+type ErrorsType = {
+  address?: string
+  [key: string]: string | undefined
+}
 
 export default function CartLayout() {
   const cart = useAppSelector((state) => state.cart.items) as ShopCart[]
   const dispatch = useDispatch<AppDispatch>()
+
+  const [address, setAddress] = useState("")
+  const [shopNotes, setShopNotes] = useState<Record<number, string>>({})
+  const [errors, setErrors] = useState<ErrorsType>({})
+  const addressRef = useRef<HTMLInputElement | null>(null)
+  const noteRefs = useRef<Record<number, HTMLInputElement | null>>({})
 
   const [localQty, setLocalQty] = useState<Record<number, number>>({})
   const timeoutRefs = useRef<Record<number, ReturnType<typeof setTimeout>>>({})
   const [removingIds, setRemovingIds] = useState<Set<number>>(new Set())
 
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   useEffect(() => {
     setLocalQty((prev) => {
@@ -43,7 +43,7 @@ export default function CartLayout() {
       for (const shop of cart) {
         for (const item of shop.items) {
           if (
-            typeof synced[item.variantId] !== 'number' ||
+            typeof synced[item.variantId] !== "number" ||
             synced[item.variantId] === item.quantity
           ) {
             synced[item.variantId] = item.quantity
@@ -53,6 +53,85 @@ export default function CartLayout() {
       return synced
     })
   }, [cart])
+
+  const validate = () => {
+    const newErrors: ErrorsType = {}
+    if (!address.trim()) newErrors.address = "Vui lòng nhập địa chỉ nhận hàng."
+    return newErrors
+  }
+
+  const handleAddressChange = (val: string) => {
+    setAddress(val)
+    setErrors(prev => ({ ...prev, address: undefined }))
+  }
+  const handleShopNoteChange = (shopId: number, note: string) => {
+    setShopNotes((prev) => ({ ...prev, [shopId]: note }))
+    setErrors(prev => {
+      const { [`note_${shopId}`]: _, ...rest } = prev
+      return rest
+    })
+  }
+  const handleClearShopNote = (shopId: number) => {
+    setShopNotes((prev) => ({ ...prev, [shopId]: "" }))
+    setErrors(prev => {
+      const { [`note_${shopId}`]: _, ...rest } = prev
+      return rest
+    })
+  }
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const newErrors = validate()
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) {
+      if (newErrors.address && addressRef.current) addressRef.current.focus()
+      else {
+        const firstNoteKey = Object.keys(newErrors).find(
+          k => k.startsWith("note_") && noteRefs.current[parseInt(k.split("_")[1])]
+        )
+        if (
+          firstNoteKey &&
+          noteRefs.current[parseInt(firstNoteKey.split("_")[1])]
+        ) {
+          noteRefs.current[parseInt(firstNoteKey.split("_")[1])]?.focus()
+        }
+      }
+      return
+    }
+
+    const jsonData: OrderRequest[] = cart.map(shop => ({
+      shopId: shop.shopId,
+      shopName: shop.shopName,
+      address: address,
+      shopNote: shopNotes[shop.shopId] || "",
+      items: shop.items.map(item => ({
+        cartId: item.cartId,
+        variantId: item.variantId,
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        variantPrice: item.variantPrice,
+        imageUrl: item.imageUrl,
+        color: item.color,
+        size: item.size,
+        sku: item.sku,
+        brandId: item.brandId,
+        stockQuantity: item.stockQuantity,
+      })),
+    }))
+
+
+    try {
+      const resultAction = await dispatch(createOrder(jsonData))
+
+    } catch (err) {
+      // Handle lỗi nếu cần
+    }
+  }
+
+
+
+
 
   const handleChangeQuantity = (item: CartItemPreview, newQuantity: number) => {
     if (newQuantity < 1 || (item.stockQuantity && newQuantity > item.stockQuantity)) return
@@ -86,7 +165,9 @@ export default function CartLayout() {
   }
 
   const getQty = (item: CartItemPreview) =>
-    typeof localQty[item.variantId] === 'number' ? localQty[item.variantId] : item.quantity
+    typeof localQty[item.variantId] === "number"
+      ? localQty[item.variantId]
+      : item.quantity
 
   const total = cart.reduce(
     (sumShop, shop) =>
@@ -98,39 +179,41 @@ export default function CartLayout() {
     0
   )
 
-  // ---------- TRẠNG THÁI GIỎ HÀNG TRỐNG -----------
   if (cart.length === 0) {
     return (
       <Box
         sx={{
-          minHeight: '60vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          p: 3
+          minHeight: "60vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          p: 3,
         }}
       >
         <Box
           sx={{
             mb: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: 'rgba(25, 118, 210, 0.08)',
-            borderRadius: '50%',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "rgba(25, 118, 210, 0.08)",
+            borderRadius: "50%",
             width: { xs: 84, md: 104 },
-            height: { xs: 84, md: 104 }
+            height: { xs: 84, md: 104 },
           }}
         >
-          <ShoppingCartOutlinedIcon sx={{ color: 'primary.main', fontSize: { xs: 48, md: 62 } }} />
+          <ShoppingCartOutlinedIcon
+            sx={{ color: "primary.main", fontSize: { xs: 48, md: 62 } }}
+          />
         </Box>
         <Typography variant="h5" fontWeight={700} gutterBottom>
           Giỏ hàng của bạn đang trống!
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Bạn chưa thêm sản phẩm nào vào giỏ hàng.<br />
+          Bạn chưa thêm sản phẩm nào vào giỏ hàng.
+          <br />
           Hãy khám phá ngay để chọn món yêu thích nhé!
         </Typography>
         <Button
@@ -145,280 +228,384 @@ export default function CartLayout() {
       </Box>
     )
   }
+
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', mt: 3, p: { xs: 1, md: 2 } }}>
-      <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>
+    <Box component="form" onSubmit={handleCheckout} sx={{ maxWidth: 900, mx: "auto", mt: 3, p: { xs: 1, md: 2 } }}>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        sx={{ mb: 3, letterSpacing: 1 }}
+      >
         Giỏ hàng
       </Typography>
 
-      {cart.length === 0 && (
-        <Typography sx={{ textAlign: 'center', mt: 4 }} variant="body1" color="text.secondary">
-          Giỏ hàng của bạn đang trống
-        </Typography>
-      )}
+      <AddressInput
+        value={address}
+        error={errors.address}
+        onChange={handleAddressChange}
+        inputRef={addressRef}
+      />
 
       {cart.map((shop) => (
         <Box
           key={shop.shopId}
           sx={{
             mb: 4,
-            borderRadius: 2.5,
-            boxShadow: '0 4px 18px 0 rgba(30,32,44,0.10), 0 1px 3px 0 rgba(0,0,0,0.08)', // lighter shadow
-            border: theme => `1.5px solid ${theme.palette.primary.light}`,
-            background: theme => theme.palette.mode === 'dark'
-              ? theme.palette.grey[900]
-              : theme.palette.grey[50],
-            overflow: 'hidden',
-            transition: 'box-shadow .2s,border .2s',
+            borderRadius: 2,
+            boxShadow:
+              "0 2px 8px 0 rgba(30,32,44,0.04), 0 1px 3px 0 rgba(0,0,0,0.02)",
+            border: `1px solid ${theme.palette.grey[200]}`,
+            background: theme.palette.mode === "dark"
+              ? theme.palette.grey[800]
+              : "#fff",
           }}
         >
-          {/* Shop Header đẹp mắt */}
           <Box
             sx={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 1.5,
-              background: theme => theme.palette.grey[100],
-              px: 2.5,
-              py: 2,
-              borderBottom: theme => `1px solid ${theme.palette.primary.light}`,
-              boxShadow: '0 2px 8px -6px #2d37481a',
-              zIndex: 1,
-              position: 'relative',
+              background: theme.palette.grey[100],
+              px: 2,
+              py: 1.5,
+              borderBottom: `1px solid ${theme.palette.grey[200]}`,
             }}
           >
-            <Avatar sx={{ bgcolor: 'primary.main', width: 36, height: 36, boxShadow: '0 1px 3px rgba(0,0,0,0.13)' }}>
-              <StorefrontIcon />
+            <Avatar
+              sx={{
+                bgcolor: "primary.main",
+                width: 32,
+                height: 32,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.10)",
+              }}
+            >
+              <StorefrontIcon fontSize="small" />
             </Avatar>
-            <Typography variant="h6" fontWeight={700} letterSpacing={1}>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              letterSpacing={0.2}
+              sx={{ fontSize: 18 }}
+            >
               {shop.shopName}
             </Typography>
           </Box>
-          {/* End shop header block */}
 
-          <Divider sx={{ m: 0 }} />
+          <ShopNoteInput
+            value={shopNotes[shop.shopId] || ""}
+            shopId={shop.shopId}
+            error={errors[`note_${shop.shopId}`]}
+            onChange={handleShopNoteChange}
+            onClear={handleClearShopNote}
+            inputRef={el => { noteRefs.current[shop.shopId] = el } }
+          />
 
           <Box sx={{ p: { xs: 1, md: 2 } }}>
-          {isMobile ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {shop.items.map((item) => {
-                const isRemoving = removingIds.has(item.cartId)
-                return (
-                  <Card
-                    key={item.cartId}
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      opacity: isRemoving ? 0 : 1,
-                      maxHeight: isRemoving ? 0 : 'none',
-                      overflow: 'hidden',
-                      transition: 'opacity 1.5s ease, max-height 1.5s ease, transform 1.5s ease',
-                      transform: isRemoving ? 'translateX(150%)' : 'translateX(0)',
-                      background: theme => theme.palette.background.paper,
-                      boxShadow: '0 1.5px 8px 0 rgba(31,32,40,0.06)',
-                    }}
-                  >
-                    <Avatar
-                      variant="rounded"
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      sx={{ width: 56, height: 56, flexShrink: 0 }}
-                    />
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography fontWeight={600} noWrap>
-                        {item.productName}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {item.color} / {item.size}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        SKU: {item.sku}
-                      </Typography>
-                    </Box>
-                    <Box
+            {isMobile ? (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {shop.items.map((item) => {
+                  const isRemoving = removingIds.has(item.cartId)
+                  return (
+                    <Card
+                      key={item.cartId}
+                      variant="outlined"
                       sx={{
-                        textAlign: 'right',
-                        minWidth: 100,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-end',
-                        justifyContent: 'center',
+                        p: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        opacity: isRemoving ? 0 : 1,
+                        maxHeight: isRemoving ? 0 : "none",
+                        overflow: "hidden",
+                        transition:
+                          "opacity 1.5s ease, max-height 1.5s ease, transform 1.5s ease",
+                        transform: isRemoving
+                          ? "translateX(150%)"
+                          : "translateX(0)",
+                        background: theme.palette.background.paper,
+                        boxShadow: "0 1.5px 8px 0 rgba(31,32,40,0.06)",
                       }}
                     >
-                      <Typography color="error" fontWeight={700} noWrap>
-                        {Number(item.variantPrice).toLocaleString('vi-VN')}₫
-                      </Typography>
+                      <Avatar
+                        variant="rounded"
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        sx={{ width: 56, height: 56, flexShrink: 0 }}
+                      />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography fontWeight={600} noWrap>
+                          {item.productName}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          {item.color} / {item.size}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          SKU: {item.sku}
+                        </Typography>
+                      </Box>
                       <Box
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          mt: 0.5,
+                          textAlign: "right",
+                          minWidth: 100,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          justifyContent: "center",
                         }}
                       >
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          disabled={getQty(item) <= 1 || isRemoving}
-                          onClick={() => handleChangeQuantity(item, getQty(item) - 1)}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <Typography variant="body2" sx={{ mx: 1, minWidth: 24 }}>
-                          {getQty(item)}
+                        <Typography color="error" fontWeight={700} noWrap>
+                          {Number(item.variantPrice).toLocaleString("vi-VN")}₫
                         </Typography>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          disabled={
-                            (typeof item.stockQuantity === 'number'
-                              ? getQty(item) >= item.stockQuantity
-                              : false) || isRemoving
-                          }
-                          onClick={() => handleChangeQuantity(item, getQty(item) + 1)}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            mt: 0.5,
+                          }}
                         >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                      <Typography sx={{ fontWeight: 600, mt: 1 }} noWrap>
-                        {(Number(item.variantPrice) * getQty(item)).toLocaleString('vi-VN')}₫
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleRemove(item.variantId, item.cartId)}
-                      disabled={isRemoving}
-                      aria-label="Xóa sản phẩm"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Card>
-                )
-              })}
-            </Box>
-          ) : (
-            <Card variant="outlined" sx={{ mb: 3, background: theme => theme.palette.grey[50], boxShadow: 'none', border: 'none' }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Ảnh</TableCell>
-                    <TableCell>Sản phẩm</TableCell>
-                    <TableCell>Màu/Size</TableCell>
-                    <TableCell>SKU</TableCell>
-                    <TableCell align="right">Đơn giá</TableCell>
-                    <TableCell align="center">Số lượng</TableCell>
-                    <TableCell align="right">Tạm tính</TableCell>
-                    <TableCell align="center">Xóa</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {shop.items.map((item) => {
-                    const isRemoving = removingIds.has(item.cartId)
-                    return (
-                      <TableRow
-                        key={item.cartId}
-                        sx={{
-                          opacity: isRemoving ? 0 : 1,
-                          transition: 'opacity 1.5s ease, transform 1.5s ease',
-                          transform: isRemoving ? 'translateX(150%)' : 'translateX(0)',
-                          height: isRemoving ? 0 : 'auto',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <TableCell>
-                          <Avatar
-                            variant="rounded"
-                            src={item.imageUrl}
-                            alt={item.productName}
-                            sx={{ width: 56, height: 56 }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography fontWeight={600}>{item.productName}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {item.color} / {item.size}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {item.sku}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography color="error" fontWeight={700}>
-                            {Number(item.variantPrice).toLocaleString('vi-VN')}₫
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              disabled={getQty(item) <= 1 || isRemoving}
-                              onClick={() => handleChangeQuantity(item, getQty(item) - 1)}
-                            >
-                              <RemoveIcon fontSize="small" />
-                            </IconButton>
-                            <Typography variant="body2" sx={{ mx: 1, minWidth: 24 }}>
-                              {getQty(item)}
-                            </Typography>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              disabled={
-                                (typeof item.stockQuantity === 'number'
-                                  ? getQty(item) >= item.stockQuantity
-                                  : false) || isRemoving
-                              }
-                              onClick={() => handleChangeQuantity(item, getQty(item) + 1)}
-                            >
-                              <AddIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>
-                          {(Number(item.variantPrice) * getQty(item)).toLocaleString('vi-VN')}₫
-                        </TableCell>
-                        <TableCell align="center">
                           <IconButton
-                            color="error"
-                            onClick={() => handleRemove(item.variantId, item.cartId)}
-                            disabled={isRemoving}
-                            aria-label="Xóa sản phẩm"
+                            size="small"
+                            color="primary"
+                            disabled={getQty(item) <= 1 || isRemoving}
+                            onClick={() =>
+                              handleChangeQuantity(item, getQty(item) - 1)
+                            }
                           >
-                            <DeleteIcon />
+                            <RemoveIcon fontSize="small" />
                           </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
+                          <Typography
+                            variant="body2"
+                            sx={{ mx: 1, minWidth: 24 }}
+                          >
+                            {getQty(item)}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            disabled={
+                              typeof item.stockQuantity === "number"
+                                ? getQty(item) >= item.stockQuantity
+                                : false || isRemoving
+                            }
+                            onClick={() =>
+                              handleChangeQuantity(item, getQty(item) + 1)
+                            }
+                          >
+                            <AddIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        <Typography sx={{ fontWeight: 600, mt: 1 }} noWrap>
+                          {(
+                            Number(item.variantPrice) * getQty(item)
+                          ).toLocaleString("vi-VN")}
+                          ₫
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        color="error"
+                        onClick={() =>
+                          handleRemove(item.variantId, item.cartId)
+                        }
+                        disabled={isRemoving}
+                        aria-label="Xóa sản phẩm"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Card>
+                  )
+                })}
+              </Box>
+            ) : (
+              <Card
+                variant="outlined"
+                sx={{
+                  mb: 3,
+                  background: theme.palette.grey[50],
+                  boxShadow: "none",
+                  border: "none",
+                }}
+              >
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Ảnh</TableCell>
+                      <TableCell>Sản phẩm</TableCell>
+                      <TableCell>Màu/Size</TableCell>
+                      <TableCell>SKU</TableCell>
+                      <TableCell align="right">Đơn giá</TableCell>
+                      <TableCell align="center">Số lượng</TableCell>
+                      <TableCell align="right">Tạm tính</TableCell>
+                      <TableCell align="center">Xóa</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {shop.items.map((item) => {
+                      const isRemoving = removingIds.has(item.cartId)
+                      return (
+                        <TableRow
+                          key={item.cartId}
+                          sx={{
+                            opacity: isRemoving ? 0 : 1,
+                            transition:
+                              "opacity 1.5s ease, transform 1.5s ease",
+                            transform: isRemoving
+                              ? "translateX(150%)"
+                              : "translateX(0)",
+                            height: isRemoving ? 0 : "auto",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <TableCell>
+                            <Avatar
+                              variant="rounded"
+                              src={item.imageUrl}
+                              alt={item.productName}
+                              sx={{ width: 56, height: 56 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography fontWeight={600}>
+                              {item.productName}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              {item.color} / {item.size}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              {item.sku}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography color="error" fontWeight={700}>
+                              {Number(item.variantPrice).toLocaleString(
+                                "vi-VN"
+                              )}
+                              ₫
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                disabled={getQty(item) <= 1 || isRemoving}
+                                onClick={() =>
+                                  handleChangeQuantity(
+                                    item,
+                                    getQty(item) - 1
+                                  )
+                                }
+                              >
+                                <RemoveIcon fontSize="small" />
+                              </IconButton>
+                              <Typography
+                                variant="body2"
+                                sx={{ mx: 1, minWidth: 24 }}
+                              >
+                                {getQty(item)}
+                              </Typography>
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                disabled={
+                                  typeof item.stockQuantity === "number"
+                                    ? getQty(item) >= item.stockQuantity
+                                    : false || isRemoving
+                                }
+                                onClick={() =>
+                                  handleChangeQuantity(
+                                    item,
+                                    getQty(item) + 1
+                                  )
+                                }
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>
+                            {(
+                              Number(item.variantPrice) * getQty(item)
+                            ).toLocaleString("vi-VN")}
+                            ₫
+                          </TableCell>
+                          <TableCell align="center">
+                            <IconButton
+                              color="error"
+                              onClick={() =>
+                                handleRemove(item.variantId, item.cartId)
+                              }
+                              disabled={isRemoving}
+                              aria-label="Xóa sản phẩm"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
           </Box>
         </Box>
       ))}
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3, mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 3,
+          mt: 2,
+        }}
+      >
         <Typography variant="h6" fontWeight={600}>
           Tổng cộng:
         </Typography>
         <Typography variant="h5" color="primary" fontWeight={800}>
-          {total.toLocaleString('vi-VN')}₫
+          {total.toLocaleString("vi-VN")}₫
         </Typography>
       </Box>
       <Divider sx={{ my: 3 }} />
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" color="primary" size="large" sx={{ px: 6, fontWeight: 700 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ px: 6, fontWeight: 700 }}
+          type="submit"
+        >
           Thanh toán
         </Button>
       </Box>
+
+     
     </Box>
   )
 }

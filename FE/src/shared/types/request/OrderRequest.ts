@@ -1,4 +1,4 @@
-export interface CartItemPreview {
+export interface OrderDetailRequest {
   cartId: number;
   variantId: number;
   productId: number;
@@ -11,12 +11,12 @@ export interface CartItemPreview {
   sku: string;
   brandId: number;
   stockQuantity: number;
-  shopId: number;        
-  shopName: string;      
 }
 
-export interface ShopCart {
+export interface OrderRequest {
   shopId: number;
   shopName: string;
-  items: CartItemPreview[];
+  items: OrderDetailRequest[];
+  address: string;
+  shopNote: string;
 }

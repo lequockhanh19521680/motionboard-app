@@ -18,7 +18,6 @@ import { User } from "entities/User";
 
 dotenv.config();
 
-
 import { DataSourceOptions } from "typeorm";
 
 const configDataSource: DataSourceOptions = {
@@ -45,8 +44,7 @@ const configDataSource: DataSourceOptions = {
   ],
   synchronize: false, // Set to true only in development
   logging: true,
-}
+};
 
-console.log('configDataSource', configDataSource)
+console.log("configDataSource", configDataSource);
 export const AppDataSource = new DataSource(configDataSource);
-

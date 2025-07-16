@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "middleware/auth.middleware";
 import { ShopUseCase } from "usecases/shop";
-import { Shop } from "entities/Shop";
 
 const shopUseCase = new ShopUseCase();
 
