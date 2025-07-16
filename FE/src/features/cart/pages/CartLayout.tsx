@@ -125,7 +125,7 @@ export default function CartLayout() {
       const resultAction = await dispatch(createOrder(jsonData))
 
     } catch (err) {
-      // Handle lỗi nếu cần
+      // Handle lỗi nếu cầ
     }
   }
 
