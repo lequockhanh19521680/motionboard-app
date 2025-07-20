@@ -31,8 +31,8 @@ export const getOrderDetails = async (req: AuthRequest, res: Response) => {
 export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const userId = Number(req.user?.id);
-    const { details, ...orderData } = req.body;
-    const order = await orderUseCase.createOrderForUser(details, userId);
+    const orderRequests = req.body;
+    const order = await orderUseCase.createOrderForUser(orderRequests, userId);
     res.status(201).json(order);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

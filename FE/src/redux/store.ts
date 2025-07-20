@@ -6,12 +6,14 @@ import shopReducer from './shopSlice'
 import categoryReducer from './categorySlice'
 import imageReducer from './imageSlice'
 import brandReducer from './brandSlice'
+import orderReducer from './orderSlice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     cart: cartReducer,
     product: productReducer,
+    order: orderReducer, // Thêm orderReducer vào store
     shop: shopReducer,
     category: categoryReducer,
     brand: brandReducer,
