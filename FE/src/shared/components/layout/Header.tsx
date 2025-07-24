@@ -75,10 +75,7 @@ export default function Header() {
   const cartLoading = useAppSelector((state) => state.cart.loading)
 
   // Tính tổng số lượng sản phẩm trong tất cả các shop
-  const cartCount = cart.reduce(
-    (sumShop, shop) => sumShop + shop.items.length,
-    0
-  )
+  const cartCount = cart.reduce((sumShop, shop) => sumShop + shop.items.length, 0)
 
   useEffect(() => {
     if (user) dispatch(fetchCart())
@@ -375,7 +372,10 @@ export default function Header() {
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
-          <StyledInputBase placeholder="Tìm kiếm sản phẩm…" inputProps={{ 'aria-label': 'search' }} />
+          <StyledInputBase
+            placeholder="Tìm kiếm sản phẩm…"
+            inputProps={{ 'aria-label': 'search' }}
+          />
         </Search>
       </Box>
     </AppBar>

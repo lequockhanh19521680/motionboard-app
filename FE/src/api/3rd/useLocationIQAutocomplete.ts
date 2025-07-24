@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
 export type LocationIQOption = {
   place_id: string
@@ -7,7 +7,7 @@ export type LocationIQOption = {
 
 export default function useLocationIQAutocomplete(query: string) {
   const [options, setOptions] = useState<LocationIQOption[]>([])
-  
+
   useEffect(() => {
     const fetchData = async () => {
       if (!query || query.trim().length < 3) {
