@@ -33,11 +33,11 @@ import {
 } from "controllers/order.controller";
 // Shop Controllers
 import {
-  listShops,
   getShop,
   createShop,
   updateShop,
   deleteShop,
+  listShopByUserId,
 } from "controllers/shop.controller";
 // User Controllers
 import {
@@ -100,7 +100,7 @@ router.post("/orders", authenticateToken, createOrder);
 router.delete("/orders/:id", authenticateToken, deleteOrder);
 
 // --- Shop Routes ---
-router.get("/shops", listShops);
+router.get("/shops", authenticateToken, listShopByUserId);
 router.get("/shops/:id", getShop);
 router.post("/shops", authenticateToken, createShop);
 router.put("/shops/:id", authenticateToken, updateShop);

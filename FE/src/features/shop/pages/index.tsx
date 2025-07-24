@@ -24,7 +24,7 @@ export default function ShopPage() {
   const [selected, setSelected] = useState<PanelKey>('shop')
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#f8fafc' }}>
+    <Box sx={{ display: 'flex', bgcolor: '#f8fafc' }}>
       <Sidebar
         title="Quản lý hệ thống"
         selectedKey={selected}
@@ -50,7 +50,7 @@ export default function ShopPage() {
             borderRadius: '16px',
             bgcolor: '#ffffff',
             boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
+            overflow: 'auto',
             p: 3,
           }}
         >

@@ -11,57 +11,52 @@ import {
   Paper,
   Stack,
   IconButton,
+  CircularProgress,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { useState } from 'react'
-
-type Shop = {
-  id: string
-  name: string
-  productsCount: number
-  ordersCount: number
-  status: 'active' | 'inactive'
-}
+import { useEffect, useState } from 'react'
+import { useAppDispatch, useAppSelector } from '../../../../redux/hook'
+import { fetchShops } from '../../../../redux/shopSlice'
+import { ShopResponse } from '../../../../shared/types/response/ShopResponse'
+import ShopMap from './ShopMap'
 
 export default function ShopManagerPanel() {
-  const [shops, setShops] = useState<Shop[]>([
-    {
-      id: '1',
-      name: 'Shop Thời Trang',
-      productsCount: 24,
-      ordersCount: 120,
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Shop Đồ Da',
-      productsCount: 12,
-      ordersCount: 58,
-      status: 'inactive',
-    },
-  ])
+  const dispatch = useAppDispatch()
+  const shops = useAppSelector((state) => state.shop.shops)
+  const isLoading = useAppSelector((state) => state.shop.loading)
 
-  const handleEdit = (shop: Shop) => {
-    alert(`Chỉnh sửa ${shop.name}`)
+  useEffect(() => {
+    dispatch(fetchShops())
+  }, [dispatch])
+
+  const [hoveredShopId, setHoveredShopId] = useState<number | null>(null)
+  const [focusedShop, setFocusedShop] = useState<ShopResponse | null>(null)
+
+  const handleEdit = (shop: ShopResponse) => {
+    alert(`Chỉnh sửa ${shop.shopName}`)
   }
 
-  const handleDelete = (shop: Shop) => {
-    if (confirm(`Bạn có chắc muốn xoá ${shop.name}?`)) {
-      setShops((prev) => prev.filter((s) => s.id !== shop.id))
-    }
+  const handleView = (shop: ShopResponse) => {
+    alert(`Xem chi tiết ${shop.shopName}`)
   }
 
-  const handleView = (shop: Shop) => {
-    alert(`Xem chi tiết ${shop.name}`)
-    // Có thể điều hướng router ở đây
+  const handleDelete = () => {
+    alert(`xóa`)
+  }
+
+  const handleAddressClick = (shop: ShopResponse) => {
+    setFocusedShop(shop)
   }
 
   return (
     <Box sx={{ width: '100%', height: '100%', p: 3, boxSizing: 'border-box' }}>
-      {/* Header */}
+      {/* Bản đồ */}
+      <ShopMap shops={shops} hoveredShopId={hoveredShopId} focusedShop={focusedShop} />
+
+      {/* Tiêu đề và nút thêm */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight={700}>
           Danh sách Shop
@@ -82,54 +77,79 @@ export default function ShopManagerPanel() {
         </Button>
       </Stack>
 
-      {/* Table */}
+      {/* Bảng dữ liệu */}
       <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 1 }}>
         <Table>
           <TableHead sx={{ bgcolor: '#f8f9fa' }}>
             <TableRow>
+              <TableCell></TableCell>
               <TableCell>Tên Shop</TableCell>
-              <TableCell align="center">Sản phẩm</TableCell>
-              <TableCell align="center">Đơn hàng</TableCell>
-              <TableCell align="center">Trạng thái</TableCell>
+              <TableCell>Địa chỉ</TableCell>
               <TableCell align="right">Thao tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {shops.map((shop) => (
-              <TableRow key={shop.id}>
-                <TableCell>{shop.name}</TableCell>
-                <TableCell align="center">{shop.productsCount}</TableCell>
-                <TableCell align="center">{shop.ordersCount}</TableCell>
-                <TableCell align="center">
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                    color={shop.status === 'active' ? 'green' : 'gray'}
-                  >
-                    {shop.status === 'active' ? 'Đang hoạt động' : 'Ngừng hoạt động'}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <IconButton size="small" onClick={() => handleView(shop)} color="primary">
-                      <VisibilityIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleEdit(shop)} color="warning">
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(shop)} color="error">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <CircularProgress size={32} />
                 </TableCell>
               </TableRow>
-            ))}
-            {shops.length === 0 && (
+            ) : shops.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} align="center">
                   Không có shop nào.
                 </TableCell>
               </TableRow>
+            ) : (
+              shops.map((shop) => (
+                <TableRow
+                  key={shop.id}
+                  onMouseEnter={() => setHoveredShopId(shop.id)}
+                  onMouseLeave={() => setHoveredShopId(null)}
+                >
+                  <TableCell>
+                    <img
+                      src={shop.image ?? '/default-shop.png'}
+                      alt={shop.shopName}
+                      style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }}
+                    />
+                  </TableCell>
+
+                  <TableCell>{shop.shopName}</TableCell>
+
+                  <TableCell>
+                    <span
+                      style={{
+                        color: '#2563eb',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleAddressClick(shop)}
+                    >
+                      {shop.addressLabel?.trim()
+                        ? shop.addressLabel
+                        : shop.latitude && shop.longitude
+                          ? `(${shop.latitude.toFixed(4)}, ${shop.longitude.toFixed(4)})`
+                          : 'Không rõ'}
+                    </span>
+                  </TableCell>
+
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <IconButton size="small" onClick={() => handleView(shop)} color="primary">
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleEdit(shop)} color="warning">
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDelete()} color="error">
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>

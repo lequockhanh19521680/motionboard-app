@@ -154,17 +154,17 @@ const shopSlice = createSlice({
       })
       .addCase(updateShop.fulfilled, (state, action: PayloadAction<ShopResponse>) => {
         state.loading = false
-        const idx = state.shops.findIndex((s) => s.shop_id === action.payload.shop_id)
+        const idx = state.shops.findIndex((s) => s.id === action.payload.id)
         if (idx !== -1) {
           state.shops[idx] = action.payload
         }
-        if (state.selectedShop?.shop_id === action.payload.shop_id) {
+        if (state.selectedShop?.id === action.payload.id) {
           state.selectedShop = action.payload
         }
       })
       .addCase(deleteShop.fulfilled, (state, action: PayloadAction<number>) => {
         state.loading = false
-        state.shops = state.shops.filter((s) => s.shop_id !== action.payload)
+        state.shops = state.shops.filter((s) => s.id !== action.payload)
       })
       .addCase(fetchOrdersOfShop.fulfilled, (state, action: PayloadAction<OrderResponse[]>) => {
         state.loading = false
